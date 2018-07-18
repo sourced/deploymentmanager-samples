@@ -1,5 +1,6 @@
 # Example on how to use the network and subnetwork templates
 #
+<<<<<<< HEAD
 # In this example, a network is created and it shows that subnets could be created
 # in two different ways:
 #   1- via the `subnetworks` property of the `network.py` template (test-subnetwork-1)
@@ -9,12 +10,18 @@
 # optional when defining these resources in the config. If omitted in the
 # properties, the DM resource name is used. If defined in the properties, it's
 # takes precedence.
+=======
+# Variables:
+#   RAND: Just a random string used mostly by the testing suite.
+#
+>>>>>>> FAAS initial commit
 
 imports:
   - path: templates/network.py
   - path: templates/subnetwork.py
 
 resources:
+<<<<<<< HEAD
   - name: test-network
     type: templates/network.py
     properties:
@@ -50,3 +57,24 @@ resources:
           ipCidrRange: 172.16.1.0/24
         - rangeName: my-secondary-range-2
           ipCidrRange: 172.16.2.0/24
+=======
+  - name: test-network-${RAND}
+    type: templates/network.py
+    properties:
+      name: test-network-${RAND}
+      autoCreateSubnetworks: false
+  - name: test-subnetwork-${RAND}-1
+    type: templates/subnetwork.py
+    properties:
+      network: $(ref.test-network-${RAND}.networkUrl)
+      region: us-east1
+      range: 10.116.0.0/21
+      name: test-subnetwork-${RAND}-1
+  - name: test-subnetwork-${RAND}-2
+    type: templates/subnetwork.py
+    properties:
+      network: $(ref.test-network-${RAND}.networkUrl)
+      region: us-east1
+      range: 10.116.48.0/22
+      name: test-subnetwork-${RAND}-2
+>>>>>>> FAAS initial commit

@@ -17,8 +17,15 @@
 def generate_config(context):
     """ Entry point for the deployment resources """
 
+<<<<<<< HEAD
     name = context.properties.get('name') or context.env['name']
     network_self_link = '$(ref.{}.selfLink)'.format(name)
+=======
+    # If autoCreateSubnetworks is not provided in the config, the default
+    # 'False' will be used. In this case, the VPC will use custom generated
+    # subnets. If the value is 'True', subnets will be automatically generated
+    # see https://cloud.google.com/vpc/docs/vpc#ip-ranges
+>>>>>>> FAAS initial commit
     auto_create_subnetworks = context.properties.get(
         'autoCreateSubnetworks',
         False
@@ -26,16 +33,26 @@ def generate_config(context):
 
     resources = [
         {
+<<<<<<< HEAD
             'type': 'compute.v1.network',
             'name': name,
             'properties':
                 {
                     'name': name,
+=======
+            # A Network resource
+            'type': 'compute.v1.network',
+            'name': context.env['name'],
+            'properties':
+                {
+                    'name': context.properties['name'],
+>>>>>>> FAAS initial commit
                     'autoCreateSubnetworks': auto_create_subnetworks
                 }
         }
     ]
 
+<<<<<<< HEAD
     # Subnetwork Resources
     for subnetwork in context.properties.get('subnetworks', []):
         subnetwork['network'] = network_self_link
@@ -47,18 +64,25 @@ def generate_config(context):
             }
         )
 
+=======
+>>>>>>> FAAS initial commit
     return {
         'resources':
             resources,
         'outputs':
             [
                 {
+<<<<<<< HEAD
                     'name': 'name',
                     'value': name
                 },
                 {
                     'name': 'networkUrl',
                     'value': network_self_link
+=======
+                    'name': 'networkUrl',
+                    'value': '$(ref.' + context.env['name'] + '.selfLink)'
+>>>>>>> FAAS initial commit
                 }
             ]
     }

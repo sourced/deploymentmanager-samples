@@ -26,6 +26,7 @@ See `properties` section in the schema files
 
 ### Deployment
 
+<<<<<<< HEAD
 #### Usage
 
 1. Clone the [DM Samples_repository](https://github.com/GoogleCloudPlatform/deploymentmanager-sample)
@@ -36,11 +37,17 @@ See `properties` section in the schema files
 5. Create your deployment as described below, replacing <YOUR_DEPLOYMENT_NAME>
    with your with your own deployment name
 
+=======
+>>>>>>> FAAS initial commit
 #### Create
 
 ```
 gcloud deployment-manager deployments create <YOUR_DEPLOYMENT_NAME> \
+<<<<<<< HEAD
     --config network.yaml
+=======
+    --config <YOUR_DEPLOYMENT_CONFIG>.yaml
+>>>>>>> FAAS initial commit
 ```
 
 

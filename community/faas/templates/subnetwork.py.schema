@@ -18,15 +18,24 @@ info:
   description: Deploys a Subnetwork
 
 required:
+<<<<<<< HEAD
   - network
   - region
   - ipCidrRange
+=======
+  - name
+  - range
+>>>>>>> FAAS initial commit
 
 properties:
   name:
     type: string
+<<<<<<< HEAD
     description: |
       Name of the Subnetwork. If not specified, the DM resource name is used.
+=======
+    description: Name of the Subnetwork resource.
+>>>>>>> FAAS initial commit
   network:
     type: string
     description: |
@@ -35,7 +44,11 @@ properties:
   region:
     type: string
     description: URL of the region where the Subnetwork resides.
+<<<<<<< HEAD
   ipCidrRange:
+=======
+  range:
+>>>>>>> FAAS initial commit
     type: string
     pattern: ^([0-9]{1,3}\.){3}[0-9]{1,3}\/[0-9]{1,2}$
     description: |
@@ -43,6 +56,7 @@ properties:
       Ranges must be unique and non-overlapping within a network.
       Only IPv4 is supported.
       For example, 10.0.0.0/8 or 192.168.0.0/16.
+<<<<<<< HEAD
   privateIpGoogleAccess:
     type: boolean
     default: true
@@ -65,6 +79,8 @@ properties:
   enableFlowLogs:
     type: boolean
     description: Whether to enable flow logging for this subnetwork.
+=======
+>>>>>>> FAAS initial commit
 
 documentation:
   - docs/templates/network.md
