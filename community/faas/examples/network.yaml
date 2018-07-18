@@ -1,0 +1,52 @@
+# Example on how to use the network and subnetwork templates
+#
+# In this example, a network is created and it shows that subnets could be created
+# in two different ways:
+#   1- via the `subnetworks` property of the `network.py` template (test-subnetwork-1)
+#   2- by declaring resources of type `subnetwork.py` in the config (test-subnetwork-2 and test-subnetwork-3)
+#
+# Notice the `name` property in either `network.py` or `subnetwork.py` is
+# optional when defining these resources in the config. If omitted in the
+# properties, the DM resource name is used. If defined in the properties, it's
+# takes precedence.
+
+imports:
+  - path: templates/network.py
+  - path: templates/subnetwork.py
+
+resources:
+  - name: test-network
+    type: templates/network.py
+    properties:
+      autoCreateSubnetworks: false
+      subnetworks:
+        - name: test-subnetwork-1
+          region: us-east1
+          ipCidrRange: 10.0.0.0/24
+          privateIpGoogleAccess: false
+          enableFlowLogs: true
+          secondaryIpRanges:
+            - rangeName: my-secondary-range-1
+              ipCidrRange: 10.0.1.0/24
+            - rangeName: my-secondary-range-2
+              ipCidrRange: 10.0.2.0/24
+  - name: test-subnetwork-2
+    type: templates/subnetwork.py
+    properties:
+      network: $(ref.test-network.networkUrl)
+      region: us-east1
+      ipCidrRange: 192.168.0.0/16
+  - name: test-subnetwork-3
+    type: templates/subnetwork.py
+    properties:
+      name: test-subnetwork-3
+      network: $(ref.test-network.networkUrl)
+      region: us-east1
+      ipCidrRange: 172.16.0.0/24
+      privateIpGoogleAccess: false
+      enableFlowLogs: true
+      secondaryIpRanges:
+        - rangeName: my-secondary-range-1
+          ipCidrRange: 172.16.1.0/24
+        - rangeName: my-secondary-range-2
+          ipCidrRange: 172.16.2.0/24
