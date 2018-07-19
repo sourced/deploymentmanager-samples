@@ -1,5 +1,6 @@
 # Testing
 
+
 This project's consistency and quality control are backed by simple integration
 tests using the [Bats testing framework](https://github.com/sstephenson/bats).
 
