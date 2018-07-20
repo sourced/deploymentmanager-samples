@@ -15,3 +15,4 @@ resources:
       network: network-${RAND}
       region: us-east1
       asn: 65001
+      

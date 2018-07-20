@@ -58,3 +58,4 @@ def generate_network_url(context, network):
         context.env['project'],
         network
     )
+    
