@@ -1,0 +1,53 @@
+# Copyright 2018 Google Inc. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+info:
+  title: Log Exports
+  author: Sourced Group Inc.
+  description: |
+    Deploys a log export to a desired destination.
+
+required:
+  - destName
+
+properties: 
+  sink: 
+    type: string
+    description: Name of Sink resource
+  destName: 
+    type: string
+    description: |
+      Name of the destination resource. Such as: Bucket name, 
+      PubSub topic name, BigQuery dataset name
+  destType: 
+    type: string
+    description: The resource type of the destination 
+    enum:
+      - PUBSUB
+      - STORAGE
+      - BIGQUERY
+  uniqueWriterIdentity:
+    type: boolean
+    description: |
+      Determines the kind of IAM identity returned as writerIdentity in the
+      new sink. When True, the sink is owned by a non-project resource such 
+      as an organization. The value of writerIdentity will then be a unique
+      serivce account used only for exports from the new sink. 
+    default: True
+  filter:
+    type: string
+    description: |
+      An advanced logs filter. Only exports log entries that are in the resource
+      owning the sink and matches the filter.
+    default: ''

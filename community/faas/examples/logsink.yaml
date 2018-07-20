@@ -1,0 +1,34 @@
+# Example on how to use the logsink template
+#
+# Variables:
+#   RAND: Just a random string used mostly by the testing suite.
+#
+
+imports: 
+  - path: templates/logsink.py
+
+resources: 
+  - name: logsink-storage-${RAND}
+    type: templates/logsink.py
+    properties: 
+      sink: logsink-storage-${RAND} 
+      destName: bucket-${RAND}
+      destType: 'STORAGE'
+      uniqueWriterIdentity: True
+    
+  - name: logsink-pubsub-${RAND}
+    type: templates/logsink.py
+    properties:
+      sink: logsink-pubsub-${RAND}
+      destName: topic-${RAND}
+      destType: 'PUBSUB'
+      uniqueWriterIdentity: True
+
+  - name: logsink-bq-${RAND}
+    type: templates/logsink.py
+    properties:
+      sink: logsink-bq-${RAND}
+      destName: dataset-${RAND}
+      destType: 'BIGQUERY'
+      uniqueWriterIdentity: True
+
