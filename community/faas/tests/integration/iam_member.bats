@@ -1,0 +1,76 @@
+#!/usr/bin/env bats
+
+source tests/helpers.bash
+
+TEST_SERVICE_ACCOUNT="test-service-account"
+
+# Create and save a random 10 char string in a file
+RANDOM_FILE="/tmp/${FAAS_ORGANIZATION_ID}-iammember.txt"
+if [[ ! -e ${RANDOM_FILE} ]]; then
+    RAND=$(head /dev/urandom | LC_ALL=C tr -dc a-z0-9 | head -c 10)
+    echo ${RAND} > ${RANDOM_FILE}
+fi
+
+# Set variables based on random string saved in the file
+# envsubst requires all variables used in the example/config to be exported
+if [[ -e ${RANDOM_FILE} ]]; then
+    export RAND=$(cat ${RANDOM_FILE})
+    DEPLOYMENT_NAME="${FAAS_PROJECT_NAME}-iammember"
+    CONFIG=".${DEPLOYMENT_NAME}.yaml"
+fi
+
+########## HELPER FUNCTIONS ##########
+
+function create_config() {
+    echo "Creating ${CONFIG}"
+    envsubst < tests/fixtures/configs/iam_member.yaml > ${CONFIG}
+
+    # Service account name needs to be updated in the config
+    sed -i "s/YOUR_SERVICE_ACCOUNT/${TEST_SERVICE_ACCOUNT}/g" ${CONFIG}
+    sed -i "s/YOUR_PROJECT_NAME/${FAAS_PROJECT_NAME}/g" ${CONFIG}
+}
+
+function delete_config() {
+    echo "Deleting ${CONFIG}"
+    rm -f ${CONFIG}
+}
+
+function setup() {
+    # Global setup - this gets executed only once per test file
+    if [ ${BATS_TEST_NUMBER} -eq 1 ]; then
+        create_config
+        gcloud iam service-accounts create ${TEST_SERVICE_ACCOUNT}
+    fi
+
+    # Per-test setup steps here
+}
+
+function teardown() {
+    # Global teardown - this gets executed only once per test file
+    if [[ "$BATS_TEST_NUMBER" -eq "${#BATS_TEST_NAMES[@]}" ]]; then
+        gcloud iam service-accounts delete ${TEST_SERVICE_ACCOUNT}@${FAAS_PROJECT_NAME}.iam.gserviceaccount.com
+        delete_config
+        rm -f ${RANDOM_FILE}
+    fi
+
+    # Per-test teardown steps here
+}
+
+
+@test "Creating deployment ${DEPLOYMENT_NAME} from ${CONFIG}" {
+    run gcloud deployment-manager deployments create ${DEPLOYMENT_NAME} --config ${CONFIG} --project ${FAAS_PROJECT_NAME}
+}
+
+@test "Verifying roles were added in deployment ${DEPLOYMENT_NAME}" {
+    run gcloud projects get-iam-policy test-deploy-project --flatten="bindings[].members" --format='table(bindings.role)' --filter="bindings.members:${TEST_SERVICE_ACCOUNT}@${FAAS_PROJECT_NAME}.iam.gserviceaccount.com"
+    [[ "${lines[1]}" =~ "roles/editor" ]]
+}
+
+@test "Deployment Delete" {
+    run gcloud deployment-manager deployments delete ${DEPLOYMENT_NAME} -q --project ${FAAS_PROJECT_NAME}
+}
+
+@test "Verifying resources were deleted in deployment ${DEPLOYMENT_NAME}" {
+    run gcloud projects get-iam-policy test-deploy-project --flatten="bindings[].members" --format='table(bindings.role)' --filter="bindings.members:${TEST_SERVICE_ACCOUNT}@${FAAS_PROJECT_NAME}.iam.gserviceaccount.com"
+    [[ ! "$output" =~ "roles/editor" ]]
+}

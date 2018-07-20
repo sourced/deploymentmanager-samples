@@ -1,0 +1,13 @@
+# Example on how to use the iam member template
+#
+
+imports:
+  - path: templates/iam_member.py
+
+resources:
+  - name: iam_member_test
+    type: templates/iam_member.py
+    properties:
+      role: roles/editor
+      members:
+        - serviceAccount:YOUR_SERVICE_ACCOUNT@YOUR_PROJECT_NAME.iam.gserviceaccount.com
