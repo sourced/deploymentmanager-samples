@@ -15,6 +15,7 @@
 
 
 def generate_config(context):
+<<<<<<< HEAD
     """Entry point for the deployment resources"""
 
     name = context.properties.get('name') or context.env['name']
@@ -44,3 +45,22 @@ def generate_config(context):
     ]
 
     return {'resources': resources}
+=======
+    """ Entry point for the deployment resources """
+
+    resource = [
+        {
+            'type': 'compute.v1.subnetwork',
+            'name': context.properties['name'],
+            'properties':
+                {
+                    'network': context.properties['network'],
+                    'ipCidrRange': context.properties['range'],
+                    'region': context.properties['region'],
+                    'privateIpGoogleAccess': True
+                }
+        }
+    ]
+
+    return {'resources': resource}
+>>>>>>> FAAS initial commit

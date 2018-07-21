@@ -21,11 +21,16 @@ info:
     For more information on this resource:
       - https://cloud.google.com/compute/docs/reference/rest/v1/networks
 
+<<<<<<< HEAD
 imports:
   - path: subnetwork.py
 
 #required:
 #  - name
+=======
+required:
+  - name
+>>>>>>> FAAS initial commit
 
 properties:
   name:
@@ -37,6 +42,7 @@ properties:
     description: |
       If true, the newly created network is assigned the default CIDR of
       10.128.0.0/9 and it automatically creates one subnetwork per region.
+<<<<<<< HEAD
   subnetworks:
     type: array
     description: |
@@ -58,6 +64,11 @@ outputs:
     - name:
         type: string
         description: The network resource name
+=======
+
+outputs:
+  properties:
+>>>>>>> FAAS initial commit
     - networkUrl:
         type: string
         description: The selfLink URL for the network resource

@@ -5,7 +5,11 @@ source tests/helpers.bash
 # Create and save a random 10 char string in a file
 RANDOM_FILE="/tmp/${FAAS_ORGANIZATION_ID}-network.txt"
 if [[ ! -e ${RANDOM_FILE} ]]; then
+<<<<<<< HEAD
     RAND=$(head /dev/urandom | LC_ALL=C tr -dc a-z0-9 | head -c 10)
+=======
+    RAND=$(head /dev/urandom | tr -dc a-z0-9 | head -c 10)
+>>>>>>> FAAS initial commit
     echo ${RAND} > ${RANDOM_FILE}
 fi
 
@@ -21,7 +25,11 @@ fi
 
 function create_config() {
     echo "Creating ${CONFIG}"
+<<<<<<< HEAD
     envsubst < tests/fixtures/configs/network.yaml > ${CONFIG}
+=======
+    envsubst < examples/network.yaml > ${CONFIG}
+>>>>>>> FAAS initial commit
 }
 
 function delete_config() {

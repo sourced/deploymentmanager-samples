@@ -1,6 +1,6 @@
 # Networks and subnets
 
-Templated network and subnet deployment
+Templated route deployment
 
 ## Prerequisites
 
@@ -12,42 +12,32 @@ Templated network and subnet deployment
 
 ### Resources
 
-- [compute.v1.network](https://cloud.google.com/compute/docs/reference/latest/networks)
-- [compute.v1.subnetwork](https://cloud.google.com/compute/docs/reference/latest/subnetworks)
+- [compute.v1.route](https://cloud.google.com/compute/docs/reference/rest/v1/routes)
 
 
 ### Properties
 
 See `properties` section in the schema files
 
--  [network](../../templates/network.py.schema)
--  [subnetwork](../../templates/subnetwork.py.schema)
-
+-  [route](../../templates/route.py.schema)
 
 ### Deployment
 
-<<<<<<< HEAD
 #### Usage
 
 1. Clone the [DM Samples_repository](https://github.com/GoogleCloudPlatform/deploymentmanager-sample)
 2. Go to the [community/faas](community/faas) directory
-3. Copy the example DM config to be used as a model for the deployment, in this case [examples/network.yaml](examples/network.yaml)
+3. Copy the example DM config to be used as a model for the deployment, in this case [examples/route.yaml](examples/route.yaml)
 4. Change the values in the config file to match your specific GCP setup.
    Refer to the properties in the schema files described above.
 5. Create your deployment as described below, replacing <YOUR_DEPLOYMENT_NAME>
    with your with your own deployment name
 
-=======
->>>>>>> FAAS initial commit
 #### Create
 
 ```
 gcloud deployment-manager deployments create <YOUR_DEPLOYMENT_NAME> \
-<<<<<<< HEAD
-    --config network.yaml
-=======
     --config <YOUR_DEPLOYMENT_CONFIG>.yaml
->>>>>>> FAAS initial commit
 ```
 
 
@@ -60,4 +50,4 @@ gcloud deployment-manager deployments delete <YOUR_DEPLOYMENT_NAME>
 
 ## Examples
 
-- [Network with subnets](../examples/network.yaml)
+- [Route](../examples/route.yaml)
