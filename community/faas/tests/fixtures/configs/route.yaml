@@ -1,0 +1,63 @@
+# Copyright 2018 Google Inc. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+imports:
+  - path: templates/route.py
+
+resources:
+  - name: ip-route-${RAND}
+    type: templates/route.py
+    properties:
+      routeType: IP
+      network: YOUR_NETWORK
+      nextHopIp: 10.118.8.12
+      tags:
+        - my-iproute-tag
+      priority: 20000
+      destRange: 0.0.0.0/0
+  - name: instance-route-${RAND}
+    type: templates/route.py
+    properties:
+      routeType: INSTANCE
+      network: YOUR_NETWORK
+      instanceName: my-instance-name
+      zone: us-east1-b
+      tags:
+        - my-instanceroute-tag
+      priority: 30000
+      destRange: 0.0.0.0/0
+  - name: gateway-route-${RAND}
+    type: templates/route.py
+    properties:
+      routeType: GATEWAY
+      network: YOUR_NETWORK
+      # If specifying a gateway, the name must be
+      # default-internet-gateway
+      # https://cloud.google.com/compute/docs/reference/rest/v1/routes
+      gatewayName: default-internet-gateway
+      tags:
+        - my-gatewayroute-tag
+      priority: 40000
+      destRange: 0.0.0.0/0
+  - name: vpn-tunnel-route-${RAND}
+    type: templates/route.py
+    properties:
+      routeType: VPNTUNNEL
+      network: YOUR_NETWORK
+      vpnTunnelName: YOUR_VPN_TUNNEL
+      region: us-east1
+      tags:
+        - my-vpntunnelroute-tag
+      priority: 500
+      destRange: 0.0.0.0/0
