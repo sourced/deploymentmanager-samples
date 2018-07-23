@@ -127,7 +127,7 @@ function teardown() {
 
 @test "Deployment Delete" {
   # Delete the deployment
-  run gcloud deployment-manager deployments delete $DEPLOYMENT_NAME -q
+  gcloud deployment-manager deployments delete $DEPLOYMENT_NAME -q
   [ "$status" -eq 0 ]
 
   run gcloud compute routes list --filter="name:gateway-route-${RAND}"
