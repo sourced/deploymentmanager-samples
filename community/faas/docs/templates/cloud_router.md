@@ -5,6 +5,7 @@ Templated cloud router deployment
 ## Prerequisites
 - Install [gcloud](https://cloud.google.com/sdk)
 - Create a [GCP project, setup billing, enable requisite APIs](docs/templates/project.md)
+- Create a [Virtual Private Cloud](docs/templates/network.md)
 
 
 ## Deployment
