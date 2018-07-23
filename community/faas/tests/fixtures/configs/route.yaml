@@ -1,0 +1,57 @@
+# Example on how to use the route template
+#
+# Variables:
+#   YOUR_NETWORK: The name of the VPC network resource.
+#   YOUR_VPN_TUNNEL: The name of a VPN Tunnel resource.
+#   RAND: Just a random string used mostly by the testing suite.
+#
+
+imports:
+  - path: templates/route.py
+
+resources:
+  - name: ip-route-${RAND}
+    type: templates/route.py
+    properties:
+      routeType: IP
+      network: YOUR_NETWORK
+      nextHopIp: 10.118.8.12
+      tags:
+        - my-iproute-tag
+      priority: 20000
+      destRange: 0.0.0.0/0
+  - name: instance-route-${RAND}
+    type: templates/route.py
+    properties:
+      routeType: INSTANCE
+      network: YOUR_NETWORK
+      instanceName: my-instance-name
+      zone: us-east1-b
+      tags:
+        - my-instanceroute-tag
+      priority: 30000
+      destRange: 0.0.0.0/0
+  - name: gateway-route-${RAND}
+    type: templates/route.py
+    properties:
+      routeType: GATEWAY
+      network: YOUR_NETWORK
+      # If specifying a gateway, the name must be
+      # default-internet-gateway
+      # https://cloud.google.com/compute/docs/reference/rest/v1/routes
+      gatewayName: default-internet-gateway
+      tags:
+        - my-gatewayroute-tag
+      priority: 40000
+      destRange: 0.0.0.0/0
+  - name: vpn-tunnel-route-${RAND}
+    type: templates/route.py
+    properties:
+      routeType: VPNTUNNEL
+      network: YOUR_NETWORK
+      vpnTunnelName: YOUR_VPN_TUNNEL
+      region: us-east1
+      tags:
+        - my-vpntunnelroute-tag
+      priority: 500
+      destRange: 0.0.0.0/0
