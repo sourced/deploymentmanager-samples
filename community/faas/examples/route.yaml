@@ -8,11 +8,18 @@
 #   4- a vpn tunnel route (test-vpn-tunnel-route)
 #
 # The `routeType` property determines the destination traffic handler which
-# will require the relavent destination property to be set.
-# If the routeType is `IP`, the `netxHopIp` property must be set.
-# If the routeType is `INSTANCE`, the `instanceName` property must be set.
-# If the routeType is `GATEWAY`, the `gatewayName` property must be set.
-# If the routeType is `VPNTUNNEL`, the `vpnTunnelName` property must be set.
+# will require the relevant destination property to be set.
+#   -If the routeType is `IP`, the `netxHopIp` property must be set. Replace
+#    the temporary IP placeholder with your static IP address.
+#   -If the routeType is `INSTANCE`, the `instanceName` property must be set.
+#    Replace the <YOUR_VM_INSTANCE> placeholder with your VM name.
+#   -If the routeType is `GATEWAY`, the `gatewayName` property must be set.
+#    This should be set to `default-internet-gateway`.
+#    https://cloud.google.com/compute/docs/reference/rest/v1/routes
+#   -If the routeType is `VPNTUNNEL`, the `vpnTunnelName` property must be
+#    set. Replace the <YOUR_VPN_TUNNEL> place holder with your VPN tunnel
+#    name.
+# Replace the <YOUR_NETWORK> placeholder with your created VPC name.
 
 imports:
   - path: templates/route.py
@@ -22,8 +29,8 @@ resources:
     type: templates/route.py
     properties:
       routeType: IP
-      network: YOUR_NETWORK
-      nextHopIp: 10.118.8.12
+      network: <YOUR_NETWORK>
+      nextHopIp: <YOUR_STATIC_IP>
       tags:
         - my-iproute-tag
       priority: 20000
@@ -32,8 +39,8 @@ resources:
     type: templates/route.py
     properties:
       routeType: INSTANCE
-      network: YOUR_NETWORK
-      instanceName: my-instance-name
+      network: <YOUR_NETWORK>
+      instanceName: <YOUR_VM_INSTANCE>
       zone: us-east1-b
       tags:
         - my-instanceroute-tag
@@ -43,10 +50,7 @@ resources:
     type: templates/route.py
     properties:
       routeType: GATEWAY
-      network: YOUR_NETWORK
-      # If specifying a gateway, the name must be
-      # default-internet-gateway
-      # https://cloud.google.com/compute/docs/reference/rest/v1/routes
+      network: <YOUR_NETWORK>
       gatewayName: default-internet-gateway
       tags:
         - my-gatewayroute-tag
@@ -56,8 +60,8 @@ resources:
     type: templates/route.py
     properties:
       routeType: VPNTUNNEL
-      network: YOUR_NETWORK
-      vpnTunnelName: YOUR_VPN_TUNNEL
+      network: <YOUR_NETWORK>
+      vpnTunnelName: <YOUR_VPN_TUNNEL>
       region: us-east1
       tags:
         - my-vpntunnelroute-tag

@@ -14,7 +14,7 @@ resources:
     type: templates/route.py
     properties:
       routeType: IP
-      network: YOUR_NETWORK
+      network: <YOUR_NETWORK>
       nextHopIp: 10.118.8.12
       tags:
         - my-iproute-tag
@@ -24,7 +24,7 @@ resources:
     type: templates/route.py
     properties:
       routeType: INSTANCE
-      network: YOUR_NETWORK
+      network: <YOUR_NETWORK>
       instanceName: my-instance-name
       zone: us-east1-b
       tags:
@@ -35,10 +35,7 @@ resources:
     type: templates/route.py
     properties:
       routeType: GATEWAY
-      network: YOUR_NETWORK
-      # If specifying a gateway, the name must be
-      # default-internet-gateway
-      # https://cloud.google.com/compute/docs/reference/rest/v1/routes
+      network: <YOUR_NETWORK>
       gatewayName: default-internet-gateway
       tags:
         - my-gatewayroute-tag
@@ -48,8 +45,8 @@ resources:
     type: templates/route.py
     properties:
       routeType: VPNTUNNEL
-      network: YOUR_NETWORK
-      vpnTunnelName: YOUR_VPN_TUNNEL
+      network: <YOUR_NETWORK>
+      vpnTunnelName: <YOUR_VPN_TUNNEL>
       region: us-east1
       tags:
         - my-vpntunnelroute-tag

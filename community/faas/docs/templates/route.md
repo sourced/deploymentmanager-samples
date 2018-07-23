@@ -6,6 +6,10 @@ Templated route deployment
 
 - Install [gcloud](https://cloud.google.com/sdk)
 - Create a [GCP project, setup billing, enable requisite APIs](docs/templates/project.md)
+- Create a [Virtual Private Cloud](docs/templates/network.md)
+- Depending on the traffic destination specified, you may need to create one or more of the following:
+  - [VM](docs/templates/vm.md)
+  - [VPN Tunnel](docs/templates/vpn.md)
 
 
 ### Resources
@@ -35,7 +39,7 @@ See `properties` section in the schema files
 
 ```
 gcloud deployment-manager deployments create <YOUR_DEPLOYMENT_NAME> \
-    --config <YOUR_DEPLOYMENT_CONFIG>.yaml
+    --config route.yaml
 ```
 
 

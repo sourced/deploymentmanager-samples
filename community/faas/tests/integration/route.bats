@@ -24,8 +24,8 @@ function create_config() {
     envsubst < tests/fixtures/configs/route.yaml > ${CONFIG}
 
     # Replace the router, vpn tunnel and network in the config
-    sed -i "s/YOUR_NETWORK/network-${RAND}/g" ${CONFIG}
-    sed -i "s/YOUR_VPN_TUNNEL/vpntunnel-${RAND}/g" ${CONFIG}
+    sed -i "s/<YOUR_NETWORK>/network-${RAND}/g" ${CONFIG}
+    sed -i "s/<YOUR_VPN_TUNNEL>/vpntunnel-${RAND}/g" ${CONFIG}
 }
 
 function delete_config() {
@@ -40,7 +40,7 @@ function setup() {
             --project ${FAAS_PROJECT_NAME} \
             --description "integration test ${RAND}" \
             --subnet-mode custom
-        gcloud compute networks subnets create subnet-1 \
+        gcloud compute networks subnets create subnet-${RAND} \
             --network network-${RAND} \
             --range 10.118.8.0/22 \
             --region us-east1
@@ -103,8 +103,8 @@ function teardown() {
 
 
 @test "Creating deployment ${DEPLOYMENT_NAME} from ${CONFIG}" {
-  run gcloud config set project ${FAAS_PROJECT_NAME}
-  run gcloud deployment-manager deployments create ${DEPLOYMENT_NAME} --config $CONFIG
+  gcloud config set project ${FAAS_PROJECT_NAME}
+  gcloud deployment-manager deployments create ${DEPLOYMENT_NAME} --config $CONFIG
 }
 
 @test "Verifying resources were created in deployment ${DEPLOYMENT_NAME}" {
@@ -128,7 +128,6 @@ function teardown() {
 @test "Deployment Delete" {
   # Delete the deployment
   run gcloud deployment-manager deployments delete $DEPLOYMENT_NAME -q
-
   [ "$status" -eq 0 ]
 }
 
