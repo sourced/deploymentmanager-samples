@@ -34,11 +34,17 @@ properties:
     items:
       type: string
       description: |
-        Specifies the identity requesting access for a Cloud Platform resource. 
-        Members can have the following values:
-          - user:{emailid} - For example, user:name@example.com
-          - group:{emailid} - For example, group:admins@example.com
-          - serviceAccount:{emailid} - For example, serviceAccount:my-other-app@appspot.gserviceaccount.com
+        Specifies the identity requesting access for a Cloud Platform
+        resource. Members can have the following values:
+          - user:{emailid} - An email address that represents a specific
+            Google account. For example, user:name@example.com
+          - serviceAccount:{emailid} - An email address that represents a
+            service account. For example,
+            serviceAccount:my-other-app@appspot.gserviceaccount.com
+          - group:{emailid} - An email address that represents a Google group.
+            For example, group:admins@example.com
+          - domain:{domain} - A Google Apps domain name that represents all
+            the users of that domain. For example, google.com or example.com.
 
 documentation:
   - docs/templates/iam_member.md

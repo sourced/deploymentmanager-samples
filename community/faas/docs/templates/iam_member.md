@@ -7,6 +7,7 @@ IAM Member deployment
 - Install [gcloud](https://cloud.google.com/sdk)
 - Create a [GCP project, setup billing, enable requisite APIs](docs/templates/project.md)
 
+## Development
 
 ### Resources
 

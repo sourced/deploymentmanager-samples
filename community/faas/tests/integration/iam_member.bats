@@ -58,7 +58,7 @@ function teardown() {
 
 
 @test "Creating deployment ${DEPLOYMENT_NAME} from ${CONFIG}" {
-    run gcloud deployment-manager deployments create ${DEPLOYMENT_NAME} --config ${CONFIG} --project ${FAAS_PROJECT_NAME}
+    gcloud deployment-manager deployments create ${DEPLOYMENT_NAME} --config ${CONFIG} --project ${FAAS_PROJECT_NAME}
 }
 
 @test "Verifying roles were added in deployment ${DEPLOYMENT_NAME}" {
@@ -67,10 +67,8 @@ function teardown() {
 }
 
 @test "Deployment Delete" {
-    run gcloud deployment-manager deployments delete ${DEPLOYMENT_NAME} -q --project ${FAAS_PROJECT_NAME}
-}
+    gcloud deployment-manager deployments delete ${DEPLOYMENT_NAME} -q --project ${FAAS_PROJECT_NAME}
 
-@test "Verifying resources were deleted in deployment ${DEPLOYMENT_NAME}" {
     run gcloud projects get-iam-policy test-deploy-project --flatten="bindings[].members" --format='table(bindings.role)' --filter="bindings.members:${TEST_SERVICE_ACCOUNT}@${FAAS_PROJECT_NAME}.iam.gserviceaccount.com"
     [[ ! "$output" =~ "roles/editor" ]]
 }
