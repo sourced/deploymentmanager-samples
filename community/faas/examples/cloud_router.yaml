@@ -4,7 +4,7 @@
 #   RAND: Just a random string used mostly by the testing suite.
 #
 # Notice the `network` property. The place holder <YOUR_NETWORK> must be
-# replaced your VPC name
+# replaced with your VPC name.
 
 imports:
   - path: templates/cloud_router.py

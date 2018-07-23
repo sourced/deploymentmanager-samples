@@ -38,7 +38,7 @@ See `properties` section in the schema files
 
 ```
 gcloud deployment-manager deployments create <YOUR_DEPLOYMENT_NAME> \
-    --config <YOUR_DEPLOYMENT_CONFIG>.yaml
+    --config cloud_router.yaml
 ```
 
 

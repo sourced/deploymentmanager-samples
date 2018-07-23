@@ -55,7 +55,7 @@ function teardown() {
 
 
 @test "Creating deployment ${DEPLOYMENT_NAME} from ${CONFIG}" {
-  run gcloud deployment-manager deployments create ${DEPLOYMENT_NAME} --config ${CONFIG} --project ${FAAS_PROJECT_NAME}
+  gcloud deployment-manager deployments create ${DEPLOYMENT_NAME} --config ${CONFIG} --project ${FAAS_PROJECT_NAME}
 }
 
 @test "Verifying routers were created in deployment ${DEPLOYMENT_NAME}" {
@@ -64,10 +64,8 @@ function teardown() {
 }
 
 @test "Deployment Delete" {
-  run gcloud deployment-manager deployments delete ${DEPLOYMENT_NAME} -q --project ${FAAS_PROJECT_NAME}
-}
+  gcloud deployment-manager deployments delete ${DEPLOYMENT_NAME} --project ${FAAS_PROJECT_NAME} -q
 
-@test "Verifying routers were delete in deployment ${DEPLOYMENT_NAME}" {
-    run gcloud compute routers list --project ${FAAS_PROJECT_NAME}
-    [[ ! "$output" =~ "cloud-router-${RAND}" ]]
+  run gcloud compute routers list --project ${FAAS_PROJECT_NAME}
+  [[ ! "$output" =~ "cloud-router-${RAND}" ]]
 }
