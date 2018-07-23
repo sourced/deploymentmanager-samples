@@ -8,6 +8,8 @@ Templated custom IAM role deployment
 - Create a [GCP project, setup billing, enable requisite APIs](docs/templates/project.md)
 
 
+## Deployment
+
 ### Resources
 
 - [Creating custom IAM roles](https://cloud.google.com/iam/docs/creating-custom-roles)

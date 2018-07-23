@@ -5,7 +5,7 @@
 #   2- a custom project role (test-project-role)
 #
 # Notice the `orgId` property in the organization_custom_role.py type.
-# Your YOUR_ORGANIZATION_ID placeholder must be replaced with your 
+# Your <YOUR_ORGANIZATION_ID> placeholder must be replaced with your
 # organization ID.
 
 imports:
@@ -16,7 +16,7 @@ resources:
   - name: test-custom-org-role
     type: templates/organization_custom_role.py
     properties:
-      orgId: "YOUR_ORGANIZATION_ID"
+      orgId: "<YOUR_ORGANIZATION_ID>"
       roleId: myCustomOrgRole
       title: My Org Role Title
       description: My Org Role Description
