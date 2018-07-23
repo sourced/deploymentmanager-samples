@@ -129,18 +129,16 @@ function teardown() {
   # Delete the deployment
   run gcloud deployment-manager deployments delete $DEPLOYMENT_NAME -q
   [ "$status" -eq 0 ]
-}
 
-@test "Verifying resources were deleted in deployment ${DEPLOYMENT_NAME}" {
-    run gcloud compute routes list --filter="name:gateway-route-${RAND}"
-    [[ ! "$output" =~ "gateway-route-${RAND}" ]]
+  run gcloud compute routes list --filter="name:gateway-route-${RAND}"
+  [[ ! "$output" =~ "gateway-route-${RAND}" ]]
 
-    run gcloud compute routes list --filter="name:instance-route-${RAND}"
-    [[ ! "$output" =~ "instance-route-${RAND}" ]]
+  run gcloud compute routes list --filter="name:instance-route-${RAND}"
+  [[ ! "$output" =~ "instance-route-${RAND}" ]]
 
-    run gcloud compute routes list --filter="name:ip-route-${RAND}"
-    [[ ! "$output" =~ "ip-route-${RAND}" ]]
+  run gcloud compute routes list --filter="name:ip-route-${RAND}"
+  [[ ! "$output" =~ "ip-route-${RAND}" ]]
 
-    run gcloud compute routes list --filter="name:vpn-runnel-route-${RAND}"
-    [[ ! "$output" =~ "vpn-tunnel-route-${RAND}" ]]
+  run gcloud compute routes list --filter="name:vpn-runnel-route-${RAND}"
+  [[ ! "$output" =~ "vpn-tunnel-route-${RAND}" ]]
 }
