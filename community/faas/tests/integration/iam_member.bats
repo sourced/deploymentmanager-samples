@@ -2,7 +2,7 @@
 
 source tests/helpers.bash
 
-TEST_SERVICE_ACCOUNT="test-service-account"
+export TEST_SERVICE_ACCOUNT="test-service-account"
 
 # Create and save a random 10 char string in a file
 RANDOM_FILE="/tmp/${FAAS_ORGANIZATION_ID}-iammember.txt"
@@ -24,10 +24,6 @@ fi
 function create_config() {
     echo "Creating ${CONFIG}"
     envsubst < tests/fixtures/configs/iam_member.yaml > ${CONFIG}
-
-    # Service account name needs to be updated in the config
-    sed -i "s/YOUR_SERVICE_ACCOUNT/${TEST_SERVICE_ACCOUNT}/g" ${CONFIG}
-    sed -i "s/YOUR_PROJECT_NAME/${FAAS_PROJECT_NAME}/g" ${CONFIG}
 }
 
 function delete_config() {
@@ -62,7 +58,7 @@ function teardown() {
 }
 
 @test "Verifying roles were added in deployment ${DEPLOYMENT_NAME}" {
-    run gcloud projects get-iam-policy test-deploy-project --flatten="bindings[].members" --format='table(bindings.role)' --filter="bindings.members:${TEST_SERVICE_ACCOUNT}@${FAAS_PROJECT_NAME}.iam.gserviceaccount.com"
+    run gcloud projects get-iam-policy ${FAAS_PROJECT_NAME} --flatten="bindings[].members" --format='table(bindings.role)' --filter="bindings.members:${TEST_SERVICE_ACCOUNT}@${FAAS_PROJECT_NAME}.iam.gserviceaccount.com"
     [[ "${lines[1]}" =~ "roles/editor" ]]
 }
 

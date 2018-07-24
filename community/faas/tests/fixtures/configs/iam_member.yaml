@@ -1,5 +1,9 @@
 # Example on how to use the iam member template
 #
+# Variables:
+#   RAND: Just a random string used mostly by the testing suite.
+#   TEST_SERVICE_ACCOUNT: Service account name
+#   FAAS_PROJECT_NAME: Project name
 
 imports:
   - path: templates/iam_member.py
@@ -10,4 +14,4 @@ resources:
     properties:
       role: roles/editor
       members:
-        - serviceAccount:YOUR_SERVICE_ACCOUNT@YOUR_PROJECT_NAME.iam.gserviceaccount.com
+        - serviceAccount:${TEST_SERVICE_ACCOUNT}@${FAAS_PROJECT_NAME}.iam.gserviceaccount.com
