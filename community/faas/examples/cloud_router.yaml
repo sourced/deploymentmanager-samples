@@ -1,10 +1,7 @@
 # Example on how to use the cloud router templates
 #
-# Variables:
-#   RAND: Just a random string used mostly by the testing suite.
-#
-# Notice the `network` property. The place holder <YOUR_NETWORK> must be
-# replaced with your VPC name.
+# Notice the `network` property. Replace the place holder
+# `test-network` with your network name.
 
 imports:
   - path: templates/cloud_router.py
@@ -14,6 +11,6 @@ resources:
     type: templates/cloud_router.py
     properties:
       name: cloud-router
-      network: <YOUR_NETWORK>
+      network: test-network
       region: us-east1
       asn: 65001

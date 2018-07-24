@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""Creates a Cloud Router and  VPN Tunnel."""
+"""Creates a Cloud Router."""
 
 
 def generate_config(context):
@@ -23,25 +23,21 @@ def generate_config(context):
             'type': 'compute.v1.router',
             'properties':
                 {
-                    'name':
-                        context.properties['name'],
+                    'name': context.properties['name'],
                     'bgp': {
                         'asn': context.properties['asn']
                     },
-                    'network':
-                        generate_network_url(
+                    'network': generate_network_url(
                             context,
                             context.properties['network']
                         ),
-                    'region':
-                        context.properties['region']
+                    'region': context.properties['region']
                 }
         }
     ]
 
     return {
-        'resources':
-            resources,
+        'resources': resources,
         'outputs':
             [
                 {

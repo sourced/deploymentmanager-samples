@@ -16,7 +16,7 @@ info:
   title: Cloud Router
   author: Sourced Group Inc.
   description: |
-    Deploys a Cloud Router and VPN Tunnel.
+    Deploys a Cloud Router.
 
     For more information on this resource: 
     https://cloud.google.com/router/docs/
