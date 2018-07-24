@@ -1,0 +1,36 @@
+# Example on how to use the logsink template
+#
+# In this example, a log sink is created with various log destinations.
+# A log sink can be created with the following log destinations:
+#   - a cloud storage bucket
+#   - a pubsub topic
+#   - a bigquery dataset
+
+imports: 
+  - path: templates/logsink.py
+
+resources: 
+  - name: test-logsink-storage
+    type: templates/logsink.py
+    properties:
+      destinationName: test-bucket
+      destinationType: STORAGE
+      uniqueWriterIdentity: true
+    
+  - name: test-logsink-pubsub
+    type: templates/logsink.py
+    properties:
+      # When using a pubsub topic value must be a topic id.
+      destinationName: test-topic
+      destinationType: PUBSUB
+      uniqueWriterIdentity: true
+
+  - name: test-logsink-bq
+    type: templates/logsink.py
+    properties:
+      # When using a BQ dataset value must be a dataset ID. The ID must
+      # contain only letters (a-z, A-Z), numbers (0-9), or underscores (_).
+      # The maximum length is 1,024 characters.
+      destinationName: test_dataset
+      destinationType: BIGQUERY
+      uniqueWriterIdentity: true
