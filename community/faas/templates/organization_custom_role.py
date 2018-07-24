@@ -15,6 +15,7 @@
 
 
 def generate_config(context):
+    """ Entry point for the deployment resources """
 
     org_id = context.properties["orgId"]
     included_permissions = context.properties["includedPermissions"]
