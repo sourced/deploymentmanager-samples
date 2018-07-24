@@ -1,0 +1,52 @@
+# Example on how to use the route template
+#
+# Variables:
+#   RAND: Just a random string used mostly by the testing suite.
+#
+
+imports:
+  - path: templates/route.py
+
+resources:
+  - name: ip-route-${RAND}
+    type: templates/route.py
+    properties:
+      routeType: IP
+      network: network-${RAND}
+      nextHopIp: 10.118.8.12
+      tags:
+        - my-iproute-tag
+      priority: 20000
+      destRange: 0.0.0.0/0
+  - name: instance-route-${RAND}
+    type: templates/route.py
+    properties:
+      routeType: INSTANCE
+      network: network-${RAND}
+      instanceName: my-instance-name
+      zone: us-east1-b
+      tags:
+        - my-instanceroute-tag
+      priority: 30000
+      destRange: 0.0.0.0/0
+  - name: gateway-route-${RAND}
+    type: templates/route.py
+    properties:
+      routeType: GATEWAY
+      network: network-${RAND}
+      gatewayName: default-internet-gateway
+      tags:
+        - my-gatewayroute-tag
+      priority: 40000
+      destRange: 0.0.0.0/0
+  - name: vpn-tunnel-route-${RAND}
+    type: templates/route.py
+    properties:
+      routeType: VPNTUNNEL
+      network: network-${RAND}
+      vpnTunnelName: vpntunnel-${RAND}
+      region: us-east1
+      tags:
+        - my-vpntunnelroute-tag
+      priority: 500
+      destRange: 0.0.0.0/0
