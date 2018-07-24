@@ -22,10 +22,6 @@ fi
 function create_config() {
     echo "Creating ${CONFIG}"
     envsubst < tests/fixtures/configs/route.yaml > ${CONFIG}
-
-    # Replace the router, vpn tunnel and network in the config
-    sed -i "s/<YOUR_NETWORK>/network-${RAND}/g" ${CONFIG}
-    sed -i "s/<YOUR_VPN_TUNNEL>/vpntunnel-${RAND}/g" ${CONFIG}
 }
 
 function delete_config() {
@@ -92,7 +88,7 @@ function teardown() {
         gcloud compute addresses delete staticip-${RAND} --region us-east1 -q
         gcloud compute target-vpn-gateways delete gateway-${RAND} --region us-east1 -q
         gcloud compute routers delete router-${RAND} --region us-east1 -q
-        gcloud compute networks subnets delete subnet-1 --region us-east1 -q
+        gcloud compute networks subnets delete subnet-${RAND} --region us-east1 -q
         gcloud compute networks delete network-${RAND} --project ${FAAS_PROJECT_NAME} -q
         delete_config
         rm -f ${RANDOM_FILE}
@@ -128,7 +124,6 @@ function teardown() {
 @test "Deployment Delete" {
   # Delete the deployment
   gcloud deployment-manager deployments delete $DEPLOYMENT_NAME -q
-  [ "$status" -eq 0 ]
 
   run gcloud compute routes list --filter="name:gateway-route-${RAND}"
   [[ ! "$output" =~ "gateway-route-${RAND}" ]]

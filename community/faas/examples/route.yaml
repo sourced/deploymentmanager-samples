@@ -12,14 +12,14 @@
 #   -If the routeType is `IP`, the `netxHopIp` property must be set. Replace
 #    the temporary IP placeholder with your static IP address.
 #   -If the routeType is `INSTANCE`, the `instanceName` property must be set.
-#    Replace the <YOUR_VM_INSTANCE> placeholder with your VM name.
+#    Replace the temporary instance placeholder with your instance name.
 #   -If the routeType is `GATEWAY`, the `gatewayName` property must be set.
 #    This should be set to `default-internet-gateway`.
 #    https://cloud.google.com/compute/docs/reference/rest/v1/routes
 #   -If the routeType is `VPNTUNNEL`, the `vpnTunnelName` property must be
-#    set. Replace the <YOUR_VPN_TUNNEL> place holder with your VPN tunnel
-#    name.
-# Replace the <YOUR_NETWORK> placeholder with your created VPC name.
+#    set. Replace the temporary vpntunnel name place holder with your VPN
+#    tunnel name.
+# Replace the temporary network name placeholder with your created VPC name.
 
 imports:
   - path: templates/route.py
@@ -29,8 +29,8 @@ resources:
     type: templates/route.py
     properties:
       routeType: IP
-      network: <YOUR_NETWORK>
-      nextHopIp: <YOUR_STATIC_IP>
+      network: test-network
+      nextHopIp: 10.118.8.12
       tags:
         - my-iproute-tag
       priority: 20000
@@ -39,8 +39,8 @@ resources:
     type: templates/route.py
     properties:
       routeType: INSTANCE
-      network: <YOUR_NETWORK>
-      instanceName: <YOUR_VM_INSTANCE>
+      network: test-network
+      instanceName: test-instance-name
       zone: us-east1-b
       tags:
         - my-instanceroute-tag
@@ -50,7 +50,7 @@ resources:
     type: templates/route.py
     properties:
       routeType: GATEWAY
-      network: <YOUR_NETWORK>
+      network: test-network
       gatewayName: default-internet-gateway
       tags:
         - my-gatewayroute-tag
@@ -60,8 +60,8 @@ resources:
     type: templates/route.py
     properties:
       routeType: VPNTUNNEL
-      network: <YOUR_NETWORK>
-      vpnTunnelName: <YOUR_VPN_TUNNEL>
+      network: test-network
+      vpnTunnelName: test-vpn-tunnel-name
       region: us-east1
       tags:
         - my-vpntunnelroute-tag

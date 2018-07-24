@@ -14,7 +14,7 @@ resources:
     type: templates/route.py
     properties:
       routeType: IP
-      network: <YOUR_NETWORK>
+      network: network-${RAND}
       nextHopIp: 10.118.8.12
       tags:
         - my-iproute-tag
@@ -24,7 +24,7 @@ resources:
     type: templates/route.py
     properties:
       routeType: INSTANCE
-      network: <YOUR_NETWORK>
+      network: network-${RAND}
       instanceName: my-instance-name
       zone: us-east1-b
       tags:
@@ -35,7 +35,7 @@ resources:
     type: templates/route.py
     properties:
       routeType: GATEWAY
-      network: <YOUR_NETWORK>
+      network: network-${RAND}
       gatewayName: default-internet-gateway
       tags:
         - my-gatewayroute-tag
@@ -45,8 +45,8 @@ resources:
     type: templates/route.py
     properties:
       routeType: VPNTUNNEL
-      network: <YOUR_NETWORK>
-      vpnTunnelName: <YOUR_VPN_TUNNEL>
+      network: network-${RAND}
+      vpnTunnelName: vpntunnel-${RAND}
       region: us-east1
       tags:
         - my-vpntunnelroute-tag
