@@ -9,11 +9,13 @@
 
 imports:
   - path: templates/project_custom_role.py
+    name: project_custom_role.py
   - path: templates/organization_custom_role.py
+    name: organization_custom_role.py
 
 resources:
   - name: test-custom-org-role
-    type: templates/organization_custom_role.py
+    type: organization_custom_role.py
     properties:
       orgId: "12345678901234567890"
       roleId: myCustomOrgRole
@@ -23,7 +25,7 @@ resources:
         - iam.roles.get
         - iam.roles.list
   - name: test-project-custom-role
-    type: templates/project_custom_role.py
+    type: project_custom_role.py
     properties:
       roleId: myCustomProjectRole
       title: My Project Role Title

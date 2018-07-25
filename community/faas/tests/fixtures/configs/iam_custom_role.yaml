@@ -6,11 +6,13 @@
 
 imports:
   - path: templates/project_custom_role.py
+    name: project_custom_role.py
   - path: templates/organization_custom_role.py
+    name: organization_custom_role.py
 
 resources:
   - name: test-custom-org-role-${RAND}
-    type: templates/organization_custom_role.py
+    type: organization_custom_role.py
     properties:
       orgId: "${FAAS_ORGANIZATION_ID}"
       roleId: myCustomOrgRole${RAND}
@@ -20,7 +22,7 @@ resources:
         - iam.roles.get
         - iam.roles.list
   - name: project-custom-role-${RAND}
-    type: templates/project_custom_role.py
+    type: project_custom_role.py
     properties:
       roleId: myCustomProjectRole${RAND}
       title: My Project Role Title

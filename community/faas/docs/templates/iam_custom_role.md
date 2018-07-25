@@ -37,6 +37,18 @@ See `properties` section in the schema files
 5. Create your deployment as described below, replacing <YOUR_DEPLOYMENT_NAME>
    with your with your own deployment name
 
+
+For example:
+
+```
+git clone https://github.com/GoogleCloudPlatform/deploymentmanager-sample
+cd community/faas
+cp examples/iam_custom_role.yaml my-iamcustomrole.yaml
+vim my-network.yaml  # <== change values to match your GCP setup
+gcloud deployment-manager deployments create <YOUR_DEPLOYMENT_NAME> \
+    --config my-iamcustomrole.yaml
+```
+
 #### Create
 
 ```
