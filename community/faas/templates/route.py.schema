@@ -26,6 +26,7 @@ imports:
 required:
   - network
   - routeType
+  - destRange
 
 properties:
   name:
@@ -63,6 +64,7 @@ properties:
   nextHopIp:
     type: string
     description: |
+      Used when routeType is IP.
       The network IP address of an instance that should handle matching
       packets. Example 192.168.0.1. Only IPv4 is supported.
       Used only when routeType is IP.
@@ -70,20 +72,30 @@ properties:
   instanceName:
     type: string
     description: |
+      Used when routeType is INSTANCE.
       The name of the Instance that should handle matching packets.
-      Used only when routeType is INSTANCE.
+  zone:
+    type: string
+    description: |
+      Used when routeType is INSTANCE.
+      The zone where the instance resides.
   gatewayName:
     type: string
     description: |
+      Used when routeType is GATEWAY.
       The name of the Gateway that should handle matching packets. This
       must be 'default-internet-gateway'.
-      Used only when routeType is GATEWAY.
     default: default-internet-gateway
   vpnTunnelName:
     type: string
     description: |
-      The name of the VPN Tunnel that should handle matching packets.
-      Used only when routeType is VPNTUNNEL.
+      Used when routeType is VPNTUNNEL.
+      The name of the VPN tunnel that should handle matching packets.
+  region:
+    type: string
+    description: |
+      Used when routeType is VPNTUNNEL.
+      The region where the VPN tunnel resides.
 
 documentation:
   - docs/templates/route.md
