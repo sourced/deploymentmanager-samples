@@ -1,0 +1,69 @@
+# Example on how to use the route template
+#
+# In this example, routes are created for 4 different destination traffic
+# handler types:
+#   1- a static IP route (test-ip-route)
+#   2- a instance route (test-instance-route)
+#   3- a gateway route (test-gateway-route)
+#   4- a vpn tunnel route (test-vpn-tunnel-route)
+#
+# The `routeType` property determines the destination traffic handler which
+# will require the relevant destination property to be set.
+#   -If the routeType is `IP`, the `netxHopIp` property must be set. Replace
+#    the temporary IP placeholder with your static IP address.
+#   -If the routeType is `INSTANCE`, the `instanceName` property must be set.
+#    Replace the temporary instance placeholder with your instance name.
+#   -If the routeType is `GATEWAY`, the `gatewayName` property must be set.
+#    This should be set to `default-internet-gateway`.
+#    https://cloud.google.com/compute/docs/reference/rest/v1/routes
+#   -If the routeType is `VPNTUNNEL`, the `vpnTunnelName` property must be
+#    set. Replace the temporary vpntunnel name place holder with your VPN
+#    tunnel name.
+# Replace the temporary network name placeholder with your created VPC name.
+
+imports:
+  - path: templates/route.py
+
+resources:
+  - name: test-ip-route
+    type: templates/route.py
+    properties:
+      routeType: IP
+      network: test-network
+      nextHopIp: 10.118.8.12
+      tags:
+        - my-iproute-tag
+      priority: 20000
+      destRange: 0.0.0.0/0
+  - name: test-instance-route
+    type: templates/route.py
+    properties:
+      routeType: INSTANCE
+      network: test-network
+      instanceName: test-instance-name
+      zone: us-east1-b
+      tags:
+        - my-instanceroute-tag
+      priority: 30000
+      destRange: 0.0.0.0/0
+  - name: test-gateway-route
+    type: templates/route.py
+    properties:
+      routeType: GATEWAY
+      network: test-network
+      gatewayName: default-internet-gateway
+      tags:
+        - my-gatewayroute-tag
+      priority: 40000
+      destRange: 0.0.0.0/0
+  - name: test-vpn-tunnel-route
+    type: templates/route.py
+    properties:
+      routeType: VPNTUNNEL
+      network: test-network
+      vpnTunnelName: test-vpn-tunnel-name
+      region: us-east1
+      tags:
+        - my-vpntunnelroute-tag
+      priority: 500
+      destRange: 0.0.0.0/0
