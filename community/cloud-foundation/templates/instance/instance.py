@@ -27,11 +27,11 @@ def create_boot_disk(properties, zone, instance_name):
         }
     }
 
-    disk_size_gb = properties.get('diskSizeGb', None)
+    disk_size_gb = properties.get('diskSizeGb')
     if disk_size_gb is not None:
         boot_disk['initializeParams']['diskSizeGb'] = disk_size_gb
 
-    disk_type = properties.get('diskType', None)
+    disk_type = properties.get('diskType')
     if disk_type is not None:
         boot_disk['initializeParams']['diskType'] = 'zones/{}/diskTypes/{}'.format(zone, disk_type)
 
@@ -74,7 +74,7 @@ def generate_config(context):
         }
     }
 
-    metadata = context.properties.get('metadata', None)
+    metadata = context.properties.get('metadata')
     if metadata is not None:
         instance['properties']['metadata'] = metadata
 

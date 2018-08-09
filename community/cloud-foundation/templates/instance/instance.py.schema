@@ -60,8 +60,8 @@ properties:
       For example:
       metadata:
         items:
-        - key: startup-script
-        - value: sudo apt-get update
+          - key: startup-script
+          - value: sudo apt-get update
     properties:
       items:
         type: array
@@ -76,13 +76,13 @@ properties:
               
 outputs:
   properties:
-  - externalIp:
-    description: Reference to external ip address of new instance
-    type: string
-  - internalIp:
-    description: Reference to internal ip address of new instance
-    type: string
-    
+    - externalIp:
+      description: Reference to external ip address of new instance
+      type: string
+    - internalIp:
+      description: Reference to internal ip address of new instance
+      type: string
+
 documentation:
   - templates/instance/README.md
 

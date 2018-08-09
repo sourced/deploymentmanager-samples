@@ -65,11 +65,11 @@ function teardown() {
 
 @test "Verifying compute instance was created in deployment ${DEPLOYMENT_NAME}" {
     run gcloud compute instances list --project "${CLOUD_FOUNDATION_PROJECT_ID}"
-    [[ "$output" =~ "test-vm-instance-${RAND}" ]]
+    [[ "$output" =~ "test-instance-${RAND}" ]]
 }
 
 @test "Verifying compute instance was attached to custom network in deployment ${DEPLOYMENT_NAME}" {
-    run gcloud compute instances describe test-vm-instance-${RAND} --zone "us-central1-a" --project "${CLOUD_FOUNDATION_PROJECT_ID}"
+    run gcloud compute instances describe test-instance-${RAND} --zone "us-central1-a" --project "${CLOUD_FOUNDATION_PROJECT_ID}"
     [[ "$output" =~ "test-network-${RAND}" ]]
 }
 
@@ -78,5 +78,5 @@ function teardown() {
         --project "${CLOUD_FOUNDATION_PROJECT_ID}"
 
     run gcloud compute instances list --project "${CLOUD_FOUNDATION_PROJECT_ID}"
-    [[ ! "$output" =~ "test-vm-instance-${RAND}" ]]
+    [[ ! "$output" =~ "test-instance-${RAND}" ]]
 }
