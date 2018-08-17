@@ -1,0 +1,24 @@
+imports:
+- path: templates/dns_records/dns_records.py
+  name: dns_records.py
+
+resources:
+
+- name: create-my-dns-records
+  type: dns_records.py
+  properties:
+    zoneName: 'foobar-managed-zone'
+    dnsName: 'foobar.local.'
+    resourceRecordSets:
+      - 
+        name: 'www.foobar.local.'
+        type: "A"
+        ttl: 10
+        rrdatas:
+          - "10.1.1.1"
+      - 
+        name: 'bar.foobar.local.'
+        type: "A"
+        ttl: 30
+        rrdatas:
+          - "10.1.1.2"
