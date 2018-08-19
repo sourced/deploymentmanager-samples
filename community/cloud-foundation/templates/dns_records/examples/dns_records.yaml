@@ -13,12 +13,24 @@ resources:
       - 
         name: 'www.foobar.local.'
         type: "A"
-        ttl: 10
+        ttl: 20
         rrdatas:
           - "10.1.1.1"
       - 
-        name: 'bar.foobar.local.'
-        type: "A"
+        name: 'www.foobar.local.'
+        type: "AAAA"
         ttl: 30
         rrdatas:
-          - "10.1.1.2"
+          - "1002:db8::8bd:2001"
+      - 
+        name: 'mail.foobar.local.'
+        type: "MX"
+        ttl: 300
+        rrdatas:
+          - "234 mail.foobar.local."
+      - 
+        name: 'txt.foobar.local.'
+        type: "TXT"
+        ttl: 235 
+        rrdatas:
+          - "MySupeAwesomeBlog"

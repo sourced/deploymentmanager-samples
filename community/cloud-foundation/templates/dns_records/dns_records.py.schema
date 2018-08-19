@@ -39,8 +39,7 @@ properties:
       https://cloud.google.com/dns/api/v1/managedZones. 'The DNS name of this
       managed zone, for instance "example.com.".'
     type: string
-    # Find a pattern that suits. For now, just assert that it ends in a dot, as
-    # that is the most common mistake.
+    # assert that it ends in a dot, as that is the most common mistake.
     pattern: \.$
 
   resourceRecordSets:

@@ -4,15 +4,34 @@ imports:
 
 resources:
 
-- name: create-my-dns-records
+- name: dns-records-${RAND}
   type: dns_records.py
   properties:
-    dnsName: 'foobar.local.'
-    zoneName: 'foobar-managed-zone'
+    zoneName: testmanagedzone-${RAND}
+    dnsName: ${RAND}.com.
     resourceRecordSets:
       - 
-        name: 'www.foobar.local.'
+        name: "www.${RAND}.com."
         type: "A"
-        ttl: 10
+        ttl: 20
         rrdatas:
-          - "10.1.1.1"
+          - "192.0.1.1"
+      - 
+        name: "www.${RAND}.com."
+        type: "AAAA"
+        ttl: 30
+        rrdatas:
+          - "1002:db8::8bd:2001"
+      - 
+        name: "mail.${RAND}.com."
+        type: "MX"
+        ttl: 300
+        rrdatas:
+          - "25 smtp.mail.${RAND}.com."
+      - 
+        name: "txt.${RAND}.com."
+        type: "TXT"
+        ttl: 235 
+        rrdatas:
+          - "mysuperawesometextrecord"
+
