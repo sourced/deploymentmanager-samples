@@ -35,7 +35,6 @@ properties:
     type: string
     description: The description for the managed zone. This is required by Cloud DNS
     pattern: ^.{0,1023}$
-
   dnsName:
     type: string
     description: |
@@ -46,16 +45,16 @@ properties:
   description:
     type: string
     description: |
-      description for the managed zone name.
+      Description for the managed zone name.
 
 outputs:
   properties:
-    - managedZoneSelfLink:
+    - managedZoneName:
       type: string
       description: managed zone resource name
     - dnsName:
       type: string
-      description: dnsName for the managed zone
+      description: DnsName for the managed zone
 
 documentation:
   - templates/dns_managed_zone/README.md

@@ -40,8 +40,8 @@ def generate_config(context):
         'outputs':
             [
                 {
-                    'name': 'managedZoneSelfLink',
-                    'value': '$(ref.{}.selfLink)'.format(context.env['name'])
+                    'name': 'managedZoneName',
+                    'value': managed_zone_name
                 },
                 {
                     'name': 'dnsName',
