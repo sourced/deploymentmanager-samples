@@ -1,6 +1,6 @@
 #!/usr/bin/env bats
 
-source helpers.bash
+source tests/helpers.bash
 
 TEST_NAME=$(basename "${BATS_TEST_FILENAME}" | cut -d '.' -f 1)
 
@@ -15,40 +15,21 @@ fi
 # envsubst requires all variables used in the example/config to be exported
 if [[ -e "${RANDOM_FILE}" ]]; then
     export RAND=$(cat "${RANDOM_FILE}")
-    export CLOUD_FOUNDATION_PROJECT_ID=$(echo ${CLOUD_FOUNDATION_PROJECT_ID})
-    #export CLOUD_FOUNDATION_PROJECT_ID=$(echo ${CLOUD_FOUNDATION_PROJECT_ID} | cut -c 1-10)
-    #DEPLOYMENT_NAME="${CLOUD_FOUNDATION_PROJECT_ID}-${TEST_NAME}-${RAND}"
-    DEPLOYMENT_NAME="batstest-${TEST_NAME}-${RAND}"
+    DEPLOYMENT_NAME="${CLOUD_FOUNDATION_PROJECT_ID}-${TEST_NAME}-${RAND}"
     # Deployment names cannot have underscores. Replace with dashes.
     DEPLOYMENT_NAME=${DEPLOYMENT_NAME//_/-}
     CONFIG=".${DEPLOYMENT_NAME}.yaml"
 fi
 
 CLOUDDNS_ZONE_NAME="test-managed-zone-${RAND}"
-CLOUDDNS_DNS_NAME="${RAND}.domain."
+CLOUDDNS_DNS_NAME="${RAND}.com."
 CLOUDDNS_DESCRIPTION="Managed DNS Zone for Testing"
-
-YAML_FILE=$(cat <<DNSMANAGEDZONE_YAML
-imports:
-  - path: templates/dns_managed_zone/dns_managed_zone.py
-
-resources:
-  - name: my-managed-zone
-    type: dns_managed_zone.py
-    properties:
-      zoneName: "${CLOUDDNS_ZONE_NAME}" 
-      dnsName: "${CLOUDDNS_DNS_NAME}"
-      description: "${CLOUDDNS_DESCRIPTION}" 
-
-DNSMANAGEDZONE_YAML
-)
 
 ########## HELPER FUNCTIONS ##########
 
 function create_config() {
     echo "Creating ${CONFIG}"
-    #envsubst < templates/dns_managed_zone/tests/integration/${TEST_NAME}.yaml > "${CONFIG}"
-	echo "$YAML_FILE" > "${CONFIG}"
+    envsubst < templates/dns_managed_zone/tests/integration/${TEST_NAME}.yaml > "${CONFIG}"
 }
 
 function delete_config() {
@@ -78,19 +59,15 @@ function teardown() {
 
 ########## TESTS ##########
 
-#@test "Deploy the project $DEPLOYMENT_NAME" {
-#    gcloud deployment-manager deployments create "${DEPLOYMENT_NAME}" --config "${CONFIG}"
-#}
-
 @test "Creating deployment ${DEPLOYMENT_NAME} from ${CONFIG}" {
+
    gcloud deployment-manager deployments create "${DEPLOYMENT_NAME}" --config "${CONFIG}" --project "${CLOUD_FOUNDATION_PROJECT_ID}"
    [[ "$status" -eq 0 ]]
 }
 
 @test "Verify if Managed zone with name: $CLOUDDNS_ZONE_NAME was created in deployment ${DEPLOYMENT_NAME}" {
 
-   run gcloud dns managed-zones list 
-	
+   run gcloud dns managed-zones list --format=flattened
    [[ "$status" -eq 0 ]]
    [[ "$output" =~ "${CLOUDDNS_ZONE_NAME}" ]]
 }
@@ -98,7 +75,6 @@ function teardown() {
 @test "Verify if DNS name: ${CLOUDDNS_DNS_NAME} was created in deployment ${DEPLOYMENT_NAME}" {
     
     run gcloud dns managed-zones list 
-    
     [[ "$status" -eq 0 ]]
     [[ "$output" =~ "${CLOUDDNS_DNS_NAME}" ]]
 }
@@ -108,7 +84,6 @@ function teardown() {
     gcloud deployment-manager deployments delete "${DEPLOYMENT_NAME}" -q --project "${CLOUD_FOUNDATION_PROJECT_ID}"
 
     run gcloud dns managed-zones list
-
     [[ "$status" -eq 0 ]]
     [[ ! "$output" =~ "${CLOUDDNS_ZONE_NAME}" ]]
 

@@ -14,7 +14,7 @@
 
 info:
   title: Cloud DNS Managed Zone
-  author: Source Group Inc.,
+  author: Source Group Inc.
   description: |
     Creates a cloud dns managed zone
 
@@ -37,12 +37,21 @@ properties:
     pattern: ^.{0,1023}$
 
   dnsName:
-    description: |
-      The dnsName parameter used in the ManagedZone. 'The DNS name of this
-      managed zone, for instance "example.com.".'
+    description: |+
+      The dnsName parameter used in the ManagedZone. The DNS name of this
+      managed zone, for instance "example.com.".
+      Just assert that it ends in a dot, as that is the most common mistake.
     type: string
-    # Just assert that it ends in a dot, as that is the most common mistake.
     pattern: \.$
+
+outputs:
+  properties:
+    - managedZoneName:
+      type: string
+      description: managed zone resource name
+    - dnsName:
+      type: string
+      description: dnsName for the managed zone
 
 documentation:
   - templates/dns_managed_zone/README.md

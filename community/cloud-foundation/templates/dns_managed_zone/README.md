@@ -11,7 +11,7 @@ Cloud DNS Managed Zone
 
 ### Resources
 
-- [dns.v1.managedZone'](https://cloud.google.com/dns/docs/)
+- [dns.v1.managedZone](https://cloud.google.com/dns/docs/)
 
 ### Properties
 
@@ -24,8 +24,8 @@ See `properties` section in the schema files
 
 #### Usage
 
-1. Clone the [DM Samples_repository](https://github.com/GoogleCloudPlatform/deploymentmanager-sample)
-2. Go to the [community/cloud-foundation](community/cloud-foundation) directory
+1. Clone the [DM Samples_repository](https://github.com/GoogleCloudPlatform/deploymentmanager-samples)
+2. Go to the [community/cloud-foundation](../../../cloud-foundation) directory
 3. Copy the example DM config to be used as a model for the deployment, in this case [examples/dns_managed_zone.yaml](examples/dns_managed_zone.yaml)
 4. Change the values in the config file to match your specific GCP setup.
    Refer to the properties in the schema files described above.
@@ -36,19 +36,19 @@ See `properties` section in the schema files
 For example:
 
 ```
-git clone https://github.com/GoogleCloudPlatform/deploymentmanager-sample
+git clone https://github.com/GoogleCloudPlatform/deploymentmanager-samples
 cd community/cloud-foundation
 cp templates/dns_managed_zone/examples/dns_managed_zone.yaml my_dns_managed_zone.yaml
 vim my_dns_managed_zone.yaml  # <== change values to match your GCP setup
 gcloud deployment-manager deployments create <YOUR_DEPLOYMENT_NAME> \
-    --config my_dns_managed_zone.yaml
+	--config my_dns_managed_zone.yaml
 ```
 
 #### Create
 
 ```
 gcloud deployment-manager deployments create <YOUR_DEPLOYMENT_NAME> \
-    --config my_dns_managed_zone.yaml
+	--config my_dns_managed_zone.yaml
 ```
 
 
