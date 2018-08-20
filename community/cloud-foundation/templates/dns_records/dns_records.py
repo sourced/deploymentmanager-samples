@@ -1,5 +1,17 @@
-
-'''Deployment manager template script to create and delete DNS records in Cloud DNS.'''
+# Copyright 2018 Google Inc. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+"""Create dns record-sets resources for a managed zone"""
 
 def generate_config(context):
     """ Entry point for the deployment resources """
@@ -46,8 +58,6 @@ def generate_config(context):
         resources.append(recordset_create)
         resources.append(recordset_delete)
 
-
-
     return {'resources': resources}
 
 def generate_unique_recordsetname(resource_recordset):
@@ -58,63 +68,4 @@ def generate_unique_recordsetname(resource_recordset):
         'type': resource_recordset['type'].lower(),
         'ttl': resource_recordset['ttl']
     }
-
-
-def generate_config(context):
-    
-    resources = []
-    dnsTypeProvider = 'gcp-types/dns-v1'
-
-    deploymentname = context.env['deployment']
-    zonename = context.properties['zoneName']
-    dnsname = context.properties['dnsName']
-    
-    for resourceRecordSet in context.properties['resourceRecordSets']:
-        # Updates will need to match names, create unique name for this RSS
-        unqName = GenerateUniqueRecordSetName(resourceRecordSet)
-        recordset_create = {
-            'name': '%(deploymentName)s-create' % {'deploymentName': unqName} ,
-            'action': '%(dnsTypeProvider)s:dns.changes.create' % { 'dnsTypeProvider': dnsTypeProvider },
-            'metadata': {
-                'runtimePolicy': [
-                    'CREATE'
-                ]
-            },
-            'properties': {
-                'managedZone': zonename,
-                'additions': [
-                    resourceRecordSet
-                ]
-            },
-        }
-        recordset_delete = {
-            'name': '%(deploymentName)s-delete' % {'deploymentName': unqName},
-            'action': '%(dnsTypeProvider)s:dns.changes.create' % { 'dnsTypeProvider': dnsTypeProvider },
-            'metadata': {
-                'runtimePolicy': [
-                    'DELETE'
-                ]
-            },
-            'properties': {
-                'managedZone': zonename,
-                'deletions': [
-                    resourceRecordSet
-                ]
-            },
-        }
-    
-        resources.append(recordset_create)
-        resources.append(recordset_delete)
-
-
-
-    return {'resources': resources}
-
-def GenerateUniqueRecordSetName(resourceRecordSet):
-    return '%(name)s-%(type)s-%(ttl)s' % {
-       'name': resourceRecordSet['name'],
-       'type': resourceRecordSet['type'].lower(),
-       'ttl': resourceRecordSet['ttl']
-    }
-
 

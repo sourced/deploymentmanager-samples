@@ -1,14 +1,20 @@
+# Example on how to use the dns records template
+#
+# In this example, dns resource recordsets for create and delete of type A,
+# AAAA, MX, TXT records are created for a given managed zone name - 
+# defined in `zoneName` property and dns name via `dnsName` property
+# via the `resourceRecordSets` property and `dnsName` property of  the `dns_records.py` template 
+
 imports:
 - path: templates/dns_records/dns_records.py
   name: dns_records.py
 
 resources:
-
-- name: dns-records-${RAND}
+- name: test-dnsrecords-${RAND}
   type: dns_records.py
   properties:
-    zoneName: testmanagedzone-${RAND}
-    dnsName: ${RAND}.com.
+    zoneName: "test-managedzone-${RAND}"
+    dnsName: "${RAND}.com."
     resourceRecordSets:
       - 
         name: "www.${RAND}.com."

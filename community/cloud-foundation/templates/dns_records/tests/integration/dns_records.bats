@@ -1,6 +1,6 @@
 #!/usr/bin/env bats
 
-source helpers.bash
+source tests/helpers.bash
 
 TEST_NAME=$(basename "$0" .bats)
 
@@ -21,7 +21,7 @@ if [[ -e "${RANDOM_FILE}" ]]; then
     DEPLOYMENT_NAME=${DEPLOYMENT_NAME//_/-}
     CONFIG=".${DEPLOYMENT_NAME}.yaml"
 
-	export CLOUDDNS_ZONE_NAME="testmanagedzone-${RAND}"
+	export CLOUDDNS_ZONE_NAME="test-managedzone-${RAND}"
 	export CLOUDDNS_DNS_NAME="${RAND}.com."
 	export A_RECORD_NAME="www.${CLOUDDNS_DNS_NAME}"
 	export AAAA_RECORD_NAME="www.${CLOUDDNS_DNS_NAME}"
@@ -52,10 +52,8 @@ function setup() {
         create_config
         
         # Create DNS Managed Zone
-        echo "Creating cloud dns managed zone: ${CLOUDDNS_ZONE_NAME}"
         gcloud dns managed-zones create --dns-name="${CLOUDDNS_DNS_NAME}" \
-			--description="Test managed zone" \
-            "${CLOUDDNS_ZONE_NAME}"
+			--description="Test managed zone" "${CLOUDDNS_ZONE_NAME}"
 	
     fi
 
@@ -80,69 +78,75 @@ function teardown() {
 @test "[$BATS_TEST_NUMBER]: Creating deployment: ${DEPLOYMENT_NAME} from ${CONFIG}" {
     
 	gcloud deployment-manager deployments create "${DEPLOYMENT_NAME}" --config "${CONFIG}" --project "${CLOUD_FOUNDATION_PROJECT_ID}"
-    
     [[ "$status" -eq 0 ]]
 }
 
 @test "[$BATS_TEST_NUMBER]: A record: $A_RECORD_NAME is created in Deployment ${DEPLOYMENT_NAME}" {
-    run gcloud dns record-sets list --zone="${CLOUDDNS_ZONE_NAME}" --project "${CLOUD_FOUNDATION_PROJECT_ID}" --filter="name=($A_RECORD_NAME)" --format=flattened
-    
+
+    run gcloud dns record-sets list --zone="${CLOUDDNS_ZONE_NAME}" \
+			--project "${CLOUD_FOUNDATION_PROJECT_ID}" \
+			--filter="name=($A_RECORD_NAME)" --format=flattened
     [[ "$status" -eq 0 ]]
     [[ "$output" =~ "$A_RECORD_NAME" ]]
 }
 
 @test "[$BATS_TEST_NUMBER]: A Record IP: ${A_RECORD_IP} is in rrdatas in Deployment ${DEPLOYMENT_NAME}" {
     
-    a_result=$(gcloud dns record-sets list --zone="${CLOUDDNS_ZONE_NAME}" --project "${CLOUD_FOUNDATION_PROJECT_ID}" --filter="type=(A)" --format=flattened | grep "${A_RECORD_IP}")
-    
+    a_result=$(gcloud dns record-sets list --zone="${CLOUDDNS_ZONE_NAME}" \
+					--project "${CLOUD_FOUNDATION_PROJECT_ID}" --filter="type=(A)" \
+					--format=flattened | grep "${A_RECORD_IP}")
     [[ "$status" -eq 0 ]]
     [[ "$a_result" =~ "${A_RECORD_IP}" ]]
 }
 
 @test "[$BATS_TEST_NUMBER]: A Record TTL is set to 20 for : ${A_RECORD_NAME} is in rrdatas in Deployment ${DEPLOYMENT_NAME}" {
     
-    result=$(gcloud dns record-sets list --zone="${CLOUDDNS_ZONE_NAME}" --project "${CLOUD_FOUNDATION_PROJECT_ID}" --filter="type=(A)" --format=flattened | grep 20)
-    
+    result=$(gcloud dns record-sets list --zone="${CLOUDDNS_ZONE_NAME}" \
+				--project "${CLOUD_FOUNDATION_PROJECT_ID}" --filter="type=(A)" \
+				--format=flattened | grep 20)
     [[ "$status" -eq 0 ]]
     [[ "$result" =~ "20" ]]
 }
 
 @test "[$BATS_TEST_NUMBER]: AAAA Record: ${AAAA_RECORD_NAME} is created in Deployment ${DEPLOYMENT_NAME}" {
     
-    run gcloud dns record-sets list --zone="${CLOUDDNS_ZONE_NAME}" --project "${CLOUD_FOUNDATION_PROJECT_ID}" --filter="name=(${AAAA_RECORD_NAME})"
-    
+    run gcloud dns record-sets list --zone="${CLOUDDNS_ZONE_NAME}" \
+			--project "${CLOUD_FOUNDATION_PROJECT_ID}" --filter="name=(${AAAA_RECORD_NAME})"
     [[ "$status" -eq 0 ]]
     [[ "$output" =~ "${AAAA_RECORD_NAME}" ]]
 }
 
 @test "[$BATS_TEST_NUMBER]: AAAA Record IP: ${AAAA_RECORD_IP} is in rrdatas in Deployment ${DEPLOYMENT_NAME}" {
     
-    result=$(gcloud dns record-sets list --zone="${CLOUDDNS_ZONE_NAME}" --project "${CLOUD_FOUNDATION_PROJECT_ID}" --filter="type=(AAAA)" --format=flattened | grep "${AAAA_RECORD_IP}")
-    
+    result=$(gcloud dns record-sets list --zone="${CLOUDDNS_ZONE_NAME}" \
+				--project "${CLOUD_FOUNDATION_PROJECT_ID}" --filter="type=(AAAA)" \
+				--format=flattened | grep "${AAAA_RECORD_IP}")
     [[ "$status" -eq 0 ]]
     [[ "$result" =~ "${AAAA_RECORD_IP}" ]]
 }
 
 @test "[$BATS_TEST_NUMBER]: AAAA Record TTL is set to 30 for : ${AAAA_RECORD_NAME} is in rrdatas in Deployment ${DEPLOYMENT_NAME}" {
     
-    result=$(gcloud dns record-sets list --zone="${CLOUDDNS_ZONE_NAME}" --project "${CLOUD_FOUNDATION_PROJECT_ID}" --filter="type=(AAAA)" --format=flattened | grep 30)
-    
+    result=$(gcloud dns record-sets list --zone="${CLOUDDNS_ZONE_NAME}" \
+				--project "${CLOUD_FOUNDATION_PROJECT_ID}" --filter="type=(AAAA)" \
+				--format=flattened | grep 30)
     [[ "$status" -eq 0 ]]
     [[ "$result" =~ "30" ]]
 }
 
 @test "[$BATS_TEST_NUMBER]: MX Record: ${MX_RECORD} is in rrdatas in Deployment ${DEPLOYMENT_NAME}" {
     
-    mx_result=$(gcloud dns record-sets list --zone="${CLOUDDNS_ZONE_NAME}" --project "${CLOUD_FOUNDATION_PROJECT_ID}" --filter="type=(MX)" --format=flattened)
-    
+    mxresult=$(gcloud dns record-sets list --zone="${CLOUDDNS_ZONE_NAME}" \
+					--project "${CLOUD_FOUNDATION_PROJECT_ID}" --filter="type=(MX)")
     [[ "$status" -eq 0 ]]
-    [[ "$mx_result" =~ "${MX_RECORD_NAME}" ]]
+    [[ "$mxresult" =~ "${MX_RECORD_NAME}" ]]
 }
 
 @test "[$BATS_TEST_NUMBER]: MX Record TTL is set to 300: ${MX_RECORD} is in rrdatas in Deployment ${DEPLOYMENT_NAME}" {
     
-    result=$(gcloud dns record-sets list --zone="${CLOUDDNS_ZONE_NAME}" --project "${CLOUD_FOUNDATION_PROJECT_ID}" --filter="type=(MX)" --format=flattened | grep 300)
-    
+    result=$(gcloud dns record-sets list --zone="${CLOUDDNS_ZONE_NAME}" \
+				--project "${CLOUD_FOUNDATION_PROJECT_ID}" --filter="type=(MX)" \
+				--format=flattened | grep 300)
     [[ "$status" -eq 0 ]]
     [[ "$result" =~ "300" ]]
 }
@@ -150,15 +154,15 @@ function teardown() {
 @test "[$BATS_TEST_NUMBER]: TXT Record: ${TXT_RECORD} is in rrdatas in Deployment ${DEPLOYMENT_NAME}" {
     
     run gcloud dns record-sets list --zone="${CLOUDDNS_ZONE_NAME}" --project "${CLOUD_FOUNDATION_PROJECT_ID}" --filter="type=(TXT)"
-    
     [[ "$status" -eq 0 ]]
     [[ "$result" =~ "${TXT_RECORD_NAME}" ]]
 }
 
 @test "[$BATS_TEST_NUMBER]: TXT Record TTL is set to 235 for: ${TXT_RECORD} is in rrdatas in Deployment ${DEPLOYMENT_NAME}" {
     
-    result=$(gcloud dns record-sets list --zone="${CLOUDDNS_ZONE_NAME}" --project "${CLOUD_FOUNDATION_PROJECT_ID}" --filter="type=(TXT)" --format=flattened | grep 235)
-    
+    result=$(gcloud dns record-sets list --zone="${CLOUDDNS_ZONE_NAME}" \
+				--project "${CLOUD_FOUNDATION_PROJECT_ID}" --filter="type=(TXT)" \
+				--format=flattened | grep 235)
     [[ "$status" -eq 0 ]]
     [[ "$result" =~ "235" ]]
 }
@@ -166,21 +170,18 @@ function teardown() {
 @test "[$BATS_TEST_NUMBER]: Resolving ${A_RECORD_NAME} with nslookup ..." {
     
     skip "This will be implemented soon"
-    $result=$(gcloud dns managed-zones describe ${CLOUDDNS_ZONE_NAME} --format=flattened | grep nameServers | cut -d' ' -f2 | xargs nslookup)
-
+    $result=$(gcloud dns managed-zones describe ${CLOUDDNS_ZONE_NAME} \
+					--format=flattened | grep nameServers | cut -d' ' -f2 | xargs nslookup)
     [[ "$status" -eq 0 ]]
     [[ "$result" =~ "${A_RECORD_IP}" ]]
-
 	$is_refused=$(echo "${result}" | grep --quiet "REFUSED")
-
     [[ "$status" -eq 0 ]]
 }
 
 @test "[$BATS_TEST_NUMBER]: Deleting deployment: ${DEPLOYMENT_NAME}" {
+
     gcloud deployment-manager deployments delete "${DEPLOYMENT_NAME}" -q --project "${CLOUD_FOUNDATION_PROJECT_ID}"
-
     result=$(gcloud dns record-sets list --zone="${CLOUDDNS_ZONE_NAME}"  --project "${CLOUD_FOUNDATION_PROJECT_ID}" --format=flattened)
-
     [[ "$status" -eq 0 ]]
     [[ ! "$output" =~ "${A_RECORD_NAME}" ]]
     [[ ! "$output" =~ "${AAAA_RECORD_NAME}" ]]
