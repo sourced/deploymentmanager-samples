@@ -33,7 +33,7 @@ required:
 properties:
   zoneName:
     type: string
-    description: The description for the managed zone. This is required by Cloud DNS
+    description: User assigned name for the managed zone. This is required by Cloud DNS
     pattern: ^[(a-z)\d\-].{1,63}$
   dnsName:
     type: string
@@ -45,7 +45,7 @@ properties:
   description:
     type: string
     description: |
-      Description for the managed zone name. mutable string of at most 1024 characters 
+      Description for the managed zone name. Mutable string of at most 1024 characters 
       associated with this resource for the users convenience. Has no effect on the managed zone's function.
     pattern: ^.{0,1023}$
 
