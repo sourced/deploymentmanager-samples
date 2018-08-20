@@ -20,7 +20,7 @@ def generate_config(context):
 
     managed_zone_name = context.properties.get('zoneName')
     dnsname = context.properties.get('dnsName')
-    description = context.properties.get('description')
+    managed_zone_description = context.properties.get('description')
 
     managed_zone = {
         'name': context.env['name'],
@@ -28,7 +28,7 @@ def generate_config(context):
         'properties': {
           'name': managed_zone_name,
           'dnsName': dnsname,
-          'description': description
+          'description': managed_zone_description
         }
     }
 
@@ -40,8 +40,8 @@ def generate_config(context):
         'outputs':
             [
                 {
-                    'name': 'managedZoneName',
-                    'value': managed_zone_name
+                    'name': 'managedZoneSelfLink',
+                    'value': '$(ref.{}.selfLink)'.format(context.env['name'])
                 },
                 {
                     'name': 'dnsName',

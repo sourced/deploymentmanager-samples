@@ -32,21 +32,25 @@ required:
 
 properties:
   zoneName:
-    description: The description for the managed zone. This is required by Cloud DNS
     type: string
+    description: The description for the managed zone. This is required by Cloud DNS
     pattern: ^.{0,1023}$
 
   dnsName:
-    description: |+
+    type: string
+    description: |
       The dnsName parameter used in the ManagedZone. The DNS name of this
       managed zone, for instance "example.com.".
       Just assert that it ends in a dot, as that is the most common mistake.
-    type: string
     pattern: \.$
+  description:
+    type: string
+    description: |
+      description for the managed zone name.
 
 outputs:
   properties:
-    - managedZoneName:
+    - managedZoneSelfLink:
       type: string
       description: managed zone resource name
     - dnsName:
