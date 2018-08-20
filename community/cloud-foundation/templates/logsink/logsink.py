@@ -20,6 +20,19 @@ def generate_config(context):
     project_id = context.env['project']
     name = context.properties.get('name', context.env['name'])
 
+    if context.properties.get('orgId'):
+        source_id = str(context.properties.get('orgId'))
+        source_type = 'organizations'
+    elif context.properties.get('billingAccountId'):
+        source_id = context.properties.get('billingAccountId')
+        source_type = 'billingAccounts'
+    elif context.properties.get('folderId'):
+        source_id = str(context.properties.get('folderId'))
+        source_type = 'folders'
+    elif context.properties.get('projectId'):
+        source_id = context.properties.get('projectId')
+        source_type = 'projects'
+
     if context.properties['destinationType'] == 'pubsub':
         destination = 'pubsub.googleapis.com/projects/{}/topics/{}'.format(
             project_id,
@@ -37,7 +50,8 @@ def generate_config(context):
 
     properties = {
         'name': name,
-        'sink': name,
+        'parent': '{}/{}'.format(source_type,
+                                 source_id),
         'destination': destination,
         'uniqueWriterIdentity': context.properties['uniqueWriterIdentity']
     }
@@ -46,12 +60,39 @@ def generate_config(context):
     if sink_filter:
         properties['filter'] = sink_filter
 
+    base_type = 'gcp-types/logging-v2:logging.'
+    create_name = 'logsink-create-{}'.format(context.env['name'])
+    delete_name = 'logsink-delete-{}'.format(context.env['name'])
     resources = [
         {
-            'name': context.env['name'],
-            'type': 'logging.v2.sink',
+            'name': create_name,
+            'action': base_type + source_type + '.sinks.create',
             'properties': properties
+        },
+        {
+            'name': delete_name,
+            'action': base_type + source_type + '.sinks.delete',
+            'metadata': {
+                'runtimePolicy': ['DELETE'],
+            },
+            'properties':
+                {
+                    'sinkName':
+                        '{}/{}/sinks/{}'.format(source_type,
+                                                source_id,
+                                                name)
+                }
         }
     ]
 
-    return {'resources': resources}
+    return {
+        'resources':
+            resources,
+        'outputs':
+            [
+                {
+                    'name': 'writerIdentity',
+                    'value': '$(ref.{}.writerIdentity)'.format(create_name)
+                }
+            ]
+    }

@@ -16,7 +16,10 @@ This template creates a logsink (logging sink).
 
 ### Resources
 
-- [logging.v2.sink](https://cloud.google.com/logging/docs/reference/v2/rest/v2/projects.sinks)
+- [gcp-types/logging-v2:logging.organizations.sinks.create](https://cloud.google.com/logging/docs/reference/v2/rest/v2/organizations.sinks)
+- [gcp-types/logging-v2:logging.billingAccounts.sinks.create](https://cloud.google.com/logging/docs/reference/v2/rest/v2/billingAccounts.sinks)
+- [gcp-types/logging-v2:logging.folders.sinks.create](https://cloud.google.com/logging/docs/reference/v2/rest/v2/folders.sinks)
+- [gcp-types/logging-v2:logging.projects.sinks.create](https://cloud.google.com/logging/docs/reference/v2/rest/v2/projects.sinks)
 
 ### Properties
 

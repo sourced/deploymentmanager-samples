@@ -54,6 +54,15 @@ properties:
       An advanced log filter that limits the export to those log entries that: (a) 
       are in the resource that owns the sink; and (b) matches the filter condition(s).
 
+outputs:
+  properties:
+    - writerIdentity:
+      type: string
+      description: |
+        A service account which Logging writes the exported logentries to the
+        sink's destination. Until you grant this identity write-access to the
+        destination, log entry exports from this sink will fail.
+
 documentation:
   - templates/logsink/README.md
 

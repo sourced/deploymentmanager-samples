@@ -9,23 +9,110 @@ imports:
     name: logsink.py
 
 resources:
-  - name: test-logsink-storage-${RAND}
+  # Project sink with bucket destination
+  - name: test-logsink-project-storage-${RAND}
     type: logsink.py
     properties:
+      projectId: ${CLOUD_FOUNDATION_PROJECT_ID}
       destinationName: test-bucket-${RAND}
       destinationType: storage
       uniqueWriterIdentity: true
 
-  - name: test-logsink-pubsub-${RAND}
+  # Project sink with pubsub destination
+  - name: test-logsink-project-pubsub-${RAND}
     type: logsink.py
     properties:
+      projectId: ${CLOUD_FOUNDATION_PROJECT_ID}
       destinationName: test-topic-${RAND}
       destinationType: pubsub
       uniqueWriterIdentity: true
 
-  - name: test-logsink-bq-${RAND}
+  # Project sink with bq destination
+  - name: test-logsink-project-bq-${RAND}
     type: logsink.py
     properties:
+      projectId: ${CLOUD_FOUNDATION_PROJECT_ID}
+      destinationName: test_dataset_${RAND}
+      destinationType: bigquery
+      uniqueWriterIdentity: true
+
+  # Organization sink with bucket destination
+  - name: test-logsink-org-storage-${RAND}
+    type: logsink.py
+    properties:
+      orgId: ${CLOUD_FOUNDATION_ORGANIZATION_ID}
+      destinationName: test-bucket-${RAND}
+      destinationType: storage
+      uniqueWriterIdentity: true
+
+  # Organization sink with pubsub destination
+  - name: test-logsink-org-pubsub-${RAND}
+    type: logsink.py
+    properties:
+      orgId: ${CLOUD_FOUNDATION_ORGANIZATION_ID}
+      destinationName: test-topic-${RAND}
+      destinationType: pubsub
+      uniqueWriterIdentity: true
+
+  # Organization sink with bq destination
+  - name: test-logsink-org-bq-${RAND}
+    type: logsink.py
+    properties:
+      orgId: ${CLOUD_FOUNDATION_ORGANIZATION_ID}
+      destinationName: test_dataset_${RAND}
+      destinationType: bigquery
+      uniqueWriterIdentity: true
+
+  # Billing Account sink with bucket destination
+  - name: test-logsink-billing-storage-${RAND}
+    type: logsink.py
+    properties:
+      billingAccountId: ${CLOUD_FOUNDATION_BILLING_ACCOUNT_ID}
+      destinationName: test-bucket-${RAND}
+      destinationType: storage
+      uniqueWriterIdentity: true
+
+  # Billing Account sink with pubsub destination
+  - name: test-logsink-billing-pubsub-${RAND}
+    type: logsink.py
+    properties:
+      billingAccountId: ${CLOUD_FOUNDATION_BILLING_ACCOUNT_ID}
+      destinationName: test-topic-${RAND}
+      destinationType: pubsub
+      uniqueWriterIdentity: true
+
+  # Billing Account sink with bq destination
+  - name: test-logsink-billing-bq-${RAND}
+    type: logsink.py
+    properties:
+      billingAccountId: ${CLOUD_FOUNDATION_BILLING_ACCOUNT_ID}
+      destinationName: test_dataset_${RAND}
+      destinationType: bigquery
+      uniqueWriterIdentity: true
+
+  # Folder sink with bucket destination
+  - name: test-logsink-folder-storage-${RAND}
+    type: logsink.py
+    properties:
+      folderId: ${TEST_ORG_FOLDER_NAME}
+      destinationName: test-bucket-${RAND}
+      destinationType: storage
+      uniqueWriterIdentity: true
+
+  # Folder sink with pubsub destination
+  - name: test-logsink-folder-pubsub-${RAND}
+    type: logsink.py
+    properties:
+      folderId: ${TEST_ORG_FOLDER_NAME}
+      destinationName: test-topic-${RAND}
+      destinationType: pubsub
+      uniqueWriterIdentity: true
+
+  # Folder sink with bq destination
+  - name: test-logsink-folder-bq-${RAND}
+    type: logsink.py
+    properties:
+      folderId: ${TEST_ORG_FOLDER_NAME}
       destinationName: test_dataset_${RAND}
       destinationType: bigquery
       uniqueWriterIdentity: true

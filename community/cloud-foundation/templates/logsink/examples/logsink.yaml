@@ -4,20 +4,13 @@
 #   - a Cloud Storage bucket
 #   - a PubSub topic
 #   - a BigQuery dataset
-
 imports:
   - path: templates/logsink/logsink.py
     name: logsink.py
 
 resources:
-  - name: test-logsink-storage
-    type: logsink.py
-    properties:
-      destinationName: test-bucket
-      destinationType: storage
-      uniqueWriterIdentity: true
-
-  - name: test-logsink-pubsub
+  # Organization sink with a PubSub topic destination
+  - name: test-org-logsink-pubsub
     type: logsink.py
     properties:
       # When using a PubSub topic, the value must be the topic ID. The ID must
@@ -27,7 +20,8 @@ resources:
       destinationType: pubsub
       uniqueWriterIdentity: true
 
-  - name: test-logsink-bq
+  # Billing account sink with a BigQuery dataset destination
+  - name: test-billing-logsink-bq
     type: logsink.py
     properties:
       # When using a BQ dataset, the value must be the dataset ID. The ID must
@@ -35,4 +29,22 @@ resources:
       # The maximum length is 1,024 characters.
       destinationName: test_dataset
       destinationType: bigquery
+      uniqueWriterIdentity: true
+
+  # Project sink with a Cloud Storage bucket destination
+  - name: test-project-logsink-storage
+    type: logsink.py
+    properties:
+      projectId: test-project-id
+      destinationName: test-bucket
+      destinationType: storage
+      uniqueWriterIdentity: true
+
+  # Folder sink with a Cloud Storage bucket destination
+  - name: test-folder-logsink-storage
+    type: logsink.py
+    properties:
+      folderId: "1234567890"
+      destinationName: test-bucket
+      destinationType: storage
       uniqueWriterIdentity: true
