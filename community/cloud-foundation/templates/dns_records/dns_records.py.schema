@@ -65,6 +65,7 @@ properties:
           type: string
           description: Type of the record.
           enum:
+          - CNAME
           - A
           - AAAA
           - TXT
