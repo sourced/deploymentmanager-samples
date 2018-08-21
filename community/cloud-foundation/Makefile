@@ -13,7 +13,6 @@
 # $ make clean-venv (or make clean-all)
 #
 
-PACKAGE := cloud_foundation
 TESTDIR := tests
 PYTHON  := python2.7
 SHELL   := /bin/bash
@@ -52,7 +51,7 @@ virtualenv:
 
 # install package in develoment mode (for local dev only!)
 development:
-#	${PYTHON} -m pip install -e .
+	${PYTHON} -m pip install -e .
 	${PYTHON} -m pip install -r requirements/development.txt
 	${PYTHON} -m pip install -r requirements/install.txt
 	git clone https://github.com/sstephenson/bats.git && cd bats && ./install.sh ../virtualenv
@@ -82,7 +81,7 @@ clean-all: clean-virtualenv clean
 # cleans up python compiled files, built packages, tests results, caches, etc
 clean:
 	find . \( -path '*__pycache__/*' -o -name __pycache__ \) -delete
-	rm -rf build dist *.egg-info .cache .eggs .coverage
+	rm -rf build dist *.egg-info .cache .eggs .coverage bats
 
 # cleans up a python virtual environment.
 # IMPORTANT: deactivate virtualenv prior to running this!
