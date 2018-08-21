@@ -19,7 +19,7 @@ info:
     Creates a cloud dns managed zone
 
     For more information on this resource:
-      - https://cloud.google.com/dns/api/v1/managedZones
+      - https://cloud.google.com/dns/zones/
       
   version: 1.0
 
@@ -38,22 +38,22 @@ properties:
   dnsName:
     type: string
     description: |
-      The dnsName parameter used in the ManagedZone. The DNS name of this
-      managed zone, for instance "example.com.".
+      The DNS name of this managed zone, for instance "example.com.".
       Just assert that it ends in a dot, as that is the most common mistake.
     pattern: \.$
   description:
     type: string
     description: |
-      Description for the managed zone name. Mutable string of at most 1024 characters 
-      associated with this resource for the users convenience. Has no effect on the managed zone's function.
+      Description for the managed zone name. Mutable string of at most 1024 characters
+      associated with this resource for the users convenience. 
+      Has no effect on the managed zone's function.
     pattern: ^.{0,1023}$
 
 outputs:
   properties:
     - managedZoneName:
       type: string
-      description: managed zone resource name
+      description: Managed zone resource name
     - dnsName:
       type: string
       description: DnsName for the managed zone

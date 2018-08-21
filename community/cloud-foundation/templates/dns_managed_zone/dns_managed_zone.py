@@ -13,6 +13,7 @@
 # limitations under the License.
 """Create a managed zone resource in clouddns """
 
+
 def generate_config(context):
     """ Entry point for the deployment resources """
 
@@ -25,11 +26,12 @@ def generate_config(context):
     managed_zone = {
         'name': context.env['name'],
         'type': 'dns.v1.managedZone',
-        'properties': {
-          'name': managed_zone_name,
-          'dnsName': dnsname,
-          'description': managed_zone_description
-        }
+        'properties':
+            {
+                'name': managed_zone_name,
+                'dnsName': dnsname,
+                'description': managed_zone_description
+            }
     }
 
     resources.append(managed_zone)
@@ -49,4 +51,3 @@ def generate_config(context):
                 }
             ]
     }
-
