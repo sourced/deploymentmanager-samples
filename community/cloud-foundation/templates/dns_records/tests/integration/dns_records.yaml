@@ -39,5 +39,5 @@ resources:
         type: "TXT"
         ttl: 235 
         rrdatas:
-          - "mysuperawesometextrecord"
+          - '"my super awesome text record"'
 

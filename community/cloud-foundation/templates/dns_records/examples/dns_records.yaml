@@ -33,10 +33,10 @@ resources:
         type: "MX"
         ttl: 300
         rrdatas:
-          - "234 mail.foobar.local."
+          - "25 smpt.mail.foobar.local."
       - 
         name: 'txt.foobar.local.'
         type: "TXT"
         ttl: 235 
         rrdatas:
-          - "MySupeAwesomeBlog"
+          - '"my super awesome text record"'

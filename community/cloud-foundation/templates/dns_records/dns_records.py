@@ -13,6 +13,7 @@
 # limitations under the License.
 """Create dns record-sets resources for a managed zone"""
 
+
 def generate_config(context):
     """ Entry point for the deployment resources """
 
@@ -20,26 +21,35 @@ def generate_config(context):
     dnstypeprovider = 'gcp-types/dns-v1'
     zonename = context.properties['zoneName']
 
+    # For each ResourceRecordSet. Create:
+    # 1. A Change to create it.
+    # 2. A Change to delete it.
     for resource_recordset in context.properties['resourceRecordSets']:
+        # updates will be matched against names, so create a unique name
+        # for this RRS.
         deployment_name = generate_unique_recordsetname(resource_recordset)
+        # Change to create it.
         recordset_create = {
-            'name': '%(deploymentName)s-create' % {'deploymentName': deployment_name},
+            'name': '%(deploymentName)s-create' % {
+                'deploymentName': deployment_name},
             'action': '%(dnsTypeProvider)s:dns.changes.create' % {
                 'dnsTypeProvider': dnstypeprovider},
             'metadata': {
                 'runtimePolicy': [
-                    'CREATE'
-                ]
+                    'CREATE',
+                ],
             },
             'properties': {
                 'managedZone': zonename,
                 'additions': [
-                    resource_recordset
-                ]
+                    resource_recordset,
+                ],
             },
         }
+        # Change to delete it.
         recordset_delete = {
-            'name': '%(deploymentName)s-delete' % {'deploymentName': deployment_name},
+            'name': '%(deploymentName)s-delete' % {
+                'deploymentName': deployment_name},
             'action': '%(dnsTypeProvider)s:dns.changes.create' % {
                 'dnsTypeProvider': dnstypeprovider},
             'metadata': {
@@ -60,12 +70,13 @@ def generate_config(context):
 
     return {'resources': resources}
 
+
 def generate_unique_recordsetname(resource_recordset):
-    """ generates a unique string joined with properties from a resourceRecordset """
+    """ generates a unique string joined with properties
+    from a resourceRecordset """
 
     return '%(name)s-%(type)s-%(ttl)s' % {
         'name': resource_recordset['name'],
         'type': resource_recordset['type'].lower(),
         'ttl': resource_recordset['ttl']
     }
-

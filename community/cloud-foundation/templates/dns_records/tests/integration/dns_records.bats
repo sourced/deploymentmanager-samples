@@ -29,7 +29,8 @@ if [[ -e "${RANDOM_FILE}" ]]; then
 	export AAAA_RECORD_IP="1002:db8::8bd:2001"
 	export MX_RECORD_NAME="mail.${CLOUDDNS_DNS_NAME}"
 	export MX_RECORD="25 smtp.mail.${CLOUDDNS_DNS_NAME}"
-	export TXT_RECORD="txt.${CLOUDDNS_DNS_NAME}"
+	export TXT_RECORD_NAME="txt.${CLOUDDNS_DNS_NAME}"
+	export TXT_RECORD="my super awesome text record"
 
 fi
 
@@ -151,11 +152,20 @@ function teardown() {
     [[ "$result" =~ "300" ]]
 }
 
-@test "[$BATS_TEST_NUMBER]: TXT Record: ${TXT_RECORD} is in rrdatas in Deployment ${DEPLOYMENT_NAME}" {
+@test "[$BATS_TEST_NUMBER]: TXT Record: ${TXT_RECORD_NAME} is in rrdatas in Deployment ${DEPLOYMENT_NAME}" {
     
-    run gcloud dns record-sets list --zone="${CLOUDDNS_ZONE_NAME}" --project "${CLOUD_FOUNDATION_PROJECT_ID}" --filter="type=(TXT)"
+    tresult=$(gcloud dns record-sets list --zone="${CLOUDDNS_ZONE_NAME}" \
+                --project "${CLOUD_FOUNDATION_PROJECT_ID}" --filter="type=(TXT)")
     [[ "$status" -eq 0 ]]
-    [[ "$result" =~ "${TXT_RECORD_NAME}" ]]
+    [[ "$tresult" =~ "${TXT_RECORD_NAME}" ]]
+}
+
+@test "[$BATS_TEST_NUMBER]: TXT Record has data: ${TXT_RECORD} in Deployment ${DEPLOYMENT_NAME}" {
+    
+    tresult=$(gcloud dns record-sets list --zone="${CLOUDDNS_ZONE_NAME}" \
+                --project "${CLOUD_FOUNDATION_PROJECT_ID}" --filter="type=(TXT)")
+    [[ "$status" -eq 0 ]]
+    [[ "$tresult" =~ "${TXT_RECORD}" ]]
 }
 
 @test "[$BATS_TEST_NUMBER]: TXT Record TTL is set to 235 for: ${TXT_RECORD} is in rrdatas in Deployment ${DEPLOYMENT_NAME}" {
@@ -167,15 +177,15 @@ function teardown() {
     [[ "$result" =~ "235" ]]
 }
 
-@test "[$BATS_TEST_NUMBER]: Resolving ${A_RECORD_NAME} with nslookup ..." {
+@test "[$BATS_TEST_NUMBER]: Resolving www.${RAND}.com with nslookup against managedzone's NameServers ..." {
     
-    skip "This will be implemented soon"
-    $result=$(gcloud dns managed-zones describe ${CLOUDDNS_ZONE_NAME} \
-					--format=flattened | grep nameServers | cut -d' ' -f2 | xargs nslookup)
+    skip "to be implemented soon"
+    result=$(gcloud dns managed-zones describe "${CLOUDDNS_ZONE_NAME}" | grep googledomains | cut -d' ' -f2 | rev | cut -c 2- | rev | xargs nslookup "www.${RAND}.com")
     [[ "$status" -eq 0 ]]
     [[ "$result" =~ "${A_RECORD_IP}" ]]
-	$is_refused=$(echo "${result}" | grep --quiet "REFUSED")
-    [[ "$status" -eq 0 ]]
+
+	#$is_refused=$(echo "${result}" | grep --quiet "REFUSED")
+    #[[ "$status" -eq 0 ]]
 }
 
 @test "[$BATS_TEST_NUMBER]: Deleting deployment: ${DEPLOYMENT_NAME}" {

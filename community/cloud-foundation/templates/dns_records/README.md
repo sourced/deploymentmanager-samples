@@ -1,4 +1,4 @@
-# Resource RecordSets
+# DNS Resource RecordSets
 
 Template for creating cloud dns resource record-sets
 
@@ -24,12 +24,13 @@ See `properties` section in the schema files
 #### Usage
 
 1. Clone the [DM Samples repository](https://github.com/GoogleCloudPlatform/deploymentmanager-samples)
-2. Go to the [community/cloud-foundation](../../../cloud-foundation) directory
+2. Navigate to the [community/cloud-foundation](../../../cloud-foundation) directory
 3. Copy the example DM config to be used as a model for the deployment, in this case [examples/dns_records.yaml](examples/dns_records.yaml)
-4. Change the values in the config file to match your specific GCP setup.
-   Refer to the properties in the schema files described above.
-5. Create your deployment as described below, replacing <YOUR_DEPLOYMENT_NAME>
-   with your with your own deployment name
+4. Change the values in the config file to match your specific GCP setup. Refer to the properties in the [schema file](dns_records.py.schema)
+5. DNS resource record-sets can be added to an existing zone. Ensure that a managed-zone exists before running the next step
+   * Cloud DNS managed zone created either using `gcloud dns managed-zone create ZONE_NAME --dns-name=<DNS_NAME> --description=<ZONE_DESCRIPTION>` OR
+   * Using the [DNS managed zone](../../../cloud-foundation/templates/dns_managed_zone) template deployment
+6. Create your deployment as described below, replacing <YOUR_DEPLOYMENT_NAME> with your with your own deployment name
 
 For example:
 
