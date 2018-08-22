@@ -51,12 +51,18 @@ properties:
 
 outputs:
   properties:
-    - managedZoneName:
-      type: string
-      description: Managed zone resource name
     - dnsName:
       type: string
       description: DnsName for the managed zone
+    - managedZoneDescription:
+      type: string
+      description: Description of the managed zone.
+    - nameServers:
+      type: array
+      description: The list of nameservers that will be authoritative for this domain.
+    - managedZoneName:
+      type: string
+      description: Managed zone resource name
 
 documentation:
   - templates/dns_managed_zone/README.md

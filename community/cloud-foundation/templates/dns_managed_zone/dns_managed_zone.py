@@ -19,9 +19,10 @@ def generate_config(context):
 
     resources = []
 
-    managed_zone_name = context.properties.get('zoneName')
-    dnsname = context.properties.get('dnsName')
-    managed_zone_description = context.properties.get('description')
+    managed_zone_name = context.properties['zoneName']
+    dnsname = context.properties['dnsName']
+    managed_zone_description = context.properties['description']
+    name_servers = '$(ref.' + context.properties['zoneName'] + '.nameServers)'
 
     managed_zone = {
         'name': context.env['name'],
@@ -40,14 +41,24 @@ def generate_config(context):
         'resources':
             resources,
         'outputs':
+            # Outputs need to at least match Terraform's exported attributes
+            # https://www.terraform.io/docs/providers/google/d/dns_managed_zone.html
             [
-                {
-                    'name': 'managedZoneName',
-                    'value': managed_zone_name
-                },
                 {
                     'name': 'dnsName',
                     'value': dnsname
+                },
+                {
+                    'name': 'managedZoneDescription',
+                    'value': managed_zone_description
+                },
+                {
+                    'name': 'nameServers',
+                    'value': name_servers
+                },
+                {
+                    'name': 'managedZoneName',
+                    'value': managed_zone_name
                 }
             ]
     }
