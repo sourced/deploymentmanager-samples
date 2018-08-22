@@ -78,7 +78,8 @@ function teardown() {
 
 @test "[$BATS_TEST_NUMBER]: Creating deployment: ${DEPLOYMENT_NAME} from ${CONFIG}" {
     
-	gcloud deployment-manager deployments create "${DEPLOYMENT_NAME}" --config "${CONFIG}" --project "${CLOUD_FOUNDATION_PROJECT_ID}"
+	gcloud deployment-manager deployments create "${DEPLOYMENT_NAME}" --config "${CONFIG}" \
+            --project "${CLOUD_FOUNDATION_PROJECT_ID}"
     [[ "$status" -eq 0 ]]
 }
 
