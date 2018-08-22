@@ -52,7 +52,7 @@ properties:
     object:
       type: object
       description: An Individual ResourceRecordSet.
-      item:
+      items:
         required:
         - name
         - type
