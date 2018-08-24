@@ -18,7 +18,6 @@ def generate_config(context):
     """ Entry point for the deployment resources """
 
     resources = []
-    dnstypeprovider = 'gcp-types/dns-v1'
     zonename = context.properties['zoneName']
 
     # For each ResourceRecordSet. Create:
@@ -32,8 +31,7 @@ def generate_config(context):
         recordset_create = {
             'name': '%(deploymentName)s-create' % {
                 'deploymentName': deployment_name},
-            'action': '%(dnsTypeProvider)s:dns.changes.create' % {
-                'dnsTypeProvider': dnstypeprovider},
+            'action': 'gcp-types/dns-v1:dns.changes.create',
             'metadata': {
                 'runtimePolicy': [
                     'CREATE',
@@ -50,8 +48,7 @@ def generate_config(context):
         recordset_delete = {
             'name': '%(deploymentName)s-delete' % {
                 'deploymentName': deployment_name},
-            'action': '%(dnsTypeProvider)s:dns.changes.create' % {
-                'dnsTypeProvider': dnstypeprovider},
+            'action': 'gcp-types/dns-v1:dns.changes.create',
             'metadata': {
                 'runtimePolicy': [
                     'DELETE'
