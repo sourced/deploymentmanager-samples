@@ -20,7 +20,6 @@ if [[ -e "${RANDOM_FILE}" ]]; then
     # Deployment names cannot have underscores. Replace with dashes.
     DEPLOYMENT_NAME=${DEPLOYMENT_NAME//_/-}
     CONFIG=".${DEPLOYMENT_NAME}.yaml"
-
     export CLOUDDNS_ZONE_NAME="test-managedzone-${RAND}"
     export CLOUDDNS_DNS_NAME="${RAND}.com."
     export A_RECORD_NAME="www.${CLOUDDNS_DNS_NAME}"
@@ -39,7 +38,7 @@ fi
 
 function create_config() {
     echo "Creating ${CONFIG}"
-    envsubst < templates/dns_records/tests/integration/dns_records.yaml > "${CONFIG}"
+    envsubst < templates/dns_records/tests/integration/${TEST_NAME}.yaml > "${CONFIG}"
 }
 
 function delete_config() {
@@ -136,45 +135,45 @@ function teardown() {
 
 @test "MX Record: ${MX_RECORD} is in rrdatas " {
     
-   run gcloud dns record-sets list --zone="${CLOUDDNS_ZONE_NAME}" \
-        --project "${CLOUD_FOUNDATION_PROJECT_ID}" --filter="type=(MX)" \
-        --format="csv[no-heading](name)"
+    run gcloud dns record-sets list --zone="${CLOUDDNS_ZONE_NAME}" \
+            --project "${CLOUD_FOUNDATION_PROJECT_ID}" --filter="type=(MX)" \
+            --format="csv[no-heading](name)"
     [[ "$status" -eq 0 ]]
     [[ "$output" =~ "${MX_RECORD_NAME}" ]]
 }
 
 @test "MX Record TTL is set to 300: ${MX_RECORD} is in rrdatas " {
     
-   run gcloud dns record-sets list --zone="${CLOUDDNS_ZONE_NAME}" \
-        --project "${CLOUD_FOUNDATION_PROJECT_ID}" --filter="type=(MX)" \
-        --format="csv[no-heading](TTL)"
+    run gcloud dns record-sets list --zone="${CLOUDDNS_ZONE_NAME}" \
+            --project "${CLOUD_FOUNDATION_PROJECT_ID}" --filter="type=(MX)" \
+            --format="csv[no-heading](TTL)"
     [[ "$status" -eq 0 ]]
     [[ "$output" =~ "300" ]]
 }
 
 @test "TXT Record: ${TXT_RECORD_NAME} is in rrdatas " {
     
-   run gcloud dns record-sets list --zone="${CLOUDDNS_ZONE_NAME}" \
-        --project "${CLOUD_FOUNDATION_PROJECT_ID}" --filter="type=(TXT)" \
-        --format="csv[no-heading](name)"
+    run gcloud dns record-sets list --zone="${CLOUDDNS_ZONE_NAME}" \
+            --project "${CLOUD_FOUNDATION_PROJECT_ID}" --filter="type=(TXT)" \
+            --format="csv[no-heading](name)"
     [[ "$status" -eq 0 ]]
     [[ "$output" =~ "${TXT_RECORD_NAME}" ]]
 }
 
 @test "TXT Record has data: ${TXT_RECORD} " {
     
-   run gcloud dns record-sets list --zone="${CLOUDDNS_ZONE_NAME}" \
-        --project "${CLOUD_FOUNDATION_PROJECT_ID}" --filter="type=(TXT)" \
-        --format="csv[no-heading](DATA)"
+    run gcloud dns record-sets list --zone="${CLOUDDNS_ZONE_NAME}" \
+            --project "${CLOUD_FOUNDATION_PROJECT_ID}" --filter="type=(TXT)" \
+            --format="csv[no-heading](DATA)"
     [[ "$status" -eq 0 ]]
     [[ "$output" =~ "${TXT_RECORD}" ]]
 }
 
 @test "TXT Record TTL is set to 235 for: ${TXT_RECORD} is in rrdatas " {
     
-   run gcloud dns record-sets list --zone="${CLOUDDNS_ZONE_NAME}" \
-        --project "${CLOUD_FOUNDATION_PROJECT_ID}" --filter="type=(TXT)" \
-        --format="csv[no-heading](TTL)"
+    run gcloud dns record-sets list --zone="${CLOUDDNS_ZONE_NAME}" \
+            --project "${CLOUD_FOUNDATION_PROJECT_ID}" --filter="type=(TXT)" \
+            --format="csv[no-heading](TTL)"
     [[ "$status" -eq 0 ]]
     [[ "$output" =~ "235" ]]
 }

@@ -12,25 +12,26 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Create dns record-sets resources for a managed zone"""
+import string
+import random
 
 
 def generate_config(context):
-    """ Entry point for the deployment resources """
+    """ Entry point for the deployment resources.
+    For each ResourceRecordSet. Create:
+    1. A Change to create it.
+    2. A Change to delete it.
+
+    The name of the action should be unique so create a random
+    string to append to the name field
+    """
 
     resources = []
     zonename = context.properties['zoneName']
-
-    # For each ResourceRecordSet. Create:
-    # 1. A Change to create it.
-    # 2. A Change to delete it.
     for resource_recordset in context.properties['resourceRecordSets']:
-        # updates will be matched against names, so create a unique name
-        # for this RRS.
-        deployment_name = generate_unique_recordsetname(resource_recordset)
-        # Change to create it.
+        deployment_name = generate_unique_string(10)
         recordset_create = {
-            'name': '%(deploymentName)s-create' % {
-                'deploymentName': deployment_name},
+            'name': deployment_name + '-create',
             'action': 'gcp-types/dns-v1:dns.changes.create',
             'metadata': {
                 'runtimePolicy': [
@@ -44,15 +45,13 @@ def generate_config(context):
                 ],
             },
         }
-        # Change to delete it.
         recordset_delete = {
-            'name': '%(deploymentName)s-delete' % {
-                'deploymentName': deployment_name},
+            'name': deployment_name + '-delete',
             'action': 'gcp-types/dns-v1:dns.changes.create',
             'metadata': {
                 'runtimePolicy': [
-                    'DELETE'
-                ]
+                    'DELETE',
+                ],
             },
             'properties': {
                 'managedZone': zonename,
@@ -68,12 +67,10 @@ def generate_config(context):
     return {'resources': resources}
 
 
-def generate_unique_recordsetname(resource_recordset):
-    """ generates a unique string joined with properties
-    from a resourceRecordset """
+def generate_unique_string(num_chars):
+    """ generates an random alphanumeric string 
+    The length of the returned string will be num_chars
+    """
 
-    return '%(name)s-%(type)s-%(ttl)s' % {
-        'name': resource_recordset['name'],
-        'type': resource_recordset['type'].lower(),
-        'ttl': resource_recordset['ttl']
-    }
+    chars = string.ascii_letters + string.digits
+    return ''.join(random.choice(chars) for x in range(num_chars))

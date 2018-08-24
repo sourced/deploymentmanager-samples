@@ -6,37 +6,37 @@
 # via the `resourceRecordSets` property and `dnsName` property of  the `dns_records.py` template 
 
 imports:
-- path: templates/dns_records/dns_records.py
-  name: dns_records.py
+  - path: templates/dns_records/dns_records.py
+    name: dns_records.py
 
 resources:
 - name: test-dns-records
   type: dns_records.py
   properties:
-    zoneName: 'test-managed-zone'
-    dnsName: 'foobar.local.'
+    zoneName: test-managed-zone
+    dnsName: foobar.local.
     resourceRecordSets:
       - 
-        name: 'www.foobar.local.'
-        type: "A"
+        name: www.foobar.local.
+        type: A
         ttl: 20
         rrdatas:
-          - "10.1.1.1"
+          - 10.1.1.1
       - 
-        name: 'www.foobar.local.'
-        type: "AAAA"
+        name: www.foobar.local.
+        type: AAAA
         ttl: 30
         rrdatas:
-          - "1002:db8::8bd:2001"
+          - 1002:db8::8bd:2001
       - 
-        name: 'mail.foobar.local.'
-        type: "MX"
+        name: mail.foobar.local.
+        type: MX
         ttl: 300
         rrdatas:
-          - "25 smpt.mail.foobar.local."
+          - '25 smpt.mail.foobar.local.'
       - 
-        name: 'txt.foobar.local.'
-        type: "TXT"
-        ttl: 235 
+        name: txt.foobar.local.
+        type: TXT
+        ttl: 235
         rrdatas:
           - '"my super awesome text record"'

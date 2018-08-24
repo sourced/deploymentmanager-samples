@@ -6,37 +6,37 @@
 # via the `resourceRecordSets` property and `dnsName` property of  the `dns_records.py` template 
 
 imports:
-- path: templates/dns_records/dns_records.py
-  name: dns_records.py
+  - path: templates/dns_records/dns_records.py
+    name: dns_records.py
 
 resources:
 - name: test-dnsrecords-${RAND}
   type: dns_records.py
   properties:
-    zoneName: "test-managedzone-${RAND}"
-    dnsName: "${RAND}.com."
+    zoneName: test-managedzone-${RAND}
+    dnsName: ${RAND}.com.
     resourceRecordSets:
       - 
-        name: "www.${RAND}.com."
-        type: "A"
+        name: www.${RAND}.com.
+        type: A
         ttl: 20
         rrdatas:
-          - "192.0.1.1"
+          - 192.0.1.1
       - 
-        name: "www.${RAND}.com."
-        type: "AAAA"
+        name: www.${RAND}.com.
+        type: AAAA
         ttl: 30
         rrdatas:
-          - "1002:db8::8bd:2001"
+          - 1002:db8::8bd:2001
       - 
-        name: "mail.${RAND}.com."
-        type: "MX"
+        name: mail.${RAND}.com.
+        type: MX
         ttl: 300
         rrdatas:
-          - "25 smtp.mail.${RAND}.com."
+          - '25 smtp.mail.${RAND}.com.'
       - 
-        name: "txt.${RAND}.com."
-        type: "TXT"
+        name: txt.${RAND}.com.
+        type: TXT
         ttl: 235 
         rrdatas:
           - '"my super awesome text record"'

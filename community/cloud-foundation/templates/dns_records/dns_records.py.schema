@@ -26,12 +26,12 @@ info:
   version: 1.0
 
 imports:
-- path: dns_records.py
+  - path: dns_records.py
 
 required:
-- zoneName
-- dnsName
-- resourceRecordSets
+  - zoneName
+  - dnsName
+  - resourceRecordSets
 
 properties:
   zoneName:
@@ -54,10 +54,10 @@ properties:
       description: An Individual ResourceRecordSet.
       items:
         required:
-        - name
-        - type
-        - ttl
-        - rrdatas
+          - name
+          - type
+          - ttl
+          - rrdatas
         name:
           type: string
           description: Name of the DNS record. Must end in dnsName.
@@ -65,13 +65,13 @@ properties:
           type: string
           description: Type of the record.
           enum:
-          - CNAME
-          - A
-          - AAAA
-          - TXT
-          - MX
-          - NS
-          - SOA
+            - CNAME
+            - A
+            - AAAA
+            - TXT
+            - MX
+            - NS
+            - SOA
         ttl:
           type: integer
           description: The time-to-live cache seconds for this record.
