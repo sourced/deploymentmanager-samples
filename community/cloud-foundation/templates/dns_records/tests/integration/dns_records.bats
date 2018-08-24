@@ -75,15 +75,15 @@ function teardown() {
 @test "Creating deployment: ${DEPLOYMENT_NAME} from ${CONFIG}" {
     
     gcloud deployment-manager deployments create "${DEPLOYMENT_NAME}" --config "${CONFIG}" \
-            --project "${CLOUD_FOUNDATION_PROJECT_ID}"
+        --project "${CLOUD_FOUNDATION_PROJECT_ID}"
     [[ "$status" -eq 0 ]]
 }
 
 @test "A record: $A_RECORD_NAME is created " {
 
     run gcloud dns record-sets list --zone="${CLOUDDNS_ZONE_NAME}" \
-            --project "${CLOUD_FOUNDATION_PROJECT_ID}"  --filter="type=(A)" \
-             --format="csv[no-heading](name)"
+        --project "${CLOUD_FOUNDATION_PROJECT_ID}"  --filter="type=(A)" \
+        --format="csv[no-heading](name)"
     [[ "$status" -eq 0 ]]
     [[ "$output" =~ "$A_RECORD_NAME" ]]
 }
@@ -91,8 +91,8 @@ function teardown() {
 @test "A Record IP: ${A_RECORD_IP} is in rrdatas " {
     
     run gcloud dns record-sets list --zone="${CLOUDDNS_ZONE_NAME}" \
-            --project "${CLOUD_FOUNDATION_PROJECT_ID}" --filter="type=(A)" \
-            --format="csv[no-heading](DATA)"
+        --project "${CLOUD_FOUNDATION_PROJECT_ID}" --filter="type=(A)" \
+        --format="csv[no-heading](DATA)"
     [[ "$status" -eq 0 ]]
     [[ "$output" =~ "${A_RECORD_IP}" ]]
 }
@@ -100,8 +100,8 @@ function teardown() {
 @test "A Record TTL is set to 20 for : ${A_RECORD_NAME} is in rrdatas " {
     
     run gcloud dns record-sets list --zone="${CLOUDDNS_ZONE_NAME}" \
-            --project "${CLOUD_FOUNDATION_PROJECT_ID}" --filter="type=(A)" \
-            --format="csv[no-heading](TTL)"
+        --project "${CLOUD_FOUNDATION_PROJECT_ID}" --filter="type=(A)" \
+        --format="csv[no-heading](TTL)"
     [[ "$status" -eq 0 ]]
     [[ "$output" -eq "20" ]]
 }
@@ -109,8 +109,8 @@ function teardown() {
 @test "AAAA Record: ${AAAA_RECORD_NAME} is created " {
     
     run gcloud dns record-sets list --zone="${CLOUDDNS_ZONE_NAME}" \
-            --project "${CLOUD_FOUNDATION_PROJECT_ID}" --filter="type=(AAAA)" \
-            --format="csv[no-heading](name)"
+        --project "${CLOUD_FOUNDATION_PROJECT_ID}" --filter="type=(AAAA)" \
+        --format="csv[no-heading](name)"
     [[ "$status" -eq 0 ]]
     [[ "$output" =~ "${AAAA_RECORD_NAME}" ]]
 }
@@ -118,8 +118,8 @@ function teardown() {
 @test "AAAA Record IP: ${AAAA_RECORD_IP} is in rrdatas " {
     
     run gcloud dns record-sets list --zone="${CLOUDDNS_ZONE_NAME}" \
-            --project "${CLOUD_FOUNDATION_PROJECT_ID}" --filter="type=(AAAA)" \
-            --format="csv[no-heading](DATA)"
+        --project "${CLOUD_FOUNDATION_PROJECT_ID}" --filter="type=(AAAA)" \
+        --format="csv[no-heading](DATA)"
     [[ "$status" -eq 0 ]]
     [[ "$output" =~ "${AAAA_RECORD_IP}" ]]
 }
@@ -127,8 +127,8 @@ function teardown() {
 @test "AAAA Record TTL is set to 30 for : ${AAAA_RECORD_NAME} is in rrdatas " {
     
     run gcloud dns record-sets list --zone="${CLOUDDNS_ZONE_NAME}" \
-            --project "${CLOUD_FOUNDATION_PROJECT_ID}" --filter="type=(AAAA)" \
-            --format="csv[no-heading](TTL)"
+        --project "${CLOUD_FOUNDATION_PROJECT_ID}" --filter="type=(AAAA)" \
+        --format="csv[no-heading](TTL)"
     [[ "$status" -eq 0 ]]
     [[ "$output" =~ "30" ]]
 }
@@ -136,8 +136,8 @@ function teardown() {
 @test "MX Record: ${MX_RECORD} is in rrdatas " {
     
     run gcloud dns record-sets list --zone="${CLOUDDNS_ZONE_NAME}" \
-            --project "${CLOUD_FOUNDATION_PROJECT_ID}" --filter="type=(MX)" \
-            --format="csv[no-heading](name)"
+        --project "${CLOUD_FOUNDATION_PROJECT_ID}" --filter="type=(MX)" \
+        --format="csv[no-heading](name)"
     [[ "$status" -eq 0 ]]
     [[ "$output" =~ "${MX_RECORD_NAME}" ]]
 }
@@ -145,8 +145,8 @@ function teardown() {
 @test "MX Record TTL is set to 300: ${MX_RECORD} is in rrdatas " {
     
     run gcloud dns record-sets list --zone="${CLOUDDNS_ZONE_NAME}" \
-            --project "${CLOUD_FOUNDATION_PROJECT_ID}" --filter="type=(MX)" \
-            --format="csv[no-heading](TTL)"
+        --project "${CLOUD_FOUNDATION_PROJECT_ID}" --filter="type=(MX)" \
+        --format="csv[no-heading](TTL)"
     [[ "$status" -eq 0 ]]
     [[ "$output" =~ "300" ]]
 }
@@ -154,8 +154,8 @@ function teardown() {
 @test "TXT Record: ${TXT_RECORD_NAME} is in rrdatas " {
     
     run gcloud dns record-sets list --zone="${CLOUDDNS_ZONE_NAME}" \
-            --project "${CLOUD_FOUNDATION_PROJECT_ID}" --filter="type=(TXT)" \
-            --format="csv[no-heading](name)"
+        --project "${CLOUD_FOUNDATION_PROJECT_ID}" --filter="type=(TXT)" \
+        --format="csv[no-heading](name)"
     [[ "$status" -eq 0 ]]
     [[ "$output" =~ "${TXT_RECORD_NAME}" ]]
 }
@@ -163,8 +163,8 @@ function teardown() {
 @test "TXT Record has data: ${TXT_RECORD} " {
     
     run gcloud dns record-sets list --zone="${CLOUDDNS_ZONE_NAME}" \
-            --project "${CLOUD_FOUNDATION_PROJECT_ID}" --filter="type=(TXT)" \
-            --format="csv[no-heading](DATA)"
+        --project "${CLOUD_FOUNDATION_PROJECT_ID}" --filter="type=(TXT)" \
+        --format="csv[no-heading](DATA)"
     [[ "$status" -eq 0 ]]
     [[ "$output" =~ "${TXT_RECORD}" ]]
 }
@@ -172,8 +172,8 @@ function teardown() {
 @test "TXT Record TTL is set to 235 for: ${TXT_RECORD} is in rrdatas " {
     
     run gcloud dns record-sets list --zone="${CLOUDDNS_ZONE_NAME}" \
-            --project "${CLOUD_FOUNDATION_PROJECT_ID}" --filter="type=(TXT)" \
-            --format="csv[no-heading](TTL)"
+        --project "${CLOUD_FOUNDATION_PROJECT_ID}" --filter="type=(TXT)" \
+        --format="csv[no-heading](TTL)"
     [[ "$status" -eq 0 ]]
     [[ "$output" =~ "235" ]]
 }
@@ -195,9 +195,8 @@ function teardown() {
 
     gcloud deployment-manager deployments delete "${DEPLOYMENT_NAME}" \
         -q --project "${CLOUD_FOUNDATION_PROJECT_ID}"
-
     run gcloud dns record-sets list --zone="${CLOUDDNS_ZONE_NAME}" \
-            --project "${CLOUD_FOUNDATION_PROJECT_ID}" --format=flattened
+        --project "${CLOUD_FOUNDATION_PROJECT_ID}" --format=flattened
     [[ "$status" -eq 0 ]]
     [[ ! "$output" =~ "${A_RECORD_NAME}" ]]
     [[ ! "$output" =~ "${AAAA_RECORD_NAME}" ]]
