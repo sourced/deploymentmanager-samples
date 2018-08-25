@@ -33,7 +33,9 @@ resources:
         type: MX
         ttl: 300
         rrdatas:
-          - '25 smpt.mail.foobar.local.'
+          - '5 smtp.fmail.foobar.local.'
+          - '15 smtpx.mail.foobar.local.'
+          - '25 smtp.mail.foobar.local.'
       - 
         name: txt.foobar.local.
         type: TXT

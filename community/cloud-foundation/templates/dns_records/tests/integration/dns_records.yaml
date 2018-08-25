@@ -34,6 +34,8 @@ resources:
         ttl: 300
         rrdatas:
           - '25 smtp.mail.${RAND}.com.'
+          - '10 smtp.xmail.${RAND}.com.'
+          - '15 smtp.mail.dev.${RAND}.com.'
       - 
         name: txt.${RAND}.com.
         type: TXT

@@ -2,7 +2,7 @@
 
 source tests/helpers.bash
 
-TEST_NAME=$(basename "$0" .bats)
+TEST_NAME=$(basename "${BATS_TEST_FILENAME}" | cut -d '.' -f 1)
 
 # Create and save a random 10 char string in a file
 RANDOM_FILE="/tmp/${CLOUD_FOUNDATION_ORGANIZATION_ID}-${TEST_NAME}.txt"
@@ -14,7 +14,6 @@ fi
 # Set variables based on random string saved in the file
 # envsubst requires all variables used in the example/config to be exported
 if [[ -e "${RANDOM_FILE}" ]]; then
-
     export RAND=$(cat "${RANDOM_FILE}")
     DEPLOYMENT_NAME="${CLOUD_FOUNDATION_PROJECT_ID}-${TEST_NAME}-${RAND}"
     # Deployment names cannot have underscores. Replace with dashes.
@@ -30,7 +29,6 @@ if [[ -e "${RANDOM_FILE}" ]]; then
     export MX_RECORD="25 smtp.mail.${CLOUDDNS_DNS_NAME}"
     export TXT_RECORD_NAME="txt.${CLOUDDNS_DNS_NAME}"
     export TXT_RECORD="my super awesome text record"
-
 fi
 
 
@@ -38,7 +36,7 @@ fi
 
 function create_config() {
     echo "Creating ${CONFIG}"
-    envsubst < templates/dns_records/tests/integration/${TEST_NAME}.yaml > "${CONFIG}"
+    envsubst < ${BATS_TEST_DIRNAME}/${TEST_NAME}.yaml > "${CONFIG}"
 }
 
 function delete_config() {
@@ -73,14 +71,12 @@ function teardown() {
 
 
 @test "Creating deployment: ${DEPLOYMENT_NAME} from ${CONFIG}" {
-    
-    gcloud deployment-manager deployments create "${DEPLOYMENT_NAME}" --config "${CONFIG}" \
-        --project "${CLOUD_FOUNDATION_PROJECT_ID}"
+    gcloud deployment-manager deployments create "${DEPLOYMENT_NAME}" \
+        --config "${CONFIG}" --project "${CLOUD_FOUNDATION_PROJECT_ID}"
     [[ "$status" -eq 0 ]]
 }
 
 @test "A record: $A_RECORD_NAME is created " {
-
     run gcloud dns record-sets list --zone="${CLOUDDNS_ZONE_NAME}" \
         --project "${CLOUD_FOUNDATION_PROJECT_ID}"  --filter="type=(A)" \
         --format="csv[no-heading](name)"
@@ -89,7 +85,6 @@ function teardown() {
 }
 
 @test "A Record IP: ${A_RECORD_IP} is in rrdatas " {
-    
     run gcloud dns record-sets list --zone="${CLOUDDNS_ZONE_NAME}" \
         --project "${CLOUD_FOUNDATION_PROJECT_ID}" --filter="type=(A)" \
         --format="csv[no-heading](DATA)"
@@ -98,7 +93,6 @@ function teardown() {
 }
 
 @test "A Record TTL is set to 20 for : ${A_RECORD_NAME} is in rrdatas " {
-    
     run gcloud dns record-sets list --zone="${CLOUDDNS_ZONE_NAME}" \
         --project "${CLOUD_FOUNDATION_PROJECT_ID}" --filter="type=(A)" \
         --format="csv[no-heading](TTL)"
@@ -107,7 +101,6 @@ function teardown() {
 }
 
 @test "AAAA Record: ${AAAA_RECORD_NAME} is created " {
-    
     run gcloud dns record-sets list --zone="${CLOUDDNS_ZONE_NAME}" \
         --project "${CLOUD_FOUNDATION_PROJECT_ID}" --filter="type=(AAAA)" \
         --format="csv[no-heading](name)"
@@ -116,7 +109,6 @@ function teardown() {
 }
 
 @test "AAAA Record IP: ${AAAA_RECORD_IP} is in rrdatas " {
-    
     run gcloud dns record-sets list --zone="${CLOUDDNS_ZONE_NAME}" \
         --project "${CLOUD_FOUNDATION_PROJECT_ID}" --filter="type=(AAAA)" \
         --format="csv[no-heading](DATA)"
@@ -125,7 +117,6 @@ function teardown() {
 }
 
 @test "AAAA Record TTL is set to 30 for : ${AAAA_RECORD_NAME} is in rrdatas " {
-    
     run gcloud dns record-sets list --zone="${CLOUDDNS_ZONE_NAME}" \
         --project "${CLOUD_FOUNDATION_PROJECT_ID}" --filter="type=(AAAA)" \
         --format="csv[no-heading](TTL)"
@@ -134,7 +125,6 @@ function teardown() {
 }
 
 @test "MX Record: ${MX_RECORD} is in rrdatas " {
-    
     run gcloud dns record-sets list --zone="${CLOUDDNS_ZONE_NAME}" \
         --project "${CLOUD_FOUNDATION_PROJECT_ID}" --filter="type=(MX)" \
         --format="csv[no-heading](name)"
@@ -143,7 +133,6 @@ function teardown() {
 }
 
 @test "MX Record TTL is set to 300: ${MX_RECORD} is in rrdatas " {
-    
     run gcloud dns record-sets list --zone="${CLOUDDNS_ZONE_NAME}" \
         --project "${CLOUD_FOUNDATION_PROJECT_ID}" --filter="type=(MX)" \
         --format="csv[no-heading](TTL)"
@@ -152,7 +141,6 @@ function teardown() {
 }
 
 @test "TXT Record: ${TXT_RECORD_NAME} is in rrdatas " {
-    
     run gcloud dns record-sets list --zone="${CLOUDDNS_ZONE_NAME}" \
         --project "${CLOUD_FOUNDATION_PROJECT_ID}" --filter="type=(TXT)" \
         --format="csv[no-heading](name)"
@@ -161,7 +149,6 @@ function teardown() {
 }
 
 @test "TXT Record has data: ${TXT_RECORD} " {
-    
     run gcloud dns record-sets list --zone="${CLOUDDNS_ZONE_NAME}" \
         --project "${CLOUD_FOUNDATION_PROJECT_ID}" --filter="type=(TXT)" \
         --format="csv[no-heading](DATA)"
@@ -170,7 +157,6 @@ function teardown() {
 }
 
 @test "TXT Record TTL is set to 235 for: ${TXT_RECORD} is in rrdatas " {
-    
     run gcloud dns record-sets list --zone="${CLOUDDNS_ZONE_NAME}" \
         --project "${CLOUD_FOUNDATION_PROJECT_ID}" --filter="type=(TXT)" \
         --format="csv[no-heading](TTL)"
@@ -178,21 +164,18 @@ function teardown() {
     [[ "$output" =~ "235" ]]
 }
 
-@test "Resolving www.${RAND}.com with nslookup against managedzone's NameServers ..." {
-    
+@test "Resolving www.${RAND}.com with nslookup against NameServers" {
     skip "to be implemented soon"
-    result=$(gcloud dns managed-zones describe "${CLOUDDNS_ZONE_NAME}" | \ 
+    result=$(gcloud dns managed-zones describe "${CLOUDDNS_ZONE_NAME}" | \
                 grep googledomains | cut -d' ' -f2 | rev | cut -c 2- | rev | \
                 xargs -I {} nslookup "www.${RAND}.com" {})
     [[ "$status" -eq 0 ]]
     [[ "$result" =~ "${A_RECORD_IP}" ]]
-
     #$is_refused=$(echo "${result}" | grep --quiet "REFUSED")
     #[[ "$status" -eq 0 ]]
 }
 
 @test "Deleting deployment: ${DEPLOYMENT_NAME}" {
-
     gcloud deployment-manager deployments delete "${DEPLOYMENT_NAME}" \
         -q --project "${CLOUD_FOUNDATION_PROJECT_ID}"
     run gcloud dns record-sets list --zone="${CLOUDDNS_ZONE_NAME}" \
@@ -202,5 +185,4 @@ function teardown() {
     [[ ! "$output" =~ "${AAAA_RECORD_NAME}" ]]
     [[ ! "$output" =~ "${A_RECORD_IP}" ]]
     [[ ! "$output" =~ "${AAAA_RECORD_IP}" ]]
-
 }

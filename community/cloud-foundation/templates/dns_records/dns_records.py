@@ -38,12 +38,11 @@ def generate_config(context):
                     'CREATE',
                 ],
             },
-            'properties': {
-                'managedZone': zonename,
-                'additions': [
-                    resource_recordset,
-                ],
-            },
+            'properties':
+                {
+                    'managedZone': zonename,
+                    'additions': [resource_recordset]
+                },
         }
         recordset_delete = {
             'name': deployment_name + '-delete',
@@ -53,12 +52,11 @@ def generate_config(context):
                     'DELETE',
                 ],
             },
-            'properties': {
-                'managedZone': zonename,
-                'deletions': [
-                    resource_recordset
-                ]
-            },
+            'properties':
+                {
+                    'managedZone': zonename,
+                    'deletions': [resource_recordset]
+                },
         }
 
         resources.append(recordset_create)
@@ -68,7 +66,7 @@ def generate_config(context):
 
 
 def generate_unique_string(num_chars):
-    """ generates an random alphanumeric string 
+    """ generates an random alphanumeric string
     The length of the returned string will be num_chars
     """
 
