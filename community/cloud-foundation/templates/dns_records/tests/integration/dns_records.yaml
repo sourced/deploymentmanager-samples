@@ -10,26 +10,26 @@ imports:
     name: dns_records.py
 
 resources:
-- name: test-dnsrecords-${RAND}
+- name: ${CLOUDDNS_ZONE_NAME}
   type: dns_records.py
   properties:
-    zoneName: test-managedzone-${RAND}
-    dnsName: ${RAND}.com.
+    zoneName: ${CLOUDDNS_ZONE_NAME}
+    dnsName: ${CLOUDDNS_DNS_NAME}
     resourceRecordSets:
       - 
-        name: www.${RAND}.com.
+        name: ${CLOUDDNS_DNS_NAME}
         type: A
         ttl: 20
         rrdatas:
-          - 192.0.1.1
+          - ${A_RECORD_IP}
       - 
-        name: www.${RAND}.com.
+        name: ${CLOUDDNS_DNS_NAME}
         type: AAAA
         ttl: 30
         rrdatas:
-          - 1002:db8::8bd:2001
+          - ${AAAA_RECORD_IP}
       - 
-        name: mail.${RAND}.com.
+        name: ${MX_RECORD_NAME}
         type: MX
         ttl: 300
         rrdatas:
@@ -37,9 +37,9 @@ resources:
           - '10 smtp.xmail.${RAND}.com.'
           - '15 smtp.mail.dev.${RAND}.com.'
       - 
-        name: txt.${RAND}.com.
+        name: ${TXT_RECORD_NAME}
         type: TXT
         ttl: 235 
         rrdatas:
-          - '"my super awesome text record"'
+          - '${TXT_RECORD}'
 

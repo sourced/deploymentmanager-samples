@@ -97,7 +97,7 @@ function teardown() {
         --project "${CLOUD_FOUNDATION_PROJECT_ID}" --filter="type=(A)" \
         --format="csv[no-heading](TTL)"
     [[ "$status" -eq 0 ]]
-    [[ "$output" -eq "20" ]]
+    [[ "$output" =~ "20" ]]
 }
 
 @test "AAAA Record: ${AAAA_RECORD_NAME} is created " {
@@ -178,6 +178,7 @@ function teardown() {
 @test "Deleting deployment: ${DEPLOYMENT_NAME}" {
     gcloud deployment-manager deployments delete "${DEPLOYMENT_NAME}" \
         -q --project "${CLOUD_FOUNDATION_PROJECT_ID}"
+
     run gcloud dns record-sets list --zone="${CLOUDDNS_ZONE_NAME}" \
         --project "${CLOUD_FOUNDATION_PROJECT_ID}" --format=flattened
     [[ "$status" -eq 0 ]]
