@@ -19,11 +19,10 @@ if [[ -e "${RANDOM_FILE}" ]]; then
     # Deployment names cannot have underscores. Replace with dashes.
     DEPLOYMENT_NAME=${DEPLOYMENT_NAME//_/-}
     CONFIG=".${DEPLOYMENT_NAME}.yaml"
+    export CLOUDDNS_ZONE_NAME="test-managed-zone-${RAND}"
+    export CLOUDDNS_DNS_NAME="${RAND}.com."
+    export CLOUDDNS_DESCRIPTION="Managed DNS Zone for Testing"
 fi
-
-CLOUDDNS_ZONE_NAME="test-managed-zone-${RAND}"
-CLOUDDNS_DNS_NAME="${RAND}.com."
-CLOUDDNS_DESCRIPTION="Managed DNS Zone for Testing"
 
 ########## HELPER FUNCTIONS ##########
 
@@ -60,7 +59,7 @@ function teardown() {
 ########## TESTS ##########
 
 @test "Creating deployment ${DEPLOYMENT_NAME} from ${CONFIG}" {
-   gcloud deployment-manager deployments create "${DEPLOYMENT_NAME}"
+   gcloud deployment-manager deployments create "${DEPLOYMENT_NAME}" \
        --config "${CONFIG}" --project "${CLOUD_FOUNDATION_PROJECT_ID}"
    [[ "$status" -eq 0 ]]
 }
@@ -72,7 +71,7 @@ function teardown() {
 }
 
 @test "Verify if DNS name: ${CLOUDDNS_DNS_NAME} was created " {
-    run gcloud dns managed-zones list 
+    run gcloud dns managed-zones list
     [[ "$status" -eq 0 ]]
     [[ "$output" =~ "${CLOUDDNS_DNS_NAME}" ]]
 }

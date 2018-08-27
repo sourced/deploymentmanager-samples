@@ -19,7 +19,7 @@ def generate_config(context):
 
     resources = []
 
-    managed_zone_name = context.properties['zoneName']
+    managed_zone_name = context.properties.get('zoneName')
     dnsname = context.properties['dnsName']
     managed_zone_description = context.properties['description']
     name_servers = '$(ref.' + context.properties['zoneName'] + '.nameServers)'

@@ -6,7 +6,7 @@
 
 imports:
   - path: templates/dns_managed_zone/dns_managed_zone.py
-    name: dns_managed_zone.py    
+    name: dns_managed_zone.py
 
 resources:
   - name: ${CLOUDDNS_ZONE_NAME}
@@ -14,4 +14,4 @@ resources:
     properties:
       zoneName: ${CLOUDDNS_ZONE_NAME}
       dnsName: ${CLOUDDNS_DNS_NAME}
-      description: 'Managed DNS Zone for Testing' 
+      description: ${CLOUDDNS_DESCRIPTION}
