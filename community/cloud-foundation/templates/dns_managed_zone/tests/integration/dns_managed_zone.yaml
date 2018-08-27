@@ -9,9 +9,9 @@ imports:
     name: dns_managed_zone.py    
 
 resources:
-  - name: test-managed-zone-${RAND}
+  - name: ${CLOUDDNS_ZONE_NAME}
     type: dns_managed_zone.py
     properties:
-      zoneName: 'test-managed-zone-${RAND}'
-      dnsName: '${RAND}.com.'
-      description: "Managed DNS Zone for Testing" 
+      zoneName: ${CLOUDDNS_ZONE_NAME}
+      dnsName: ${CLOUDDNS_DNS_NAME}
+      description: 'Managed DNS Zone for Testing' 

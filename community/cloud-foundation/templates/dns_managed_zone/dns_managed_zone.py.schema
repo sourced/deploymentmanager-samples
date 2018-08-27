@@ -30,7 +30,7 @@ required:
 properties:
   zoneName:
     type: string
-    pattern: ^[(a-z)\d\-].{1,63}$
+    pattern: [a-z]([-a-z0-9]*[a-z0-9])?
     description: |
       User assigned name for the managed zone.
       This is required by Cloud DNS
