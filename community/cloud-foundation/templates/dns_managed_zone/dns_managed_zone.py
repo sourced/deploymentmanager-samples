@@ -41,8 +41,6 @@ def generate_config(context):
         'resources':
             resources,
         'outputs':
-            # Outputs need to at least match Terraform's exported attributes
-            # https://www.terraform.io/docs/providers/google/d/dns_managed_zone.html
             [
                 {
                     'name': 'dnsName',

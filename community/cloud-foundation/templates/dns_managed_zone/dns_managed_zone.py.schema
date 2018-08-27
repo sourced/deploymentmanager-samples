@@ -17,56 +17,55 @@ info:
   author: Source Group Inc.
   description: |
     Creates a cloud dns managed zone
-
-    For more information on this resource:
-      - https://cloud.google.com/dns/zones/
-      
-  version: 1.0
+    For more information on this resource
+    - https://cloud.google.com/dns/zones/
 
 imports:
-- path: dns_managed_zone.py
+  - path: dns_managed_zone.py
 
 required:
-- zoneName
-- dnsName
+  - zoneName
+  - dnsName
 
 properties:
   zoneName:
     type: string
-    description: User assigned name for the managed zone. This is required by Cloud DNS
     pattern: ^[(a-z)\d\-].{1,63}$
+    description: |
+      User assigned name for the managed zone.
+      This is required by Cloud DNS
   dnsName:
     type: string
+    pattern: \.$
     description: |
       The DNS name of this managed zone, for instance "example.com.".
       Just assert that it ends in a dot, as that is the most common mistake.
-    pattern: \.$
   description:
     type: string
-    description: |
-      Description for the managed zone name. Mutable string of at most 1024 characters
-      associated with this resource for the users convenience. 
-      Has no effect on the managed zone's function.
     pattern: ^.{0,1023}$
+    description: |
+      Description for the managed zone name. Mutable string of at most 
+      1024 characters associated with this resource for the users convenience.
+      Has no effect on the managed zone's function.
 
 outputs:
   properties:
     - dnsName:
-      type: string
-      description: DnsName for the managed zone
+        type: string
+        description: Dns Name for the managed zone
     - managedZoneDescription:
-      type: string
-      description: Description of the managed zone.
+        type: string
+        description: Description of the managed zone.
     - nameServers:
-      type: array
-      description: The list of nameservers that will be authoritative for this domain.
+        type: array
+        description: |
+          The list of nameservers that will be authoritative for this domain.
     - managedZoneName:
-      type: string
-      description: Managed zone resource name
+        type: string
+        description: Managed zone resource name
 
 documentation:
   - templates/dns_managed_zone/README.md
 
 examples:
   - templates/dns_managed_zone/examples/dns_managed_zone.yaml
-

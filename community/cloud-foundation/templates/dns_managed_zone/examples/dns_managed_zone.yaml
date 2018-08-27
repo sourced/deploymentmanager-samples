@@ -5,12 +5,12 @@
 
 imports:
   - path: templates/dns_managed_zone/dns_managed_zone.py
-    name: dns_managed_zone.py    
+    name: dns_managed_zone.py
 
 resources:
   - name: test-managed-zone
     type: dns_managed_zone.py
     properties:
-      zoneName: 'test-managed-zone'
-      dnsName: 'foobar.local.'
-      description: "My foobar DNS Managed Zone" 
+      zoneName: test-managed-zone
+      dnsName: foobar.local.
+      description: 'My foobar DNS Managed Zone'

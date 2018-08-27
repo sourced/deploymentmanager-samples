@@ -60,33 +60,30 @@ function teardown() {
 ########## TESTS ##########
 
 @test "Creating deployment ${DEPLOYMENT_NAME} from ${CONFIG}" {
-
-   gcloud deployment-manager deployments create "${DEPLOYMENT_NAME}" --config "${CONFIG}" --project "${CLOUD_FOUNDATION_PROJECT_ID}"
+   gcloud deployment-manager deployments create "${DEPLOYMENT_NAME}"
+       --config "${CONFIG}" --project "${CLOUD_FOUNDATION_PROJECT_ID}"
    [[ "$status" -eq 0 ]]
 }
 
-@test "Verify if Managed zone with name: $CLOUDDNS_ZONE_NAME was created in deployment ${DEPLOYMENT_NAME}" {
-
+@test "Verify if Managed zone with name: $CLOUDDNS_ZONE_NAME was created " {
    run gcloud dns managed-zones list --format=flattened
    [[ "$status" -eq 0 ]]
    [[ "$output" =~ "${CLOUDDNS_ZONE_NAME}" ]]
 }
 
-@test "Verify if DNS name: ${CLOUDDNS_DNS_NAME} was created in deployment ${DEPLOYMENT_NAME}" {
-    
+@test "Verify if DNS name: ${CLOUDDNS_DNS_NAME} was created " {
     run gcloud dns managed-zones list 
     [[ "$status" -eq 0 ]]
     [[ "$output" =~ "${CLOUDDNS_DNS_NAME}" ]]
 }
 
 @test "Deleting Deployment: ${DEPLOYMENT_NAME}" {
-
-    gcloud deployment-manager deployments delete "${DEPLOYMENT_NAME}" -q --project "${CLOUD_FOUNDATION_PROJECT_ID}"
+    gcloud deployment-manager deployments delete "${DEPLOYMENT_NAME}" \
+        -q --project "${CLOUD_FOUNDATION_PROJECT_ID}"
 
     run gcloud dns managed-zones list
     [[ "$status" -eq 0 ]]
     [[ ! "$output" =~ "${CLOUDDNS_ZONE_NAME}" ]]
-
 }
 
 
