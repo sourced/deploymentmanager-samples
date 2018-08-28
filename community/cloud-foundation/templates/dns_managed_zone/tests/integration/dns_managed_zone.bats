@@ -58,7 +58,7 @@ function teardown() {
 
 ########## TESTS ##########
 
-@test "Creating deployment ${DEPLOYMENT_NAME} from ${CONFIG}" {
+@test "Creating deployment: ${DEPLOYMENT_NAME} from ${CONFIG}" {
    gcloud deployment-manager deployments create "${DEPLOYMENT_NAME}" \
        --config "${CONFIG}" --project "${CLOUD_FOUNDATION_PROJECT_ID}"
    [[ "$status" -eq 0 ]]
@@ -84,5 +84,4 @@ function teardown() {
     [[ "$status" -eq 0 ]]
     [[ ! "$output" =~ "${CLOUDDNS_ZONE_NAME}" ]]
 }
-
 
