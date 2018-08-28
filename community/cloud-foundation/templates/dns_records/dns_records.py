@@ -27,9 +27,11 @@ def generate_config(context):
     """
 
     resources = []
+    RANDOM_STRING_LEN = 10
+
     zonename = context.properties['zoneName']
     for resource_recordset in context.properties['resourceRecordSets']:
-        deployment_name = generate_unique_string(10)
+        deployment_name = generate_unique_string(RANDOM_STRING_LEN)
         recordset_create = {
             'name': deployment_name + '-create',
             'action': 'gcp-types/dns-v1:dns.changes.create',

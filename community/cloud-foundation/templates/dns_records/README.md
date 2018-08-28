@@ -6,6 +6,7 @@ Template for creating cloud dns resource record-sets
 
 - Install [gcloud](https://cloud.google.com/sdk)
 - Create a [GCP project, setup billing, enable requisite APIs](../project/README.md)
+- Grant [/roles/dns.admin](https://cloud.google.com/dns/access-control)
 
 ## Deployment
 

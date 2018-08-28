@@ -4,7 +4,7 @@ source tests/helpers.bash
 
 TEST_NAME=$(basename "${BATS_TEST_FILENAME}" | cut -d '.' -f 1)
 
-# Create and save a random 10 char string in a file
+# Create a random 10 char string and save to a file
 RANDOM_FILE="/tmp/${CLOUD_FOUNDATION_ORGANIZATION_ID}-${TEST_NAME}.txt"
 if [[ ! -e "${RANDOM_FILE}" ]]; then
     RAND=$(head /dev/urandom | LC_ALL=C tr -dc a-z0-9 | head -c 10)
@@ -16,7 +16,7 @@ fi
 if [[ -e "${RANDOM_FILE}" ]]; then
     export RAND=$(cat "${RANDOM_FILE}")
     DEPLOYMENT_NAME="${CLOUD_FOUNDATION_PROJECT_ID}-${TEST_NAME}-${RAND}"
-    # Deployment names cannot have underscores. Replace with dashes.
+    # Replace underscores in the deployment names with dashes.
     DEPLOYMENT_NAME=${DEPLOYMENT_NAME//_/-}
     CONFIG=".${DEPLOYMENT_NAME}.yaml"
     export CLOUDDNS_ZONE_NAME="test-managedzone-${RAND}"
@@ -45,7 +45,7 @@ function delete_config() {
 }
 
 function setup() {
-    # Global setup - this gets executed only once per test file
+    # Global setup - this is executed once per test file
     if [ ${BATS_TEST_NUMBER} -eq 1 ]; then
         create_config
         # Create DNS Managed Zone
@@ -57,7 +57,7 @@ function setup() {
 }
 
 function teardown() {
-    # Global teardown - this gets executed only once per test file
+    # Global teardown - this is executed once per test file
     if [[ "$BATS_TEST_NUMBER" -eq "${#BATS_TEST_NAMES[@]}" ]]; then
         delete_config
         rm -f "${RANDOM_FILE}"
@@ -164,17 +164,6 @@ function teardown() {
     [[ "$output" =~ "235" ]]
 }
 
-@test "Resolving www.${RAND}.com with nslookup against NameServers" {
-    skip "to be implemented soon"
-    result=$(gcloud dns managed-zones describe "${CLOUDDNS_ZONE_NAME}" | \
-                grep googledomains | cut -d' ' -f2 | rev | cut -c 2- | rev | \
-                xargs -I {} nslookup "www.${RAND}.com" {})
-    [[ "$status" -eq 0 ]]
-    [[ "$result" =~ "${A_RECORD_IP}" ]]
-    #$is_refused=$(echo "${result}" | grep --quiet "REFUSED")
-    #[[ "$status" -eq 0 ]]
-}
-
 @test "Deleting deployment: ${DEPLOYMENT_NAME}" {
     gcloud deployment-manager deployments delete "${DEPLOYMENT_NAME}" \
         -q --project "${CLOUD_FOUNDATION_PROJECT_ID}"
@@ -187,3 +176,4 @@ function teardown() {
     [[ ! "$output" =~ "${A_RECORD_IP}" ]]
     [[ ! "$output" =~ "${AAAA_RECORD_IP}" ]]
 }
+
