@@ -18,25 +18,11 @@
 
 from __future__ import print_function
 import argparse
-#import logging
-import os
 import sys
 
-# Gloud is not in Pypi, so the system installed version is
-# required. Here gcloud's root dir is added to sys path
-CLOUDSDK_ROOT_DIR = os.environ.get('CLOUDSDK_ROOT_DIR')
+from cloud_foundation_toolkit import LOG
+from cloud_foundation_toolkit.deployment import Config, Deployment, run
 
-if not CLOUDSDK_ROOT_DIR:
-    raise SystemExit('Cannot find gcloud root dir')
-sys.path.insert(1, '{}/lib/third_party'.format(CLOUDSDK_ROOT_DIR))
-sys.path.insert(1, '{}/lib'.format(CLOUDSDK_ROOT_DIR))
-
-
-# Now we're clear to import local modules that will make use
-# of gcloud code
-from . import LOG
-from deployment import Config
-import deployment
 
 def build_common_args(parser):
     """ Configures arguments to all actions/subparsers """
@@ -44,7 +30,8 @@ def build_common_args(parser):
     parser.add_argument(
         'config',
         type=str,
-        help=('The path to the config file or directory')
+        nargs='+',
+        help=('The path to the config files or directory')
     )
 
 
@@ -69,6 +56,7 @@ def parse_args(args):
     actions = [
         'create',
         'update',
+        'upsert',
         'delete',
         'render',
         'validate'
@@ -79,6 +67,25 @@ def parse_args(args):
         subparsers[action] = subparser_obj.add_parser(action)
         build_common_args(subparsers[action])
 
+    # action-specficic arguments
+    #
+    # update
+    subparsers['update'].add_argument(
+        '--preview',
+        '-p',
+        action='store_true',
+        default=False,
+        help='Preview changes'
+    )
+
+    # upsert
+    subparsers['upsert'].add_argument(
+        '--preview',
+        '-p',
+        action='store_true',
+        default=False,
+        help='Preview changes'
+    )
     return parser.parse_args(args)
 
 
@@ -90,20 +97,10 @@ def main():
 
     # logging
     LOG.setLevel(args.verbosity.upper())
-    deployment.run(args.config)
 
-#    config = Config(args.config)
-#    print(config.deployments[0].target_config)
-#    config.deploy()
-#    import yaml_utils
-#    out = yaml_utils.get_dm_item("dm://sourced-gus-1/my-network-prod/output/networkUrl")
-#    print(out)
-#    print(config.obj)
-#    print('==============================')
-#    [print(d.config) for d in config.deployments]
-#    print(config.deployments)
-#    print(config.deployments[0].target_config)
-#    config.deployments[0].run()
+    config = Config(args.config)
+#    [print(c) for c in config]
+    [Deployment(c).upsert(preview=args.preview) for c in config]
 
 
 if __name__ == '__main__':

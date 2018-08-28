@@ -16,12 +16,17 @@ def dmoutput_constructor(loader, node):
     The tag takes string represeting an DM item URL.
 
     Example:
-      network: !DMOutput dm://${project}/${deployment}/${name}
+      network: !DMOutput dm://${project}/${deployment}/${resource}/${name}
 
     """
     data = loader.construct_scalar(node)
     url = parse_dm_url(data)
-    return get_deployment_output(url.project, url.deployment, url.name)
+    return get_deployment_output(
+        url.project,
+        url.deployment,
+        url.resource,
+        url.name
+    )
 
 
 def yaml_constructor(loader, tag_suffix, node):
