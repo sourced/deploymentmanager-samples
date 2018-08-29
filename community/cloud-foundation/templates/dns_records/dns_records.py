@@ -26,12 +26,13 @@ def generate_config(context):
     string to append to the name field
     """
 
+
     resources = []
-    RANDOM_STRING_LEN = 10
+    random_string_len = 10
 
     zonename = context.properties['zoneName']
     for resource_recordset in context.properties['resourceRecordSets']:
-        deployment_name = generate_unique_string(RANDOM_STRING_LEN)
+        deployment_name = generate_unique_string(random_string_len)
         recordset_create = {
             'name': deployment_name + '-create',
             'action': 'gcp-types/dns-v1:dns.changes.create',

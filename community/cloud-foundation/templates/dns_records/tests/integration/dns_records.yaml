@@ -16,30 +16,40 @@ resources:
     zoneName: ${CLOUDDNS_ZONE_NAME}
     dnsName: ${CLOUDDNS_DNS_NAME}
     resourceRecordSets:
-      - 
-        name: ${CLOUDDNS_DNS_NAME}
+      - name: ${CLOUDDNS_DNS_NAME}
         type: A
         ttl: 20
         rrdatas:
           - ${A_RECORD_IP}
-      - 
-        name: ${CLOUDDNS_DNS_NAME}
+      - name: ${CLOUDDNS_DNS_NAME}
         type: AAAA
         ttl: 30
         rrdatas:
           - ${AAAA_RECORD_IP}
-      - 
-        name: ${MX_RECORD_NAME}
+      - name: ${MX_RECORD_NAME}
         type: MX
         ttl: 300
         rrdatas:
-          - '25 smtp.mail.${RAND}.com.'
-          - '10 smtp.xmail.${RAND}.com.'
-          - '15 smtp.mail.dev.${RAND}.com.'
-      - 
-        name: ${TXT_RECORD_NAME}
+          - 25 smtp.mail.${RAND}.com.
+          - 10 smtp.xmail.${RAND}.com.
+          - 15 smtp.mail.dev.${RAND}.com.
+      - name: ${TXT_RECORD_NAME}
         type: TXT
         ttl: 235 
         rrdatas:
           - '${TXT_RECORD}'
-
+      - name: ${PTR_RECORD_NAME}
+        type: PTR
+        ttl: 60
+        rrdatas:
+          - ${PTR_RECORD}
+      - name: ${SPF_RECORD_NAME}
+        type: SPF
+        ttl: 21600
+        rrdatas:
+          - ${SPF_RECORD}
+      - name: ${SRV_RECORD_NAME}
+        type: SRV
+        ttl: 21600
+        rrdatas:
+          - ${SRV_RECORD}

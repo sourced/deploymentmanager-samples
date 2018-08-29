@@ -64,13 +64,17 @@ properties:
           type: string
           description: Type of the record.
           enum:
-            - CNAME
             - A
             - AAAA
-            - TXT
+            - CNAME
             - MX
+            - NAPTR
             - NS
+            - PTR
             - SOA
+            - SPF
+            - SRV
+            - TXT
         ttl:
           type: integer
           description: The time-to-live cache seconds for this record.

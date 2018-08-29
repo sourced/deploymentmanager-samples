@@ -19,6 +19,7 @@ if [[ -e "${RANDOM_FILE}" ]]; then
     # Replace underscores in the deployment names with dashes.
     DEPLOYMENT_NAME=${DEPLOYMENT_NAME//_/-}
     CONFIG=".${DEPLOYMENT_NAME}.yaml"
+    # test specific variables
     export CLOUDDNS_ZONE_NAME="test-managedzone-${RAND}"
     export CLOUDDNS_DNS_NAME="${RAND}.com."
     export A_RECORD_NAME="www.${CLOUDDNS_DNS_NAME}"
@@ -29,6 +30,13 @@ if [[ -e "${RANDOM_FILE}" ]]; then
     export MX_RECORD="25 smtp.mail.${CLOUDDNS_DNS_NAME}"
     export TXT_RECORD_NAME="txt.${CLOUDDNS_DNS_NAME}"
     export TXT_RECORD="my super awesome text record"
+    export PTR_RECORD_NAME="2.1.0.10.${CLOUDDNS_DNS_NAME}"
+    export PTR_RECORD="server.foobar.com"
+    export SPF_RECORD_NAME="${CLOUDDNS_DNS_NAME}"
+    export SPF_RECORD="v=spf1 mx:${RAND}.com -all"
+    export SRV_RECORD_NAME="sip.${CLOUDDNS_DNS_NAME}"
+    export SRV_RECORD="0 5 5060 ${SRV_RECORD_NAME}"
+
 fi
 
 
@@ -162,6 +170,78 @@ function teardown() {
         --format="csv[no-heading](TTL)"
     [[ "$status" -eq 0 ]]
     [[ "$output" =~ "235" ]]
+}
+
+@test "PTR Record: ${PTR_RECORD_NAME} is in rrdatas " {
+    run gcloud dns record-sets list --zone="${CLOUDDNS_ZONE_NAME}" \
+        --project "${CLOUD_FOUNDATION_PROJECT_ID}" --filter="type=(PTR)" \
+        --format="csv[no-heading](name)"
+    [[ "$status" -eq 0 ]]
+    [[ "$output" =~ "${PTR_RECORD_NAME}" ]]
+}
+
+@test "PTR Record has data: ${PTR_RECORD} " {
+    run gcloud dns record-sets list --zone="${CLOUDDNS_ZONE_NAME}" \
+        --project "${CLOUD_FOUNDATION_PROJECT_ID}" --filter="type=(PTR)" \
+        --format="csv[no-heading](DATA)"
+    [[ "$status" -eq 0 ]]
+    [[ "$output" =~ "${PTR_RECORD}" ]]
+}
+
+@test "PTR Record TTL is set to 60 for: ${PTR_RECORD} is in rrdatas " {
+    run gcloud dns record-sets list --zone="${CLOUDDNS_ZONE_NAME}" \
+        --project "${CLOUD_FOUNDATION_PROJECT_ID}" --filter="type=(PTR)" \
+        --format="csv[no-heading](TTL)"
+    [[ "$status" -eq 0 ]]
+    [[ "$output" =~ "60" ]]
+}
+
+@test "SPF Record: ${SPF_RECORD_NAME} is in rrdatas " {
+    run gcloud dns record-sets list --zone="${CLOUDDNS_ZONE_NAME}" \
+        --project "${CLOUD_FOUNDATION_PROJECT_ID}" --filter="type=(SPF)" \
+        --format="csv[no-heading](name)"
+    [[ "$status" -eq 0 ]]
+    [[ "$output" =~ "${SPF_RECORD_NAME}" ]]
+}
+
+@test "SPF Record has data: ${SPF_RECORD} " {
+    run gcloud dns record-sets list --zone="${CLOUDDNS_ZONE_NAME}" \
+        --project "${CLOUD_FOUNDATION_PROJECT_ID}" --filter="type=(SPF)" \
+        --format="csv[no-heading](DATA)"
+    [[ "$status" -eq 0 ]]
+    [[ "$output" =~ "${SPF_RECORD}" ]]
+}
+
+@test "SPF Record TTL is set to 60 for: ${SPF_RECORD} is in rrdatas " {
+    run gcloud dns record-sets list --zone="${CLOUDDNS_ZONE_NAME}" \
+        --project "${CLOUD_FOUNDATION_PROJECT_ID}" --filter="type=(SPF)" \
+        --format="csv[no-heading](TTL)"
+    [[ "$status" -eq 0 ]]
+    [[ "$output" =~ "21600" ]]
+}
+
+@test "SRV Record: ${SRV_RECORD_NAME} is in rrdatas " {
+    run gcloud dns record-sets list --zone="${CLOUDDNS_ZONE_NAME}" \
+        --project "${CLOUD_FOUNDATION_PROJECT_ID}" --filter="type=(SRV)" \
+        --format="csv[no-heading](name)"
+    [[ "$status" -eq 0 ]]
+    [[ "$output" =~ "${SRV_RECORD_NAME}" ]]
+}
+
+@test "SRV Record has data: ${SRV_RECORD} " {
+    run gcloud dns record-sets list --zone="${CLOUDDNS_ZONE_NAME}" \
+        --project "${CLOUD_FOUNDATION_PROJECT_ID}" --filter="type=(SRV)" \
+        --format="csv[no-heading](DATA)"
+    [[ "$status" -eq 0 ]]
+    [[ "$output" =~ "${SRV_RECORD}" ]]
+}
+
+@test "SRV Record TTL is set to 60 for: ${SRV_RECORD} is in rrdatas " {
+    run gcloud dns record-sets list --zone="${CLOUDDNS_ZONE_NAME}" \
+        --project "${CLOUD_FOUNDATION_PROJECT_ID}" --filter="type=(SRV)" \
+        --format="csv[no-heading](TTL)"
+    [[ "$status" -eq 0 ]]
+    [[ "$output" =~ "21600" ]]
 }
 
 @test "Deleting deployment: ${DEPLOYMENT_NAME}" {

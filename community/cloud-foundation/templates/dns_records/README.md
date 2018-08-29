@@ -6,9 +6,11 @@ Template for creating cloud dns resource record-sets
 
 - Install [gcloud](https://cloud.google.com/sdk)
 - Create a [GCP project, setup billing, enable requisite APIs](../project/README.md)
-- Grant [/roles/dns.admin](https://cloud.google.com/dns/access-control)
+- Grant [/roles/dns.admin](https://cloud.google.com/dns/access-control) to a `user` or a `serviceAccount` that creates this resource
+  > Roles can be added via [IAM & admin](https://console.cloud.google.com/iam-admin/iam) section from [GCP console](https://console.cloud.google.com/)  
+  > For more information on granting roles refer [here](https://cloud.google.com/iam/docs/granting-changing-revoking-access) (users) and [here](https://cloud.google.com/iam/docs/granting-roles-to-service-accounts) (serviceAccounts)
 
-## Deployment
+## Deployment Overview
 
 ### Resources
 
@@ -20,7 +22,7 @@ See `properties` section in the schema files
 
 - [DNS Records](dns_records.py.schema)
 
-### Deployment Overview
+### Deployment
 
 #### Usage
 
@@ -35,8 +37,8 @@ See `properties` section in the schema files
 
 For example:
 
-```(shell)
-git clone https://github.com/GoogleCloudPlatform/deploymentmanager-sample
+```bash
+git clone https://github.com/GoogleCloudPlatform/deploymentmanager-samples
 cd community/cloud-foundation
 cp templates/dns_records/examples/dns_records.yaml my_dns_records.yaml
 vim my_dns_records.yaml  # <== change values to match your GCP setup
@@ -48,14 +50,14 @@ gcloud deployment-manager deployments create <YOUR_DEPLOYMENT_NAME> \
 
 #### Create
 
-```(shell)
+```bash
 gcloud deployment-manager deployments create <YOUR_DEPLOYMENT_NAME> \
     --config my_dns_records.yaml
 ```
 
 #### Delete
 
-```(shell)
+```bash
 gcloud deployment-manager deployments delete <YOUR_DEPLOYMENT_NAME>
 ```
 
