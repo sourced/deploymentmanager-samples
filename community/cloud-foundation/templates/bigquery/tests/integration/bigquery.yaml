@@ -1,7 +1,7 @@
-# Example on how to use the BigQuery templates
+# Test of the BigQuery template usage.
 #
 # Variables:
-#   RAND: Just a random string used mostly by the testing suite.
+#   RAND: a random string used by the testing suite.
 #
 
 imports:

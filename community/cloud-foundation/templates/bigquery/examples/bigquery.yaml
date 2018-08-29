@@ -1,6 +1,6 @@
-# Example on how to use the BigQuery templates
+# Example of the BigQuery Dataset and Table usage.
 #
-# Replace the `userByEmail` place holder value with your account email.
+# Replace `my_account@email.com` with your account email.
 
 imports:
   - path: templates/bigquery/bigquery_dataset.py

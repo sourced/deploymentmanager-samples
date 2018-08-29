@@ -11,11 +11,12 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""Creates a BigQuery Dataset."""
+
+""" This template creates a BigQuery table. """
 
 
 def generate_config(context):
-    """ Entry point for the deployment resources """
+    """ Entry point for the deployment resources. """
 
     name = context.properties['name']
 
@@ -29,26 +30,19 @@ def generate_config(context):
         'datasetId': context.properties['datasetId']
     }
 
-    if context.properties.get('description'):
-        properties['description'] = context.properties['description']
+    optional_properties = [
+        'description',
+        'friendlyName',
+        'expirationTime',
+        'labels',
+        'schema',
+        'timePartitioning',
+        'view'
+    ]
 
-    if context.properties.get('friendlyName'):
-        properties['friendlyName'] = context.properties['friendlyName']
-
-    if context.properties.get('expirationTime'):
-        properties['expirationTime'] = context.properties['expirationTime']
-
-    if context.properties.get('labels'):
-        properties['labels'] = context.properties['labels']
-
-    if context.properties.get('schema'):
-        properties['schema'] = context.properties['schema']
-
-    if context.properties.get('timePartitioning'):
-        properties['timePartitioning'] = context.properties['timePartitioning']
-
-    if context.properties.get('view'):
-        properties['view'] = context.properties['view']
+    for prop in optional_properties:
+        if prop in context.properties:
+            properties[prop] = context.properties[prop]
 
     resources = [
         {

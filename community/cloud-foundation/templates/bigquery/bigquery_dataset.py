@@ -11,11 +11,12 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""Creates a BigQuery Dataset."""
+
+"""This template creates a BigQuery Dataset."""
 
 
 def generate_config(context):
-    """ Entry point for the deployment resources """
+    """ Entry point for the deployment resources. """
 
     # You can modify the roles you wish to whitelist here
     whitelisted_roles = ['READER', 'WRITER', 'OWNER']
@@ -58,8 +59,8 @@ def generate_config(context):
 
             # build default access for owner
             owner_access = {
-                "role": "OWNER",
-                "userByEmail": default_dataset_owner
+                'role': 'OWNER',
+                'userByEmail': default_dataset_owner
             }
             properties['access'].append(owner_access)
 

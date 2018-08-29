@@ -36,8 +36,12 @@ properties:
     description: |
       The geographic location where the dataset should reside.
       The default value is US. See details at
-      https://cloud.google.com/bigquery/docs/dataset-locations.
+      https://cloud.google.com/bigquery/docs/dataset-locations
     default: 'US'
+    enum:
+      - Asia
+      - EU
+      - US
   access:
     type: array
     description: |
@@ -57,6 +61,11 @@ properties:
           Describes the rights granted to the user specified by the other
           member of the access object. The following string values are
           supported: READER, WRITER, OWNER.
+          See details at https://cloud.google.com/bigquery/docs/access-control
+        enum:
+          - READER
+          - WRITER
+          - OWNER
       oneOf:
         - domain:
           type: string
