@@ -6,9 +6,7 @@ Template for creating cloud dns resource record-sets
 
 - Install [gcloud](https://cloud.google.com/sdk)
 - Create a [GCP project, setup billing, enable requisite APIs](../project/README.md)
-- Grant [dns.admin](https://cloud.google.com/dns/access-control) role to a `user` or a `serviceAccount` that creates this resource
-  > Roles can be added via [IAM & admin](https://console.cloud.google.com/iam-admin/iam) section from [GCP console](https://console.cloud.google.com/)  
-  > For more information on granting roles refer [here](https://cloud.google.com/iam/docs/granting-changing-revoking-access) (users) and [here](https://cloud.google.com/iam/docs/granting-roles-to-service-accounts) (serviceAccounts)
+- Grant [/roles/dns.admin](https://cloud.google.com/dns/access-control) role to a `user` or a `serviceAccount` to create this resource
 
 ## Deployment Overview
 
