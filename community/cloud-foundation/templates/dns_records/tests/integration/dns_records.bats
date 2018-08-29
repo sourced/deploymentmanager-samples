@@ -29,11 +29,11 @@ if [[ -e "${RANDOM_FILE}" ]]; then
     export MX_RECORD_NAME="mail.${CLOUDDNS_DNS_NAME}"
     export MX_RECORD="25 smtp.mail.${CLOUDDNS_DNS_NAME}"
     export TXT_RECORD_NAME="txt.${CLOUDDNS_DNS_NAME}"
-    export TXT_RECORD="my super awesome text record"
+    export TXT_RECORD="'\"my super awesome text record\"'"
     export PTR_RECORD_NAME="2.1.0.10.${CLOUDDNS_DNS_NAME}"
-    export PTR_RECORD="server.foobar.com"
+    export PTR_RECORD="server.${CLOUDDNS_DNS_NAME}"
     export SPF_RECORD_NAME="${CLOUDDNS_DNS_NAME}"
-    export SPF_RECORD="v=spf1 mx:${RAND}.com -all"
+    export SPF_RECORD="'\"v=spf1 mx:${RAND}.com -all\"'"
     export SRV_RECORD_NAME="sip.${CLOUDDNS_DNS_NAME}"
     export SRV_RECORD="0 5 5060 ${SRV_RECORD_NAME}"
 
@@ -89,7 +89,7 @@ function teardown() {
         --project "${CLOUD_FOUNDATION_PROJECT_ID}"  --filter="type=(A)" \
         --format="csv[no-heading](name)"
     [[ "$status" -eq 0 ]]
-    [[ "$output" =~ "$A_RECORD_NAME" ]]
+    [[ "$output" =~ "${A_RECORD_NAME}" ]]
 }
 
 @test "A Record IP: ${A_RECORD_IP} is in rrdatas " {
@@ -100,7 +100,7 @@ function teardown() {
     [[ "$output" =~ "${A_RECORD_IP}" ]]
 }
 
-@test "A Record TTL is set to 20 for : ${A_RECORD_NAME} is in rrdatas " {
+@test "A Record: ${A_RECORD_NAME} has TTL set to 20 " {
     run gcloud dns record-sets list --zone="${CLOUDDNS_ZONE_NAME}" \
         --project "${CLOUD_FOUNDATION_PROJECT_ID}" --filter="type=(A)" \
         --format="csv[no-heading](TTL)"
@@ -124,7 +124,7 @@ function teardown() {
     [[ "$output" =~ "${AAAA_RECORD_IP}" ]]
 }
 
-@test "AAAA Record TTL is set to 30 for : ${AAAA_RECORD_NAME} is in rrdatas " {
+@test "AAAA Record: ${AAAA_RECORD_NAME} has TTL set to 30 " {
     run gcloud dns record-sets list --zone="${CLOUDDNS_ZONE_NAME}" \
         --project "${CLOUD_FOUNDATION_PROJECT_ID}" --filter="type=(AAAA)" \
         --format="csv[no-heading](TTL)"
@@ -132,7 +132,7 @@ function teardown() {
     [[ "$output" =~ "30" ]]
 }
 
-@test "MX Record: ${MX_RECORD} is in rrdatas " {
+@test "MX Record Name: ${MX_RECORD_NAME} is created" {
     run gcloud dns record-sets list --zone="${CLOUDDNS_ZONE_NAME}" \
         --project "${CLOUD_FOUNDATION_PROJECT_ID}" --filter="type=(MX)" \
         --format="csv[no-heading](name)"
@@ -140,7 +140,15 @@ function teardown() {
     [[ "$output" =~ "${MX_RECORD_NAME}" ]]
 }
 
-@test "MX Record TTL is set to 300: ${MX_RECORD} is in rrdatas " {
+@test "MX Record: ${MX_RECORD} is in rrdatas " {
+    run gcloud dns record-sets list --zone="${CLOUDDNS_ZONE_NAME}" \
+        --project "${CLOUD_FOUNDATION_PROJECT_ID}" --filter="type=(MX)" \
+        --format="csv[no-heading](DATA)"
+    [[ "$status" -eq 0 ]]
+    [[ "$output" =~ "${MX_RECORD}" ]]
+}
+
+@test "MX Record ${MX_RECORD} TTL is set to 300 " {
     run gcloud dns record-sets list --zone="${CLOUDDNS_ZONE_NAME}" \
         --project "${CLOUD_FOUNDATION_PROJECT_ID}" --filter="type=(MX)" \
         --format="csv[no-heading](TTL)"
@@ -148,7 +156,7 @@ function teardown() {
     [[ "$output" =~ "300" ]]
 }
 
-@test "TXT Record: ${TXT_RECORD_NAME} is in rrdatas " {
+@test "TXT Record: ${TXT_RECORD_NAME} is created" {
     run gcloud dns record-sets list --zone="${CLOUDDNS_ZONE_NAME}" \
         --project "${CLOUD_FOUNDATION_PROJECT_ID}" --filter="type=(TXT)" \
         --format="csv[no-heading](name)"
@@ -156,15 +164,15 @@ function teardown() {
     [[ "$output" =~ "${TXT_RECORD_NAME}" ]]
 }
 
-@test "TXT Record has data: ${TXT_RECORD} " {
+@test "TXT Record has data: ${TXT_RECORD} in rrdatas " {
     run gcloud dns record-sets list --zone="${CLOUDDNS_ZONE_NAME}" \
         --project "${CLOUD_FOUNDATION_PROJECT_ID}" --filter="type=(TXT)" \
         --format="csv[no-heading](DATA)"
     [[ "$status" -eq 0 ]]
-    [[ "$output" =~ "${TXT_RECORD}" ]]
+    [[ "$output" =~ "my super awesome text record" ]]
 }
 
-@test "TXT Record TTL is set to 235 for: ${TXT_RECORD} is in rrdatas " {
+@test "TXT Record: ${TXT_RECORD_NAME} has TTL set to 235 " {
     run gcloud dns record-sets list --zone="${CLOUDDNS_ZONE_NAME}" \
         --project "${CLOUD_FOUNDATION_PROJECT_ID}" --filter="type=(TXT)" \
         --format="csv[no-heading](TTL)"
@@ -172,7 +180,7 @@ function teardown() {
     [[ "$output" =~ "235" ]]
 }
 
-@test "PTR Record: ${PTR_RECORD_NAME} is in rrdatas " {
+@test "PTR Record: ${PTR_RECORD_NAME} is created " {
     run gcloud dns record-sets list --zone="${CLOUDDNS_ZONE_NAME}" \
         --project "${CLOUD_FOUNDATION_PROJECT_ID}" --filter="type=(PTR)" \
         --format="csv[no-heading](name)"
@@ -180,7 +188,7 @@ function teardown() {
     [[ "$output" =~ "${PTR_RECORD_NAME}" ]]
 }
 
-@test "PTR Record has data: ${PTR_RECORD} " {
+@test "PTR Record has data: ${PTR_RECORD} in rrdatas " {
     run gcloud dns record-sets list --zone="${CLOUDDNS_ZONE_NAME}" \
         --project "${CLOUD_FOUNDATION_PROJECT_ID}" --filter="type=(PTR)" \
         --format="csv[no-heading](DATA)"
@@ -188,7 +196,7 @@ function teardown() {
     [[ "$output" =~ "${PTR_RECORD}" ]]
 }
 
-@test "PTR Record TTL is set to 60 for: ${PTR_RECORD} is in rrdatas " {
+@test "PTR Record: ${PTR_RECORD_NAME} has TTL set to 60 " {
     run gcloud dns record-sets list --zone="${CLOUDDNS_ZONE_NAME}" \
         --project "${CLOUD_FOUNDATION_PROJECT_ID}" --filter="type=(PTR)" \
         --format="csv[no-heading](TTL)"
@@ -196,7 +204,7 @@ function teardown() {
     [[ "$output" =~ "60" ]]
 }
 
-@test "SPF Record: ${SPF_RECORD_NAME} is in rrdatas " {
+@test "SPF Record: ${SPF_RECORD_NAME} is created " {
     run gcloud dns record-sets list --zone="${CLOUDDNS_ZONE_NAME}" \
         --project "${CLOUD_FOUNDATION_PROJECT_ID}" --filter="type=(SPF)" \
         --format="csv[no-heading](name)"
@@ -204,15 +212,15 @@ function teardown() {
     [[ "$output" =~ "${SPF_RECORD_NAME}" ]]
 }
 
-@test "SPF Record has data: ${SPF_RECORD} " {
+@test "SPF Record has data: ${SPF_RECORD} in rrdatas " {
     run gcloud dns record-sets list --zone="${CLOUDDNS_ZONE_NAME}" \
         --project "${CLOUD_FOUNDATION_PROJECT_ID}" --filter="type=(SPF)" \
         --format="csv[no-heading](DATA)"
     [[ "$status" -eq 0 ]]
-    [[ "$output" =~ "${SPF_RECORD}" ]]
+    [[ "$output" =~ "v=spf1" ]]
 }
 
-@test "SPF Record TTL is set to 60 for: ${SPF_RECORD} is in rrdatas " {
+@test "SPF Record: ${SPF_RECORD_NAME} has TTL set to 21600 " {
     run gcloud dns record-sets list --zone="${CLOUDDNS_ZONE_NAME}" \
         --project "${CLOUD_FOUNDATION_PROJECT_ID}" --filter="type=(SPF)" \
         --format="csv[no-heading](TTL)"
@@ -220,7 +228,7 @@ function teardown() {
     [[ "$output" =~ "21600" ]]
 }
 
-@test "SRV Record: ${SRV_RECORD_NAME} is in rrdatas " {
+@test "SRV Record: ${SRV_RECORD_NAME} is created " {
     run gcloud dns record-sets list --zone="${CLOUDDNS_ZONE_NAME}" \
         --project "${CLOUD_FOUNDATION_PROJECT_ID}" --filter="type=(SRV)" \
         --format="csv[no-heading](name)"
@@ -228,7 +236,7 @@ function teardown() {
     [[ "$output" =~ "${SRV_RECORD_NAME}" ]]
 }
 
-@test "SRV Record has data: ${SRV_RECORD} " {
+@test "SRV Record has data: ${SRV_RECORD} in rrdatas" {
     run gcloud dns record-sets list --zone="${CLOUDDNS_ZONE_NAME}" \
         --project "${CLOUD_FOUNDATION_PROJECT_ID}" --filter="type=(SRV)" \
         --format="csv[no-heading](DATA)"
@@ -236,7 +244,7 @@ function teardown() {
     [[ "$output" =~ "${SRV_RECORD}" ]]
 }
 
-@test "SRV Record TTL is set to 60 for: ${SRV_RECORD} is in rrdatas " {
+@test "SRV Record: ${SRV_RECORD_NAME} has TTL set to 21600 " {
     run gcloud dns record-sets list --zone="${CLOUDDNS_ZONE_NAME}" \
         --project "${CLOUD_FOUNDATION_PROJECT_ID}" --filter="type=(SRV)" \
         --format="csv[no-heading](TTL)"
