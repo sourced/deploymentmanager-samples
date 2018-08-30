@@ -48,15 +48,15 @@ properties:
     description: |
       The ResourceRecordSets meant to be in the zone. See
       https://cloud.google.com/dns/api/v1/resourceRecordSets.
-    object:
+    items:
       type: object
       description: An Individual ResourceRecordSet.
-      items:
-        required:
-          - name
-          - type
-          - ttl
-          - rrdatas
+      required:
+        - name
+        - type
+        - ttl
+        - rrdatas
+      properties:
         name:
           type: string
           description: Name of the DNS record. Must end in dnsName.
@@ -83,5 +83,5 @@ properties:
           type: array
           description: |
             As defined in RFC 1035 (section 5) and RFC 1034 (section 3.6.1).
-          object:
+          items:
             type: string
