@@ -21,7 +21,8 @@ import argparse
 import sys
 
 from cloud_foundation_toolkit import LOG
-from cloud_foundation_toolkit.deployment import Config, Deployment, run
+from cloud_foundation_toolkit.actions import create, delete, get, sync, update
+from cloud_foundation_toolkit.deployment import Config, Deployment
 
 
 def build_common_args(parser):
@@ -55,9 +56,10 @@ def parse_args(args):
     subparser_obj = parser.add_subparsers(dest='action')
     actions = [
         'create',
-        'update',
-        'upsert',
         'delete',
+        'get',
+        'update',
+        'sync',
         'render',
         'validate'
     ]
@@ -79,7 +81,7 @@ def parse_args(args):
     )
 
     # upsert
-    subparsers['upsert'].add_argument(
+    subparsers['sync'].add_argument(
         '--preview',
         '-p',
         action='store_true',
@@ -98,9 +100,11 @@ def main():
     # logging
     LOG.setLevel(args.verbosity.upper())
 
-    config = Config(args.config)
+    globals()[args.action](args)
+
+#    config = Config(args.config)
 #    [print(c) for c in config]
-    [Deployment(c).upsert(preview=args.preview) for c in config]
+#    [Deployment(c).upsert(preview=args.preview) for c in config]
 
 
 if __name__ == '__main__':

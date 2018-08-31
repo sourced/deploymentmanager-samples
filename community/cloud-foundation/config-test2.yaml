@@ -16,7 +16,7 @@ resources:
             - IPProtocol: tcp
               ports:
                 - "80"
-                - "443"
+                - "444"
           description: This rule allows connectivity to the HTTP proxies
           direction: INGRESS
           sourceRanges:

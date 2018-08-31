@@ -22,43 +22,46 @@ from cloud_foundation_toolkit import LOG
 from cloud_foundation_toolkit.dm_utils import DM_API, get_deployment
 
 
-def run(paths):
-    config = Config(paths)
-    for i in config:
-        LOG.debug('===> %s', i.rendered)
-        deployment = Deployment(i)
-        try:
-            deployment.create()
-        except apitools_exceptions.HttpConflictError as err:
-            deployment.update()
-
+#def run(paths):
+#    config = Config(paths)
+#    for i in config:
+#        LOG.debug('===> %s', i.rendered)
+#        deployment = Deployment(i)
+#        try:
+#            deployment.create()
+#        except apitools_exceptions.HttpConflictError as err:
+#            deployment.update()
+#
 
 def ask():
     answer = input("Update(u), Skip (s), or Abort(a) Deployment? ")
-    if answer in ['u', 's', 'a']:
-        return answer
-    ask()
+    while answer not in ['u', 's', 'a']:
+        answer = input("Update(u), Skip (s), or Abort(a) Deployment? ")
+    return answer
 
 
-class ConfigFile(object):
-    """ Class representing a CFT config item """
 
-    def __init__(self, path):
+class Config(object):
+    """ Class representing a CFT config
+    """
+
+    def __init__(self, item):
         """ Contructor
 
         Args:
-            path (str): The path to a config file
+            item (str): The content or the path to a config file
         """
 
-        self.path = path
-
-        with open(path) as f:
-            self.raw = f.read()
+        if os.path.exists(item):
+            with open(item) as f:
+                self.raw = f.read()
+        else:
+            self.raw = item
 
         self.rendered = jinja2.Template(self.raw).render()
 
 
-class Config(object):
+class ConfigList(list):
     """ A container Class for CFT config files
 
     This class holds ConfigFile() objects. For all intents and purposes
@@ -66,7 +69,8 @@ class Config(object):
 
     """
 
-    def __init__(self, paths):
+#    def __init__(self, paths):
+    def __init__(self, items):
         """ Contructor
 
         Args:
@@ -78,12 +82,17 @@ class Config(object):
 
         """
 
-        self._items = [ConfigFile(path) for path in paths]
+        super(ConfigList, self).__init__([Config(item) for item in items])
+#        self._items = [ConfigFile(path) for path in paths]
         self.sort()
 
-    def __iter__(self):
-        """ This makes the class behave like a list """
-        return iter(self._items)
+#    def __iter__(self):
+#        """ This makes the class behave like a list """
+#        return iter(self._items)
+
+
+#    def __getitem__(self, key):
+#        return self._items[key]
 
 
     def sort(self):
@@ -187,22 +196,48 @@ class Deployment(DM_API):
             self.current = None
         return self.current
 
-    def sync(self):
-        return self.get()
+    def delete(self, delete_policy=None):
+        """Deletes this deployment from DM."""
 
-    def create(self, preview=False):
-        """ Creates this deployment in DM """
+        message = self.messages.DeploymentmanagerDeploymentsDeleteRequest
+        request = message(
+            deployment=self.config['name'],
+            project=self.config['project']
+        )
+
+        if delete_policy:
+            request['deletePolicy'] = message.DeletePolicyValueValuesEnum(
+                delete_policy
+            )
+
+        LOG.debug(
+            'Deleting deployment %',
+            self.config['name'],
+            request
+        )
+        operation = self.client.deployments.Delete(request)
+
+        # Wait for operation to finish
+        self.wait(operation, 'delete')
+
+    def create(self, preview=False, create_policy=None):
+        """Creates this deployment in DM."""
 
         deployment = self.messages.Deployment(
             name=self.config['name'],
             target=self.target_config
         )
-        request = self.messages.DeploymentmanagerDeploymentsInsertRequest(
+
+        message = self.messages.DeploymentmanagerDeploymentsInsertRequest
+        request = message(
             deployment=deployment,
             project=self.config['project'],
             preview=preview
-#            createPolicy='CREATE_OR_ACQUIRE'
         )
+        if create_policy:
+            request['createPolicy'] = message.CreatePolicyValueValuesEnum(
+                create_policy
+            )
         LOG.debug(
             'Creating deployment %s with data %s',
             self.config['name'],
@@ -213,9 +248,6 @@ class Deployment(DM_API):
         # No exception handling is done here to allow higher level
         # functions to do so
         operation = self.client.deployments.Insert(request)
-
-        # Fetch and print the latest fingerprint of the deployment.
-        self.get()
 
         # Wait for operation to finish
         self.wait(operation, 'create')
@@ -231,9 +263,15 @@ class Deployment(DM_API):
 #            )
 #        )
         self.print_resources_and_outputs()
+#
+#        if preview:
+#            func = self.confirm_preview()
+#            func()
+#        elif getattr(self.current, 'update', False):
+#            self.update_preview()
+#
 
-
-    def update(self, preview=False):
+    def update(self, preview=False, create_policy=None, delete_policy=None):
         """ Updates this deployment in DM
 
         Args:
@@ -250,15 +288,14 @@ class Deployment(DM_API):
                 )
             )
 
-        print(self.current)
-
         new_deployment = self.messages.Deployment(
             name=self.config['name'],
             target=self.target_config,
             fingerprint=self.current.fingerprint or b''
         )
 
-        request = self.messages.DeploymentmanagerDeploymentsUpdateRequest(
+        message = self.messages.DeploymentmanagerDeploymentsUpdateRequest
+        request = message(
             deployment=self.config['name'],
             deploymentResource=new_deployment,
             project=self.config['project'],
@@ -266,6 +303,15 @@ class Deployment(DM_API):
 #            createPolicy='CREATE_OR_ACQUIRE',
 #            deletePolicy='DELETE'
         )
+        if delete_policy:
+            request['deletePolicy'] = message.DeletePolicyValueValuesEnum(
+                delete_policy
+            )
+        if create_policy:
+            request['createPolicy'] = message.CreatePolicyValueValuesEnum(
+                create_policy
+            )
+
         LOG.debug(
             'Updating deployment %s with data %s',
             self.config['name'],
@@ -277,17 +323,11 @@ class Deployment(DM_API):
         # functions to do so
         operation = self.client.deployments.Update(request)
 
-        # Fetch and print the latest fingerprint of the deployment.
-        self.get()
-
         # Wait for operation to finish
         self.wait(operation, 'update')
 
         self.print_resources_and_outputs()
 
-        print(self.current)
-        print(hasattr(self.current, 'update'))
-        print(self.current.update)
         if preview:
             func = self.confirm_preview()
             func()
@@ -296,6 +336,7 @@ class Deployment(DM_API):
 
     def confirm_preview(self):
         answer = ask()
+
         if answer == 'u':
             return self.update_preview
         elif answer == 's':
@@ -303,9 +344,7 @@ class Deployment(DM_API):
         elif answer == 'a':
             raise SystemExit('Aborting deployment run!')
         else:
-            ask()
-#            raise SystemExit('Invalid answer: ' + answer)
-
+            raise SystemExit('Not a valid answer: {}'.format(answer))
 
 
     def update_preview(self):
@@ -324,7 +363,14 @@ class Deployment(DM_API):
         self.print_resources_and_outputs()
 
 
-    def wait(self, operation, action):
+    def wait(self, operation, action, get=True):
+        """
+        """
+        # This saves an API call if the self.get() was called just
+        # before calling this method
+        if get:
+            self.get()
+
         dm_write.WaitForOperation(
             self.client,
             self.messages,
@@ -351,8 +397,8 @@ class Deployment(DM_API):
         operation = self.client.deployments.CancelPreview(req)
         self.wait(operation, 'cancel preview')
 
-    def upsert(self, preview=False):
-        """ Create or update this deployment in DM
+    def sync(self, preview=False):
+        """Create or update this deployment in DM.
 
         Args:
             preview (boolean): If True, update is done with preview
@@ -375,7 +421,6 @@ class Deployment(DM_API):
             self.config['name'],
 #           self.ReleaseTrack() is base.ReleaseTrack.ALPHA
         )
-
 
         printer = resource_printer.Printer(flags.RESOURCES_AND_OUTPUTS_FORMAT)
         printer.AddRecord(rsp)
