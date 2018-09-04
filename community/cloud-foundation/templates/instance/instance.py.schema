@@ -82,7 +82,7 @@ properties:
       items:
         type: array
         description: A collection of metadata key-value pairs.
-        item:
+        items:
           type: object
           properties:
             key:
@@ -94,7 +94,7 @@ properties:
     description: |
       A list of service accounts, with their specified scopes, authorized for
       this instance. Only one service account per VM instance is supported.
-    item:
+    items:
       type: object
       properties:
         email:
@@ -103,7 +103,7 @@ properties:
         scopes:
           type: array
           description: The list of scopes to be made available for this service account
-          item:
+          items:
             type: string
             description: |
               Access scope, e.g. 'https://www.googleapis.com/auth/compute.readonly'
