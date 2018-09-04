@@ -24,10 +24,9 @@ resources:
       name: test_bq_table
       datasetId: $(ref.test-bq-dataset.datasetId)
       schema:
-        fields:
-          - name: firstname
-            type: STRING
-          - name: lastname
-            type: STRING
-          - name: age
-            type: INTEGER
+        - name: firstname
+          type: STRING
+        - name: lastname
+          type: STRING
+        - name: age
+          type: INTEGER

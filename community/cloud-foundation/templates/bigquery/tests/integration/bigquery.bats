@@ -4,7 +4,6 @@ source tests/helpers.bash
 
 TEST_NAME=$(basename "${BATS_TEST_FILENAME}" | cut -d '.' -f 1)
 
-export TEST_SERVICE_ACCOUNT="test-sa-${RAND}"
 
 # Create a random 10-char string and save it in a file.
 RANDOM_FILE="/tmp/${CLOUD_FOUNDATION_ORGANIZATION_ID}-${TEST_NAME}.txt"
@@ -16,6 +15,7 @@ fi
 # Set variables based on the random string saved in the file.
 # envsubst requires all variables used in the example/config to be exported.
 if [[ -e "${RANDOM_FILE}" ]]; then
+    export TEST_SERVICE_ACCOUNT="test-sa-${RAND}"
     export RAND=$(cat "${RANDOM_FILE}")
     DEPLOYMENT_NAME="${CLOUD_FOUNDATION_PROJECT_ID}-${TEST_NAME}-${RAND}"
     # Replace underscores with dashes in the deployment name.
@@ -27,7 +27,7 @@ fi
 
 function create_config() {
     echo "Creating ${CONFIG}"
-    envsubst < "templates/bigquery/tests/integration/${TEST_NAME}.yaml" > "${CONFIG}"
+    envsubst < "${BATS_TEST_DIRNAME}/${TEST_NAME}.yaml" > "${CONFIG}"
 }
 
 function delete_config() {
@@ -49,7 +49,8 @@ function setup() {
 function teardown() {
     # Global teardown - this gets executed only once per test file
     if [[ "$BATS_TEST_NUMBER" -eq "${#BATS_TEST_NAMES[@]}" ]]; then
-        gcloud iam service-accounts delete "${TEST_SERVICE_ACCOUNT}@${CLOUD_FOUNDATION_PROJECT_ID}.iam.gserviceaccount.com" \
+        gcloud iam service-accounts delete \
+            "${TEST_SERVICE_ACCOUNT}@${CLOUD_FOUNDATION_PROJECT_ID}.iam.gserviceaccount.com" \
             --project "${CLOUD_FOUNDATION_PROJECT_ID}"
         rm -f "${RANDOM_FILE}"
         delete_config
@@ -66,12 +67,14 @@ function teardown() {
 }
 
 @test "Verifying that the dataset was created in deployment ${DEPLOYMENT_NAME}" {
-    run bq show --format=prettyjson "${CLOUD_FOUNDATION_PROJECT_ID}":test_bq_dataset_${RAND}
+    run bq show --format=prettyjson \
+        "${CLOUD_FOUNDATION_PROJECT_ID}":test_bq_dataset_${RAND}
     [[ "$output" =~ "\"datasetId\": \"test_bq_dataset_${RAND}\"" ]]
 }
 
 @test "Verifying that the table was created in dataset deployment ${DEPLOYMENT_NAME}" {
-    run bq ls --format=prettyjson "${CLOUD_FOUNDATION_PROJECT_ID}":test_bq_dataset_${RAND}
+    run bq ls --format=prettyjson \
+        "${CLOUD_FOUNDATION_PROJECT_ID}":test_bq_dataset_${RAND}
     [[ "$output" =~ "\"tableId\": \"test_bq_table_${RAND}\"" ]]
 }
 

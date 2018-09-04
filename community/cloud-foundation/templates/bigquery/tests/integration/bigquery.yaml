@@ -2,6 +2,11 @@
 #
 # Variables:
 #   RAND: a random string used by the testing suite.
+#   CLOUD_FOUNDATION_USER_ACCOUNT: grant the user account configured
+#     in the cloud_foundation_tests.conf permissions to perform BigQuery
+#     command line commands to validate the datasets and tables that were
+#     created. For example, `bq show` and `bq ls`.
+#
 #
 
 imports:
@@ -26,10 +31,9 @@ resources:
       name: test_bq_table_${RAND}
       datasetId: $(ref.test-bq-dataset-${RAND}.datasetId)
       schema:
-        fields:
-          - name: firstname
-            type: STRING
-          - name: lastname
-            type: STRING
-          - name: age
-            type: INTEGER
+        - name: firstname
+          type: STRING
+        - name: lastname
+          type: STRING
+        - name: age
+          type: INTEGER

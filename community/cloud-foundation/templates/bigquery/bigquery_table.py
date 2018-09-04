@@ -34,7 +34,6 @@ def generate_config(context):
         'description',
         'friendlyName',
         'expirationTime',
-        'labels',
         'schema',
         'timePartitioning',
         'view'
@@ -42,7 +41,10 @@ def generate_config(context):
 
     for prop in optional_properties:
         if prop in context.properties:
-            properties[prop] = context.properties[prop]
+            if prop == 'schema':
+                properties[prop] = {'fields': context.properties[prop]}
+            else:
+                properties[prop] = context.properties[prop]
 
     resources = [
         {

@@ -134,12 +134,13 @@ outputs:
         type: string
         description: |
           The time when this dataset was created, in milliseconds since
-          epoch.
+          epoch. For example, 1535739430
     - lastModifiedTime:
         type: string
         description: |
-          The date when this dataset or any of its tables was last modified,
-          in milliseconds since the epoch.
+          The time when this dataset or any of its tables was last
+          modified, in milliseconds since the epoch. For example,
+          1535739430
 
 documentation:
   - templates/bigquery/README.md

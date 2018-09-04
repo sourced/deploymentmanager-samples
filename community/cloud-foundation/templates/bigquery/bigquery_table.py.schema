@@ -45,23 +45,14 @@ properties:
       not present, the table will persist indefinitely. Expired tables will
       be deleted and their storage reclaimed. The defaultTableExpirationMs
       property of the encapsulating dataset can be used to set a default
-      expirationTime on newly created tables.
-  labels:
-    type: string
-    pattern: ^[0-9a-zA-Z][0-9a-zA-Z_-]{4,63}$
-    description: |
-      The labels associated with this table. You can use these to organize and
-      group your tables. Label keys and values can be no longer than 63
-      characters, can only contain lowercase letters, numeric characters,
-      underscores and dashes. International characters are allowed. Label
-      values are optional. Label keys must start with a letter and each label
-      in the list must have a different key.
+      expirationTime on newly created tables. Example, 1535739430
   timePartitioning:
     type: object
     description: Time-based partitioning specification for this table.
     properties:
       expirationMs:
         type: string
+        format: int64
         description: |
           Number of milliseconds for which to keep the storage for partitions
           in the table. The storage in a partition will have an expiration
@@ -119,62 +110,63 @@ properties:
                 A code resource to load from a Google Cloud Storage URI
                 (gs://bucket/path).
   schema:
-    type: object
+    type: array
     description: |
       The schema for the data. Schema is required for CSV and JSON formats.
       Schema is disallowed for Google Cloud Bigtable, Cloud Datastore
       backups, and Avro formats.
-    properties:
-      fields:
-        type: array
-        object:
-          description: Describes the fields in a table.
-          properties:
-            name:
-              type: string
-              pattern: ^[_a-zA-Z][0-9a-zA-Z_]{4,128}$
-              description: |
-                The field name. The name must contain only letters (a-z, A-Z),
-                numbers (0-9), or underscores (_), and must start with a letter
-                or underscore. The maximum length is 128 characters.
-            type:
-              type: string
-              description: |
-                The field data type. Possible values include STRING, BYTES,
-                INTEGER, INT64 (same as INTEGER), FLOAT, FLOAT64 (same as
-                FLOAT), BOOLEAN, BOOL (same as BOOLEAN), TIMESTAMP, DATE, TIME,
-                DATETIME, RECORD (where RECORD indicates that the field contains
-                a nested schema) or STRUCT (same as RECORD).
-                See details at https://cloud.google.com/bigquery/docs/schemas
-                and https://cloud.google.com/bigquery/docs/reference/standard-sql/data-types
-              enum:
-                - STRING
-                - BYTES
-                - INTEGER
-                - INT64
-                - FLOAT
-                - FLOAT64
-                - BOOLEAN
-                - BOOL
-                - TIMESTAMP
-                - DATE
-                - TIME
-                - DATETIME
-                - RECORD
-                - STRUCT
-            mode:
-              type: string
-              description:
-                The field mode. Possible values include NULLABLE, REQUIRED and
-                REPEATED. The default value is NULLABLE.
-              enum:
-                - NULLABLE
-                - REQUIRED
-                - REPEATED
-            description:
-              type: string
-              description: |
-                The field description. The maximum length is 1,024 characters.
+    items:
+      type: object
+      description: Describes the fields in a table.
+      required:
+        - name
+        - type
+      properties:
+        name:
+          type: string
+          pattern: ^[_a-zA-Z][0-9a-zA-Z_]{1,128}$
+          description: |
+            The field name. The name must contain only letters (a-z, A-Z),
+            numbers (0-9), or underscores (_), and must start with a letter
+            or underscore. The maximum length is 128 characters.
+        type:
+          type: string
+          description: |
+            The field data type. Possible values include STRING, BYTES,
+            INTEGER, INT64 (same as INTEGER), FLOAT, FLOAT64 (same as
+            FLOAT), BOOLEAN, BOOL (same as BOOLEAN), TIMESTAMP, DATE, TIME,
+            DATETIME, RECORD (where RECORD indicates that the field contains
+            a nested schema) or STRUCT (same as RECORD).
+            See details at https://cloud.google.com/bigquery/docs/schemas
+            and https://cloud.google.com/bigquery/docs/reference/standard-sql/data-types
+          enum:
+            - STRING
+            - BYTES
+            - INTEGER
+            - INT64
+            - FLOAT
+            - FLOAT64
+            - BOOLEAN
+            - BOOL
+            - TIMESTAMP
+            - DATE
+            - TIME
+            - DATETIME
+            - RECORD
+            - STRUCT
+        mode:
+          type: string
+          description:
+            The field mode. Possible values include NULLABLE, REQUIRED and
+            REPEATED. The default value is NULLABLE.
+          enum:
+            - NULLABLE
+            - REQUIRED
+            - REPEATED
+        description:
+          type: string
+          description: |
+            The field description. The maximum length is 1,024 characters.
 
 outputs:
   properties:
