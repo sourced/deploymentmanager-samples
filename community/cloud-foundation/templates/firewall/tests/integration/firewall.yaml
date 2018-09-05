@@ -14,7 +14,7 @@ resources:
               ports:
                 - "80"
                 - "443"
-          description: test rule for network-test-${RAND}
+          description: Test rule for network-test-${RAND}.
           direction: INGRESS
           sourceRanges:
             - 10.0.0.0/8
@@ -26,7 +26,7 @@ resources:
             - IPProtocol: tcp
               ports:
                 - "53"
-          description: test rule for network-test-${RAND}
+          description: Test rule for network-test-${RAND}.
           direction: EGRESS
           priority: 20
           destinationRanges:
