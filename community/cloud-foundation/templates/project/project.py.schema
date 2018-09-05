@@ -17,7 +17,8 @@ info:
   author: Sourced Group Inc.
   description: |
     Deploys a single project. The project is created, has a billing account
-    attached, permissions altered, APIs activated, and service accounts created.
+    attached, permissions altered, APIs activated, and service accounts
+    created.
 
 required:
   - billingAccountId
@@ -109,8 +110,8 @@ properties:
   sharedVPC:
     type: string
     description: |
-      Name of the Shared VPC Host Project that this project will participate in.
-      The `sharedVPCHost` property cannot be set if this property is set.
+      Name of the Shared VPC Host Project that this project will participate
+      in. The `sharedVPCHost` property cannot be set if this property is set.
   sharedVPCSubnets:
     type: array
     description: |
@@ -129,7 +130,8 @@ properties:
     description: |
       Boolean flag if set to True indicates that this project to be used as a
       host project for Shared VPC networks.
-      The `sharedVPC` property cannot be set if this property is set.
+      The `sharedVPC` and `sharedVPCSubnets` property cannot be set if this
+      property is set.
   removeDefaultVPC:
     type: boolean
     default: True

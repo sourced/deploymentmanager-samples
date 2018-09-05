@@ -175,33 +175,38 @@ def create_shared_vpc_subnet_iam(context, dependencies, members_list):
     """ Grant shared VPC subnet IAM permissions to Service Accounts. """
 
     resources = []
-
-    # Grant the Service Accounts access to the shared VPC subnets
-    # Note that until there is subnetwork IAM patch support
-    # setIamPolicy will overwrite any existing policies on the subnet
-    for i, subnet in enumerate(context.properties.get('sharedVPCSubnets'), 1):
-        resources.append(
-            {
-                'name': 'add-vpc-subnet-iam-policy-{}'.format(i),
-                'type': 'gcp-types/compute-beta:compute.subnetworks.setIamPolicy',  # pylint: disable=line-too-long
-                'metadata':
-                    {
-                        'dependsOn': dependencies,
-                    },
-                'properties':
-                    {
-                        'name': subnet['subnetId'],
-                        'project': context.properties['sharedVPC'],
-                        'region': subnet['region'],
-                        'bindings': [
-                            {
-                                'role': 'roles/compute.networkUser',
-                                'members': members_list
-                            }
-                        ]
-                    }
-            }
-        )
+    if (
+            context.properties.get('sharedVPCSubnets') and
+            context.properties.get('sharedVPC')
+    ):
+        # Grant the Service Accounts access to the shared VPC subnets
+        # Note that until there is subnetwork IAM patch support
+        # setIamPolicy will overwrite any existing policies on the subnet
+        for i, subnet in enumerate(
+                context.properties.get('sharedVPCSubnets'), 1
+            ):
+            resources.append(
+                {
+                    'name': 'add-vpc-subnet-iam-policy-{}'.format(i),
+                    'type': 'gcp-types/compute-beta:compute.subnetworks.setIamPolicy',  # pylint: disable=line-too-long
+                    'metadata':
+                        {
+                            'dependsOn': dependencies,
+                        },
+                    'properties':
+                        {
+                            'name': subnet['subnetId'],
+                            'project': context.properties['sharedVPC'],
+                            'region': subnet['region'],
+                            'bindings': [
+                                {
+                                    'role': 'roles/compute.networkUser',
+                                    'members': members_list
+                                }
+                            ]
+                        }
+                }
+            )
 
     return resources
 
@@ -252,7 +257,7 @@ def create_service_accounts(context):
 
     # Build the group bindings for project IAM permissions
     for group in context.properties['groups']:
-        group_name = "group:{}".format(group['name'])
+        group_name = 'group:{}'.format(group['name'])
         for role in group['roles']:
             policies_to_add.append({'role': role, 'members': [group_name]})
 
