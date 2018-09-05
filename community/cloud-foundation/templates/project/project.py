@@ -54,7 +54,7 @@ def generate_config(context):
 
     api_resources, api_names_list = activate_apis(context.properties)
     resources.extend(api_resources)
-    resources.extend(create_service_accounts_and_set_project_iam(context))
+    resources.extend(create_service_accounts(context))
     resources.extend(create_bucket(context.properties))
     resources.extend(create_shared_vpc(project_id, context.properties))
 
@@ -95,8 +95,8 @@ def activate_apis(properties):
 
     # Enable storage-component API if usage export bucket enabled
     if (
-        properties.get('usageExportBucket') and
-        'storage-component.googleapis.com' not in apis
+            properties.get('usageExportBucket') and
+            'storage-component.googleapis.com' not in apis
     ):
         apis.append('storage-component.googleapis.com')
 
@@ -171,11 +171,7 @@ def create_project_iam(dependencies, role_member_list):
     return resources
 
 
-def create_shared_vpc_subnet_iam_for_service_accounts(
-    context,
-    dependencies,
-    members_list
-):
+def create_shared_vpc_subnet_iam(context, dependencies, members_list):
     """ Grant shared VPC subnet IAM permissions to Service Accounts. """
 
     resources = []
@@ -210,7 +206,7 @@ def create_shared_vpc_subnet_iam_for_service_accounts(
     return resources
 
 
-def create_service_accounts_and_set_project_iam(context):
+def create_service_accounts(context):
     """ Create Service Accounts and grant project IAM permissions. """
 
     resources = []
@@ -258,25 +254,15 @@ def create_service_accounts_and_set_project_iam(context):
     for group in context.properties['groups']:
         group_name = "group:{}".format(group['name'])
         for role in group['roles']:
-            policies_to_add.append(
-                {
-                    'role': role,
-                    'members': [group_name]
-                }
-            )
+            policies_to_add.append({'role': role, 'members': [group_name]})
 
     # Create the project IAM permissions
-    resources.extend(
-        create_project_iam(
-            service_account_dep,
-            policies_to_add
-        )
-    )
+    resources.extend(create_project_iam(service_account_dep, policies_to_add))
 
     if network_list and not context.properties.get('sharedVPCHost'):
         # Create the shared vpc subnet IAM permissions
         resources.extend(
-            create_shared_vpc_subnet_iam_for_service_accounts(
+            create_shared_vpc_subnet_iam(
                 context,
                 service_account_dep,
                 network_list
