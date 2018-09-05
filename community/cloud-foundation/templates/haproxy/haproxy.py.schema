@@ -90,7 +90,7 @@ properties:
           groups:
             type: array
             description: A list of instanceGroups that will be load-balanced.
-            item:
+            items:
               type: string
               description: |
                 The instance group name. If located in the same availability zone
