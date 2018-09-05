@@ -42,15 +42,16 @@ properties:
     description: Availability zone. E.g. 'us-central1-a'
   machineType:
     type: string
+    default: n1-standard-1
     description: |
       The Compute instance type. E.g., 'n1-standard-1'. For details, see:
       https://cloud.google.com/compute/docs/machine-types.
   serviceAccountEmail:
     type: string
+    default: default
     description: |
       A service account email with permissions sufficient to list zones and
       instanceGroups instances.
-    default: default
   loadBalancer:
     type: object
     description: Front-end settings for the HAProxy load balancer.
@@ -59,22 +60,22 @@ properties:
     properties:
       algorithm:
         type: string
+        default: roundrobin
         description: The load balancing algorithm.
         enum:
           - roundrobin
           - leastconn
           - source
-        default: roundrobin
       port:
         type: integer
         description: Number of the port at which the load balancer will receive requests.
       mode:
         type: string
+        default: http
         description: The type of traffic the HAProxy will be load-balancing.
         enum:
           - http
           - tcp
-        default: http
     instances:
       type: object
       description: Back-end settings of the HAProxy load balancer.

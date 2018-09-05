@@ -11,14 +11,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 """ This template creates a Compute Instance with an HAProxy installed. """
 
 DISK_IMAGE = 'projects/debian-cloud/global/images/family/debian-9'
-DEFAULT_MACHINE_TYPE = 'f1-micro'
-DEFAULT_LB_ALGORITHM = 'roundrobin'
-DEFAULT_LB_MODE = 'http'
-DEFAULT_SERVICE_ACCOUNT_EMAIL = 'default'
 SETUP_HAPROXY_SH = """#!/bin/bash
 
 set -euf -o pipefail
@@ -76,7 +71,9 @@ for g in $(get_metadata groups); do
   if [[ "${g}" =~ zones/([^/]+)/instanceGroups/(.*)$ ]]; then
     GROUP="${BASH_REMATCH[2]}"
     ZONE="${BASH_REMATCH[1]}"
-    SERVERS=${SERVERS}$'\\n'$($GCLOUD compute instance-groups list-instances $GROUP --zone $ZONE | grep -v NAME | sed "s/^\\([^ ]*\\) .*\\$/  server \\1 \\1:$IG_PORT check/")
+    SERVERS=${SERVERS}$'\\n'$($GCLOUD compute instance-groups list-instances \\
+      $GROUP --zone $ZONE | grep -v NAME | \
+      sed "s/^\\([^ ]*\\) .*\\$/  server \\1 \\1:$IG_PORT check/")
   else
     echo "Invalid group: ${g}"
   fi
@@ -120,8 +117,8 @@ def configure_haproxy_frontend(properties, metadata):
     """ Sets up user-facing HAProxy parameters. """
 
     lb_properties = properties['loadBalancer']
-    lb_algorithm = lb_properties.get('algorithm', DEFAULT_LB_ALGORITHM)
-    lb_mode = lb_properties.get('mode', DEFAULT_LB_MODE)
+    lb_algorithm = lb_properties['algorithm']
+    lb_mode = lb_properties['mode']
     lb_port = lb_properties['port']
 
     append_metadata_entry(metadata, 'lb-algorithm', lb_algorithm)
@@ -161,16 +158,14 @@ def generate_config(context):
     configure_haproxy_backend(zone, properties, metadata)
     configure_haproxy_setup(metadata)
 
-    service_account = properties.get('serviceAccountEmail',
-                                     DEFAULT_SERVICE_ACCOUNT_EMAIL)
+    service_account = properties['serviceAccountEmail']
 
     load_balancer = {
         'name': lb_name,
         'type': 'instance.py',
         'properties':
             {
-                'machineType': properties.get('machineType',
-                                              DEFAULT_MACHINE_TYPE),
+                'machineType': properties['machineType'],
                 'diskImage': DISK_IMAGE,
                 'zone': zone,
                 'network': properties['network'],

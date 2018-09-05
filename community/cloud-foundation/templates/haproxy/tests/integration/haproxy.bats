@@ -77,13 +77,15 @@ function teardown() {
 
 
 @test "Creating deployment ${DEPLOYMENT_NAME} from ${CONFIG}" {
-    gcloud deployment-manager deployments create "${DEPLOYMENT_NAME}" \
+    run gcloud deployment-manager deployments create "${DEPLOYMENT_NAME}" \
         --config "${CONFIG}" \
         --project "${CLOUD_FOUNDATION_PROJECT_ID}"
+    [[ "$status" -eq 0 ]]
 }
 
 @test "Verifying that the HAProxy instance was created in deployment ${DEPLOYMENT_NAME}" {
     run gcloud compute instances list --project "${CLOUD_FOUNDATION_PROJECT_ID}"
+    [[ "$status" -eq 0 ]]
     [[ "$output" =~ "ilb-proxy-${RAND}" ]]
 }
 
@@ -100,6 +102,7 @@ function teardown() {
     run gcloud compute ssh "ilb-proxy-${RAND}" --zone us-central1-a \
         --command "sudo tail -n 15 /etc/haproxy/haproxy.cfg" \
         --project "${CLOUD_FOUNDATION_PROJECT_ID}"
+    [[ "$status" -eq 0 ]]
     [[ "$output" =~ "group-${RAND}-1" ]]   # has instances from group 1
     [[ "$output" =~ "group-${RAND}-2" ]]   # has instances from group 2
     [[ "$output" =~ "mode tcp" ]]          # the mode was set
@@ -109,9 +112,7 @@ function teardown() {
 }
 
 @test "Deleting deployment" {
-    gcloud deployment-manager deployments delete "${DEPLOYMENT_NAME}" -q \
+    run gcloud deployment-manager deployments delete "${DEPLOYMENT_NAME}" -q \
         --project "${CLOUD_FOUNDATION_PROJECT_ID}"
-
-    run gcloud compute instances list --project "${CLOUD_FOUNDATION_PROJECT_ID}"
-    [[ ! "$output" =~ "ilb-proxy-${RAND}" ]]
+    [[ "$status" -eq 0 ]]
 }

@@ -9,10 +9,10 @@ This template:
 
 - Install [gcloud](https://cloud.google.com/sdk)
 - Create a [GCP project, set up billing, enable requisite APIs](../project/README.md)
-- Make sure that the default service account has at least a Compute viewer (`roles/compute.viewer`)
-role, or any other role that allows listing the availability zones and instanceGroup instances.
-Alternatively, create a new service account with the above permissions/roles,
-and add it to the template's `resources.properties.serviceAccountEmail` property.
+- Grant [compute.viewer](https://cloud.google.com/compute/docs/access/iam) role to 
+Compute Engine [default service account](https://cloud.google.com/compute/docs/access/service-accounts#compute_engine_default_service_account).
+Alternatively, create a new service account with the above role, and add it to 
+the template's `resources.properties.serviceAccountEmail` property.
 - Create one or more [instanceGroups](https://cloud.google.com/compute/docs/reference/rest/v1/instanceGroups)
 to be load-balanced, and add them to `resources.properties.instances.groups` collection.
 
@@ -57,7 +57,7 @@ See the `properties` section in the schema file(s):
 
 ```
     gcloud deployment-manager deployments create <YOUR_DEPLOYMENT_NAME> \
-    --config my_haproxy.yaml
+        --config my_haproxy.yaml
 ```
 
 6. In case you need to delete your deployment:
@@ -68,5 +68,4 @@ See the `properties` section in the schema file(s):
 
 ## Examples
 
-- Creating an f1-micro [Compute Instance with HAProxy](examples/haproxy.yaml)
-installed and configured to load-balance traffic between two predefined instance groups
+- [HAProxy](examples/haproxy.yaml)
