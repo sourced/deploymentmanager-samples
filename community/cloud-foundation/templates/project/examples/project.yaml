@@ -1,18 +1,14 @@
-# Example on how to use the project template
+# Example of the project template usage.
 #
 # In this example, a project is created, along with some of the most used
-# resources that an enterprise needs for regular operation
+# resources that an enterprise needs for regular operation.
 #
-# Notice that the `parent.type` property defaults to "organization" so it
-# doesn't need to be specified in the config. It is specified here for
-# informational purposes
+# Notice that the `setDMServiceAccountAsOwner` property defaults to
+# True, so it does not need to be specified in the config. Same for
+# the `parent.type` property, which defaults to 'organization'. These properties 
+# are specified in the example for informational purposes.
 #
-# See `templates/project.py.schema` for detailed information on these
-# properties
-#
-# Replace the `parent.id` placeholder value with your organization ID.
-# Replace the `billingAccountId` placeholder value with your billing
-# account ID
+# See `templates/project.py.schema` for detailed information on the above properties.
 
 imports:
   - path: templates/project/project.py
@@ -31,14 +27,6 @@ resources:
         - deploymentmanager.googleapis.com
         - pubsub.googleapis.com
       serviceAccounts:
-        - accountId: test-sa-1
-          displayName: test service account 1
-          roles:
-            - roles/editor
-            - roles/viewer
-          networkAccess: true
+        - test-sa
       usageExportBucket: true
-      sharedVPC: test-vpc-host-project
-      sharedVPCSubnets:
-        - subnetId: subnet-1
-          region: us-east1
+      sharedVPCHost: true

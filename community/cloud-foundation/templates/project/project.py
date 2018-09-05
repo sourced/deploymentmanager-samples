@@ -11,12 +11,16 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""Creates a single project with specified service accounts and APIs enabled."""
-import copy
+""" This template creates a single project, with the specified 
+service accounts and APIs enabled.
+"""
 
+# No such line of code in amy of the .py files I'd seen so far... Is it correct?
+import copy
+ 
 
 def generate_config(context):
-    """ Entry point for the deployment resources """
+    """ Entry point for the deployment resources. """
 
     project_id = context.env['name']
     project_name = context.properties.get('name', project_id)
@@ -51,7 +55,8 @@ def generate_config(context):
 
     api_resources, api_names_list = activate_apis(context.properties)
     resources.extend(api_resources)
-    resources.extend(create_service_accounts(context))
+    resources.extend(create_service_accounts(context.properties))
+    resources.extend(patch_iam_policies(context.properties))
     resources.extend(create_bucket(context.properties))
     resources.extend(create_shared_vpc(project_id, context.properties))
 
@@ -85,12 +90,12 @@ def generate_config(context):
 
 
 def activate_apis(properties):
-    """Resources for API activation"""
+    """Resources for API activation."""
 
     concurrent_api_activation = properties.get('concurrentApiActivation')
     apis = properties.get('activateApis', [])
 
-    # Enable storage-component API if usage export bucket enabled
+    # Enable the storage-component API if the usage export bucket is enabled.
     if (
         properties.get('usageExportBucket') and
         'storage-component.googleapis.com' not in apis
@@ -101,8 +106,8 @@ def activate_apis(properties):
     api_names_list = ['billing']
     for api in properties.get('activateApis', []):
         depends_on = ['billing']
-        # Serialize the activation of all the apis by making apis[n]
-        # depend on apis[n-1]
+        # Serialize activation of all APIs by making API[n]
+        # depend on API[n-1].
         if resources and not concurrent_api_activation:
             depends_on.append(resources[-1]['name'])
 
@@ -123,163 +128,40 @@ def activate_apis(properties):
             }
         )
 
-    # Return the API resources so other resources can use them as dependencies
-    # to ensure that they are created first. For example the default VPC or
-    # default service account
+    # Return API resources to enable other resources to use them as dependencies; i.e,
+    # to first ensure that the APIs had been created. For example, the default VPC or
+    # service account.
     return resources, api_names_list
 
 
-def create_project_iam_for_service_accounts(dependencies, role_member_list):
-    """Grant shared project IAM permissions to Service Accounts"""
-
-    policies_to_add = role_member_list
-    resources = [
-        {
-            # Get the IAM policy first so that we do not remove
-            # any existing bindings.
-            'name': 'get-iam-policy',
-            'action': 'gcp-types/cloudresourcemanager-v1:cloudresourcemanager.projects.getIamPolicy', # pylint: disable=line-too-long
-            'properties': {
-                'resource': '$(ref.project.projectId)'
-            },
-            'metadata':
-                {
-                    'dependsOn': dependencies,
-                    'runtimePolicy': ['UPDATE_ALWAYS']
-                }
-        },
-        {
-            # Set the IAM policy patching the existing policy
-            # with what ever is currently in the config
-            'name': 'patch-iam-policy',
-            'action': 'gcp-types/cloudresourcemanager-v1:cloudresourcemanager.projects.setIamPolicy', # pylint: disable=line-too-long
-            'properties':
-                {
-                    'resource': '$(ref.project.projectId)',
-                    'policy': '$(ref.get-iam-policy)',
-                    'gcpIamPolicyPatch':
-                        {
-                            'add': policies_to_add
-                        }
-                }
-        }
-    ]
-
-    return resources
-
-
-def create_shared_vpc_subnet_iam_for_service_accounts(
-    context,
-    dependencies,
-    members_list
-):
-    """Grant shared VPC subnet IAM permissions to Service Accounts"""
+def create_service_accounts(properties):
+    """Resources for service accounts"""
 
     resources = []
-
-    # Grant the Service Accounts access to the shared VPC subnets
-    # Note that until there is subnetwork IAM patch support
-    # setIamPolicy will overwrite any existing policies on the subnet
-    for i, subnet in enumerate(context.properties.get('sharedVPCSubnets'), 1):
+    for service_account in properties['serviceAccounts']:
         resources.append(
             {
-                'name': 'add-vpc-subnet-iam-policy-{}'.format(i),
-                'type': 'gcp-types/compute-beta:compute.subnetworks.setIamPolicy',  # pylint: disable=line-too-long
-                'metadata':
-                    {
-                        'dependsOn': dependencies,
-                    },
-                'properties':
-                    {
-                        'name': subnet['subnetId'],
-                        'project': context.properties['sharedVPC'],
-                        'region': subnet['region'],
-                        'bindings': [
-                            {
-                                'role': 'roles/compute.networkUser',
-                                'members': members_list
-                            }
-                        ]
-                    }
-            }
-        )
-
-    return resources
-
-
-def create_service_accounts(context):
-    """Create Service Accounts and grant IAM permissions"""
-
-    resources = []
-    network_list = []
-    service_account_dep = []
-    policies_to_add = []
-
-    for service_account in context.properties['serviceAccounts']:
-        account_id = service_account['accountId']
-        display_name = service_account.get('accountId', account_id)
-        sa_name = 'serviceAccount:{}@{}.iam.gserviceaccount.com'.format(
-            account_id,
-            context.env['name']
-        )
-
-        # Check if member needs shared vpc permissions and put in
-        # a list to grant shared VPC subnet IAM permissions
-        if service_account.get('networkAccess'):
-            network_list.append(sa_name)
-
-        # Build the bindings for project IAM permission
-        for role in service_account['roles']:
-            policies_to_add.append({'role': role, 'members': [sa_name]})
-
-        # Build a list of SA resources to be used as a dependency
-        # for when we grant permissions.
-        name = 'service-account-' + account_id
-        service_account_dep.append(name)
-
-        # Create the service account resource
-        resources.append(
-            {
-                'name': name,
+                'name': 'service-account-' + service_account,
                 'type': 'iam.v1.serviceAccount',
                 'properties':
                     {
-                        'accountId': account_id,
-                        'displayName': display_name,
+                        'accountId': service_account,
+                        'displayName': service_account,
                         'projectId': '$(ref.project.projectId)'
                     }
             }
         )
-
-    # Create the project IAM permissions
-    resources.extend(
-        create_project_iam_for_service_accounts(
-            service_account_dep,
-            policies_to_add
-        )
-    )
-
-    if network_list and not context.properties.get('sharedVPCHost'):
-        # Create the shared vpc subnet IAM permissions
-        resources.extend(
-            create_shared_vpc_subnet_iam_for_service_accounts(
-                context,
-                service_account_dep,
-                network_list
-            )
-        )
-
     return resources
 
 
 def create_bucket(properties):
-    """Resources for usage export bucket"""
+    """Resources for the usage export bucket."""
 
     resources = []
     if properties.get('usageExportBucket'):
         bucket_name = '$(ref.project.projectId)-usage-export'
 
-        # Create bucket
+        # Create the bucket.
         resources.append(
             {
                 'name': 'create-usage-export-bucket',
@@ -296,7 +178,7 @@ def create_bucket(properties):
             }
         )
 
-        # Set the project's usage export bucket
+        # Set the project's usage export bucket.
         resources.append(
             {
                 'name':
@@ -313,12 +195,88 @@ def create_bucket(properties):
                 }
             }
         )
+    return resources
 
+
+def patch_iam_policies(properties):
+    """Resources for the patch IAM policies."""
+
+    iam_policy_patch = properties.get('iamPolicyPatch', {})
+    set_dm_service_account_as_owner = properties.get(
+        'setDMServiceAccountAsOwner'
+    )
+
+    resources = []
+    if iam_policy_patch or set_dm_service_account_as_owner:
+        policies_to_add = iam_policy_patch.get('add', [])
+        policies_to_remove = iam_policy_patch.get('remove', [])
+
+        # Set the DM service account as owner, if enabled.
+        if set_dm_service_account_as_owner:
+            svc_acct = 'serviceAccount:$(ref.project.projectNumber)@cloudservices.gserviceaccount.com'  # pylint: disable=line-too-long
+
+            # Add the default DM service account as a member of the
+            # first policy in the "add" list with an "owner role" (if
+            # the DM service account is not already a member).
+            for idx, policy in enumerate(policies_to_add):
+                if (
+                    policy['role'] == 'roles/owner' and
+                    svc_acct not in policies_to_add[idx]['members']
+                ):
+                    policies_to_add[idx]['members'].append(svc_acct)
+                    break
+            # If no "owner role" is found in the "add policy" list, add it
+            # to the list.
+            else:
+                policies_to_add.append(
+                    {
+                        'role': 'roles/owner',
+                        'members': [svc_acct]
+                    }
+                )
+
+        resources.extend(
+            [
+                {
+                    # Get the IAM policy first, so as not to remove
+                    # any existing bindings.
+                    'name': 'get-iam-policy',
+                    'action': 'gcp-types/cloudresourcemanager-v1:cloudresourcemanager.projects.getIamPolicy', # pylint: disable=line-too-long
+                    'properties': {
+                        'resource': '$(ref.project.projectId)'
+                    },
+                    'metadata':
+                        {
+                            'dependsOn': [
+                                'api-{}'.format(api) for api in
+                                properties.get('activateApis', [])
+                            ],
+                            'runtimePolicy': ['UPDATE_ALWAYS']
+                        }
+                },
+                {
+                    # Set the IAM policy by patching the existing policy
+                    # with the current config contents.
+                    'name': 'patch-iam-policy',
+                    'action': 'gcp-types/cloudresourcemanager-v1:cloudresourcemanager.projects.setIamPolicy', # pylint: disable=line-too-long
+                    'properties':
+                        {
+                            'resource': '$(ref.project.projectId)',
+                            'policy': '$(ref.get-iam-policy)',
+                            'gcpIamPolicyPatch':
+                                {
+                                    'add': policies_to_add,
+                                    'remove': policies_to_remove
+                                }
+                        }
+                }
+            ]
+        )
     return resources
 
 
 def create_shared_vpc(project_id, properties):
-    """ Configure project Shared VPC properties """
+    """ Configure project's Shared VPC properties. """
 
     resources = []
 
@@ -360,7 +318,7 @@ def create_shared_vpc(project_id, properties):
 
 
 def delete_default_network(api_names_list):
-    """ Delete the default network """
+    """ Delete the default network. """
 
     icmp_name = 'delete-default-allow-icmp'
     internal_name = 'delete-default-allow-internal'
@@ -418,7 +376,7 @@ def delete_default_network(api_names_list):
         }
     ]
 
-    # Ensure the firewall rules are removed before deleting the VPC
+    # Ensure that the firewall rules are removed before deleting the VPC.
     network_dependency = copy.copy(api_names_list)
     network_dependency.extend([icmp_name, internal_name, rdp_name, ssh_name])
 
@@ -441,7 +399,7 @@ def delete_default_network(api_names_list):
 
 
 def delete_default_service_account(api_names_list):
-    """ Delete the default service account """
+    """ Delete the default service account. """
 
     resource = [
         {
