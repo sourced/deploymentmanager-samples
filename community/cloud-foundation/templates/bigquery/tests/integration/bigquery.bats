@@ -69,17 +69,20 @@ function teardown() {
 @test "Verifying that the dataset was created in deployment ${DEPLOYMENT_NAME}" {
     run bq show --format=prettyjson \
         "${CLOUD_FOUNDATION_PROJECT_ID}":test_bq_dataset_${RAND}
+    [ "$status" -eq 0 ]
     [[ "$output" =~ "\"datasetId\": \"test_bq_dataset_${RAND}\"" ]]
 }
 
 @test "Verifying that the table was created in dataset deployment ${DEPLOYMENT_NAME}" {
     run bq ls --format=prettyjson \
         "${CLOUD_FOUNDATION_PROJECT_ID}":test_bq_dataset_${RAND}
+    [ "$status" -eq 0 ]
     [[ "$output" =~ "\"tableId\": \"test_bq_table_${RAND}\"" ]]
 }
 
 @test "Verifying table schema was created in dataset deployment ${DEPLOYMENT_NAME}" {
     run bq show --schema test_bq_dataset_${RAND}.test_bq_table_${RAND}
+    [ "$status" -eq 0 ]
     [[ "$output" =~ "{\"type\":\"STRING\",\"name\":\"firstname\"}" ]]
     [[ "$output" =~ "{\"type\":\"STRING\",\"name\":\"lastname\"}" ]]
     [[ "$output" =~ "{\"type\":\"INTEGER\",\"name\":\"age\"}" ]]

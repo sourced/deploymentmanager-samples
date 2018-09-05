@@ -186,6 +186,35 @@ outputs:
         description: |
           The date when this dataset or any of its tables was last modified,
           in milliseconds since the epoch.
+    - location:
+        type: string
+        description: |
+          The geographic location where the table resides. This value is
+          inherited from the dataset.
+    - numBytes:
+        type: string
+        description: |
+          The size of this table in bytes, excluding any data in the streaming
+          buffer.
+    - numLongTermBytes:
+        type: string
+        format: int64
+        description: |
+          The number of bytes in the table that are considered
+          \"long-term storage\".
+    - numRows:
+        type: string
+        description: |
+          The number of rows of data in this table, excluding any data in the
+          streaming buffer.
+    - type:
+        type: string
+        description: |
+          Describes the table type. The following values are supported: TABLE:
+          A normal BigQuery table. VIEW: A virtual table defined by a SQL
+          query. EXTERNAL: A table that references data stored in an external
+          storage system, such as Google Cloud Storage. The default value is
+          TABLE.
 
 documentation:
   - templates/bigquery/README.md

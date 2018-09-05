@@ -33,8 +33,14 @@ def generate_config(context):
                                            'US')
     }
 
-    if context.properties.get('description'):
-        properties['description'] = context.properties['description']
+    optional_properties = [
+        'description',
+        'defaultTableExpirationMs'
+    ]
+
+    for prop in optional_properties:
+        if context.properties.get(prop):
+            properties[prop] = context.properties[prop]
 
     if context.properties.get('access'):
         # Validate the access roles
