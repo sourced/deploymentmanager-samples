@@ -33,7 +33,7 @@ GROUP_SCHEMAS = {
 }
 
 def get_disk_config(properties):
-    """ If there's any disk property specified, creates a diskConfig section.
+    """ If any disk property is specified, creates the diskConfig section.
     """
 
     disk_schema = {
@@ -46,7 +46,7 @@ def get_disk_config(properties):
 
 def read_configuration(properties, schema):
     """ Creates a new config section by reading and renaming properties
-        from a source one.
+        from the source section.
     """
 
     if any(name in properties for name in schema):
@@ -58,7 +58,7 @@ def read_configuration(properties, schema):
     return None
 
 def get_instance_group_config(properties, image, cluster_schema):
-    """ Create cluster instance group. """
+    """ Creates a cluster instance group. """
 
     config = read_configuration(properties, cluster_schema)
 
@@ -72,14 +72,14 @@ def get_instance_group_config(properties, image, cluster_schema):
     return config
 
 def add_optional_property(destination, source, property_name, rename_to=None):
-    """ Copy property to destination object when presented in source. """
+    """ Copies each property defined in the source object to the destination object. """
 
     rename_to = rename_to or property_name
     if property_name in source:
         destination[rename_to] = source[property_name]
 
 def get_gce_cluster_config(properties):
-    """ Create configuration section for a cluster. """
+    """ Creates the configuration section for a cluster. """
 
     gce_schema = {
         'zone': 'zoneUri',

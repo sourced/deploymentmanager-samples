@@ -13,10 +13,10 @@
 # limitations under the License.
 
 info:
-  title: Dataproc template
+  title: Dataproc
   author: Sourced Group Inc.
   description: |
-    Creates Dataproc cluster.
+    Creates a Dataproc cluster.
 
 imports:
   - path: dataproc.py
@@ -25,55 +25,57 @@ properties:
   name:
     type: string
     description: |
-      The cluster name. If not provided, the resource name will be used.
+      The cluster name. If not provided, the resource name is used.
   region:
     type: string
     description: |
-      The region where the Compute Engine cluster will be located. When deployed
-      in 'global' region or without region provided, 'zone' parameter must be
-      supplied.
+      The region where the Compute Engine cluster is located. When deployed
+      in the 'global' region, or with no region specified, the 'zone' parameter must be
+      provided.
     default: global
   zone:
     type: string
     description: |
-      The zone where the Compute Engine cluster will be located. On a create
-      request, it is required in the 'global' region. A full URL, partial URI,
-      or short name are valid.
+      The zone where the Compute Engine cluster is located. Valid values are: 
+      - full URL
+      - partial URI
+      - Short name
+      Mandatory if the region parameter value is 'global', or is not defined. 
   image:
     type: string
     description: |
-      The Compute Engine image resource used for cluster instances. It can be
-      specified or may be inferred from 'softwareConfig.imageVersion'.
+      The Compute Engine image resource used for cluster instances. Can be
+      either specified or inferred from 'softwareConfig.imageVersion'.
   serviceAccountEmail:
     type: string
     description: |
       The service account of the instances. Defaults to the default Compute
-      Engine service account
+      Engine service account.
   serviceAccountScopes:
     type: array
     description: |
-      The URIs of service account scopes to be included in Compute Engine instances.
+      A list of URIs of service account scopes to be included in the Compute Engine instances.
     items:
       type: string
       description: |
-        The URIs of service account scopes to be included in Compute Engine instances.
+        The URI of service account scope to be included in the Compute Engine instances ??? or "instance" ???.
   internalIpOnly:
     type: boolean
     description: |
-      If true, all instances in the cluster will only have internal IP addresses.
+      If True, all instances in the cluster have only internal IP addresses.
   network:
     type: string
     description: |
       The Compute Engine network to be used for machine communications. Cannot
-      be specified with 'subnetwork'.
+      be specified if the 'subnetwork' value is privided.
   subnetwork:
     type: string
     description: |
       The Compute Engine subnetwork to be used for machine communications.
-      Cannot be specified with 'network'.
+      Cannot be specified if the 'network' value is privided..
   networkTags:
     type: array
-    description: The Compute Engine tags to add to all instances.
+    description: A list of Compute Engine tags to add to all instances.
     items:
       type: string
   metadata:
@@ -83,44 +85,43 @@ properties:
   configBucket:
     type: string
     description: |
-      A Cloud Storage staging bucket used for sharing generated SSH keys and config.
+      The Cloud Storage staging bucket used for sharing the generated SSH keys and config.
   softwareConfig:
     type: object
     description: |
-      Specifies the selection and config of software inside the cluster.
+      The selection and config of software inside the cluster.
     properties:
       imageVersion:
         type: string
         description: |
-          The version of software inside the cluster. It must be one of the
+          The version of the software inside the cluster. One of the
           supported Cloud Dataproc Versions, such as "1.2" (including a subminor
           version, such as "1.2.29"), or the "preview" version.
       properties:
         type: object
         description: |
-          The key-value pairs of properties to set on daemon config files.
+          The key-value pairs for properties to set on the daemon config files.
   initializationActions:
     type: array
     description: |
-      Commands to execute on each node after config is completed.
+      A list of commands to execute on each node after the config is completed.
     items:
       type: object
       description: |
-        Specifies an executable to run on a fully configured node and a timeout
-        period for executable completion.
+        The executable to run on a fully configured node + the timeout
+        period for the executable completion.
       properties:
         executableFile:
           type: string
-          description: Cloud Storage URI of executable file.
+          description: The Cloud Storage URI of the executable file.
         executableTimeout:
           type: string
           description: |
-            Amount of time executable has to complete. Default is 10 minutes.
-            Example: "3.5s".
+            The executable completion timeout, e.g. "3.5s". The default value is 10 minutes.
   master:
     type: object
     description: |
-      The Compute Engine config settings for the master instance in a cluster.
+      The Compute Engine config settings for the master instance in the cluster.
     properties:
       numInstances:
         type: integer
@@ -128,29 +129,32 @@ properties:
       machineType:
         type: string
         description: |
-          The Compute Engine machine type used for cluster instances. A full
-          URL, partial URI, or short name are valid. Example: 'n1-standard-4'.
+          The Compute Engine machine type used for the cluster instances. 
+          For example, 'n1-standard-4'. Valid values are:
+          - Full URL
+          - Partial URI
+          - Short name
       diskType:
         type: string
-        description: Type of the boot disk.
+        description: The boot disk type.
         enum:
           - pd-standard
           - pd-ssd
         default: pd-standard
       diskSizeGb:
         type: integer
-        description: Size in GB of the boot disk.
+        description: The boot disk size in GB.
         default: 500
       numLocalSsds:
         type: integer
-        description: Number of attached SSDs.
+        description: The number of attached SSDs.
         minimum: 0
         maximum: 4
         default: 0
   worker:
     type: object
     description: |
-      The Compute Engine config settings for worker instances in a cluster.
+      The Compute Engine config settings for worker instances in the cluster.
     properties:
       numInstances:
         type: integer
@@ -158,29 +162,32 @@ properties:
       machineType:
         type: string
         description: |
-          The Compute Engine machine type used for cluster instances. A full
-          URL, partial URI, or short name are valid. Example: 'n1-standard-4'
+          The Compute Engine machine type used for cluster instances. 
+          For example, 'n1-standard-4'. Valid values are:
+          - Full URL
+          - Partial URI
+          - Short name 
       diskType:
         type: string
-        description: Type of the boot disk.
+        description: The boot disk type.
         enum:
           - pd-standard
           - pd-ssd
         default: pd-standard
       diskSizeGb:
         type: integer
-        description: Size in GB of the boot disk.
+        description: The boot disk size in GB.
         default: 500
       numLocalSsds:
         type: integer
-        description: Number of attached SSDs.
+        description: The number of attached SSDs.
         minimum: 0
         maximum: 4
         default: 0
   secondaryWorker:
     type: object
     description: |
-      The Compute Engine config settings for additional worker instances in a cluster.
+      The Compute Engine config settings for additional worker instances in the cluster.
     properties:
       numInstances:
         type: integer
@@ -188,24 +195,23 @@ properties:
       isPreemptible:
         type: boolean
         description: |
-          Specifies that this instance group consists of preemptible instances.
-
+          If True, specifies that the instance group consists of preemptible instances.
 outputs:
   properties:
     - masterInstanceNames:
         type: array
-        description: When configured, the list of master instances names.
+        description: When configured, the list of master instance names.
         items:
           type: string
     - workerInstanceNames:
         type: array
-        description: When configured, the list of worker instances names.
+        description: When configured, the list of worker instance names.
         items:
           type: string
     - secondaryWorkerInstanceNames:
         type: array
         description: |
-          When configured, the list of additional workers instance names.
+          When configured, the list of additional worker instance names.
         items:
           type: string
     - name:

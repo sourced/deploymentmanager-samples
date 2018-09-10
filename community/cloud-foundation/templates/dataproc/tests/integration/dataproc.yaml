@@ -1,4 +1,4 @@
-# Test of the Dataproc template usage.
+# Test of the Dataproc template.
 #
 # Variables:
 #   RAND: a random string used by the testing suite.
@@ -37,15 +37,16 @@ resources:
         - test-network-${RAND}-allow-ssh
         - test-network-${RAND}-allow-internal
 
-# Prerequisites
+# Prerequisites ??? We have what comes below in the Prerequisites section of the Readme file... 
+# Other template tests don't have Prerequisiytes. Why this one? 
 
-# Set up the network
+# Set up the network:
   - name: test-network-${RAND}
     type: compute.v1.network
     properties:
       autoCreateSubnetworks: true
 
-# Set up firewall rules for newly created network
+# Set up firewall rules for the newly created network:
   - name: test-network-${RAND}-allow-icmp
     type: compute.v1.firewall
     properties:
@@ -73,7 +74,7 @@ resources:
       allowed:
         - IPProtocol: all
 
-# Create Service Account for Dataproc cluster
+# Create a Service Account for the Dataproc cluster:
   - name: dataproc-sa-${RAND}
     type: iam.v1.serviceAccount
     properties:
@@ -81,15 +82,15 @@ resources:
       displayName: dataproc-sa-${RAND}
       projectId: ${CLOUD_FOUNDATION_PROJECT_ID}
 
-# Patch project IAM policy to grant newly created account dataproc.worker role
+# Patch the project IAM policy to grant to the newly created account the dataproc.worker role:
 
-# Get existing policy
+# Get the existing policy:
   - name: dataproc-sa-get-iam-${RAND}
     action: gcp-types/cloudresourcemanager-v1:cloudresourcemanager.projects.getIamPolicy
     properties:
       resource: ${CLOUD_FOUNDATION_PROJECT_ID}
 
-# Grant dataproc.worker role to Service Account
+# Grant the dataproc.worker role to the Service Account:
   - name: dataproc-sa-set-iam-${RAND}
     action: gcp-types/cloudresourcemanager-v1:cloudresourcemanager.projects.setIamPolicy
     properties:
@@ -101,7 +102,7 @@ resources:
             members:
               - serviceAccount:$(ref.dataproc-sa-${RAND}.email)
 
-# When Service Account is deleted, remove its policy as well
+# When the Service Account is deleted, remove its IAM policy:
   - name: dataproc-sa-cleanup-on-delete-${RAND}
     action: gcp-types/cloudresourcemanager-v1:cloudresourcemanager.projects.setIamPolicy
     metadata:
