@@ -1,8 +1,8 @@
-# Test of Managed Instance Group composite type usage.
+# Test of the Managed Instance Group template.
 #
 # Variables:
-#   RAND: a random string used by the testing suite.
-#   CLOUD_FOUNDATION_PROJECT_ID: Current project ID.
+#   RAND: a random string used by the testing suite
+#   CLOUD_FOUNDATION_PROJECT_ID: the current project ID
 
 imports:
   - path: templates/managed_instance_group/managed_instance_group.py

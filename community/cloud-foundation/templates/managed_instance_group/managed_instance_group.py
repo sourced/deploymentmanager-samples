@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-""" Creates managed instance group. """
+""" This template creates a managed instance group. """
 
 REGIONAL_LOCAL_AUTOSCALER_TYPES = {
     True: 'compute.v1.regionAutoscaler',
@@ -23,13 +23,13 @@ REGIONAL_LOCAL_IGM_TYPES = {
 }
 
 def set_optional_property(receiver, source, property_name):
-    """ If set, copies given property value from one object to another """
+    """ If set, copies the given property value from one object to another. """
 
     if property_name in source:
         receiver[property_name] = source[property_name]
 
 def create_boot_disk(properties):
-    """ Create boot disk configuration """
+    """ Creates the boot disk configuration. """
 
     boot_disk = {
         'deviceName': 'boot',
@@ -47,8 +47,8 @@ def create_boot_disk(properties):
     return boot_disk
 
 def get_network(properties):
-    """ Get configuration that connects an instance to preexisting network
-        and assigns ephemeral public IP.
+    """ Gets the configuration that connects an instance to an existing network
+        and assigns to it an ephemeral public IP.
     """
 
     network_name = properties.get('network')
@@ -63,7 +63,7 @@ def get_network(properties):
     }
 
 def create_instance_template(properties, context):
-    """ Create instance template description. """
+    """ Creates an instance template description. """
 
     name = properties.get('name', context.env['name'] + '-it')
     machine_type = properties['machineType']
@@ -98,8 +98,8 @@ def create_instance_template(properties, context):
     ]
 
 def get_instance_template(properties, context):
-    """ Get a link to instance template and to resource/outputs if one needs
-        to be created.
+    """ Gets a link to the instance template and to resource/outputs if one needs
+        to be created. ??? An if one does not need to be created ???
     """
 
     if 'url' in properties:
@@ -108,7 +108,7 @@ def get_instance_template(properties, context):
     return create_instance_template(properties, context)
 
 def get_autoscaler(properties, is_regional, igm):
-    """ Create autoscaler, if necessary. """
+    """ Creates an autoscaler if one is necessary. ??? An dif ine is not necessary ??? """
 
     autoscaler_spec = properties.get('autoscaler')
     if autoscaler_spec:
@@ -158,7 +158,7 @@ def get_autoscaler(properties, is_regional, igm):
     return [], []
 
 def get_igm_outputs(igm_name, igm_properties):
-    """ Create IGM resource outputs. """
+    """ Creates Instance Group Manaher (ISM) resource outputs. """
 
     igm_outputs = [
         {
@@ -189,7 +189,7 @@ def get_igm_outputs(igm_name, igm_properties):
     return igm_outputs
 
 def get_igm_resource(context):
-    """ Creates IGM resource with its outputs. """
+    """ Creates the IGM resource with its outputs. """
 
     properties = context.properties
     igm_name = properties.get('name', context.env['name'] + '-igm')
@@ -229,7 +229,7 @@ def get_igm_resource(context):
     return igm_resources + template_resources, igm_outputs + template_outputs
 
 def generate_config(context):
-    """ Entry point for the deployment resources """
+    """ Entry point for the deployment resources. """
 
     igm_resources, igm_outputs = get_igm_resource(context)
 

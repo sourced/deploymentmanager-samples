@@ -63,7 +63,7 @@ function teardown() {
     [[ "$status" -eq 0 ]]
 }
 
-@test "Verifying zonal intance group was created" {
+@test "Verifying that a zonal intance group was created" {
     run gcloud compute instance-groups managed list \
         --project "${CLOUD_FOUNDATION_PROJECT_ID}"
     [[ "$status" -eq 0 ]]
@@ -103,7 +103,7 @@ function teardown() {
     [[ "$output" =~ "name: autoscaler-${RAND}" ]]
 }
 
-@test "Verifying instance-template properties" {
+@test "Verifying instance template properties" {
     run gcloud compute instance-templates describe "it-${RAND}" \
         --project "${CLOUD_FOUNDATION_PROJECT_ID}"
     [[ "$status" -eq 0 ]]

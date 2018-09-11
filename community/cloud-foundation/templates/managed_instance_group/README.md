@@ -1,6 +1,6 @@
 # Managed Instance Group
 
-This template creates a Managed Instance Group.
+This template creates a managed instance group.
 
 ## Prerequisites
 

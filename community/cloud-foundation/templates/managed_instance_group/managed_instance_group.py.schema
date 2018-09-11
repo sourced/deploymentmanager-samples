@@ -13,10 +13,10 @@
 # limitations under the License.
 
 info:
-  title: Managed Instance Group template
+  title: Managed Instance Group
   author: Sourced Group Inc.
   description: |
-    Deploys Managed Instance Group with or without autoscaler.
+    Creates a managed instance group with or without an autoscaler.
 
 required:
   - targetSize
@@ -34,7 +34,7 @@ properties:
     description: The name of the managed instance group.
   description:
     type: string
-    description: An optional description of this resource.
+    description: An optional description of the resource.
   zone:
     type: string
     description: |
@@ -47,17 +47,17 @@ properties:
       (for regional resources).
   baseInstanceName:
     type: string
-    description: The base instance name to use for instances in this group.
+    description: The base instance name to use for instances in the group.
   targetSize:
     type: integer
     description: |
-      The target number of running instances for this managed instance group. If
-      used with autoscaler, this is the maximum number of instances in the group.
+      The target number of running instances for the managed instance group. If
+      used with an autoscaler, this is the maximum number of instances in the group.
   namedPorts:
     type: array
     description: |
-      Named ports configured for the Instance Groups complementary to this
-      Instance Group Manager.
+      A list of the named ports configured for the instance groups complementary to this
+      Instance Group Manager. ??? What "this" IGM? This is the first time in this file we mention an IGM... ???
     items:
       type: object
       required:
@@ -66,7 +66,7 @@ properties:
       properties:
         name:
           type: string
-          description: The name for this named port.
+          description: The port name.
         port:
           type: integer
           minimum: 1
@@ -75,9 +75,8 @@ properties:
   instanceTemplate:
     type: object
     description: |
-      The instance template that is specified for this managed instance group.
-      The group uses this template to create all new instances in the managed
-      instance group.
+      The instance template specified for this managed instance group.
+      The template is used to create all new instances in the group.
     oneOf:
       - required:
         - url
@@ -94,18 +93,18 @@ properties:
       network:
         type: string
         description: |
-          The network name where the instance will be placed
-          e.g. 'my-custom-network' or 'default'
+          The name of the network where the instance is placed;
+          e.g., 'my-custom-network' or 'default'.
       machineType:
         type: string
         default: n1-standard-1
         description: |
-          Compute instance type. E.g. 'n1-standard-1'
-          See https://cloud.google.com/compute/docs/machine-types for more details
+          The Compute Instance type. E.g., 'n1-standard-1'.
+          See https://cloud.google.com/compute/docs/machine-types for details.
       canIpForward:
         type: boolean
         description: |
-          Allows the instance to send and receive packets with non-matching
+          Defines whether the instance is allowed to send and receive packets with non-matching
           destination or source IPs.
       diskType:
         type: string
@@ -114,24 +113,24 @@ properties:
           - pd-ssd
           - pd-standard
           - local-ssd
-        description: Boot disk type
+        description: The boot disk type.
       diskImage:
         type: string
         description: |
-          The source image to create the disk. To create a disk with one of the
+          The source image for creating the disk. To create the disk with one of the
           public operating system images, specify the image by its family name.
           For example, specify family/debian-9 to use the latest Debian 9 image:
-          projects/debian-cloud/global/images/family/debian-9
-          To create a disk with a custom image that you created, specify the image
-          name in the following format: global/images/my-custom-image
-          See https://cloud.google.com/compute/docs/images for more details
+          projects/debian-cloud/global/images/family/debian-9.
+          To create a disk with a custom image, specify the image
+          name in the following format: global/images/my-custom-image.
+          See https://cloud.google.com/compute/docs/images for details.
       diskSizeGb:
         type: integer
         minimum: 10
       metadata:
         type: object
         description: |
-          Instance metadata.
+          The instance metadata.
           For example:
             metadata:
               items:
@@ -150,7 +149,7 @@ properties:
                   type: string
   healthChecks:
     type: array
-    description: Defines how individual instances will be checked for health.
+    description: An array that defines how individual instances must be checked for health.
     items:
       type: object
       requried:
@@ -160,21 +159,21 @@ properties:
         initialDelaySec:
           type: integer
           description: |
-            The time to allow an instance to boot and applications to fully
-            start before the first health check
+            The time period to allow an instance to boot, and its applications to fully
+            start, before the first healthcheck.
         healthCheck:
           type: string
-          description: Healthcheck resource URL.
+          description: The healthcheck resource URL.
   distributionPolicy:
     type: object
     description: |
-      Policy specifying intended distribution of instances in regional managed
+      The policy that specifies the intended distribution of instances in a regional managed
       instance group.
     properties:
       zones:
         type: array
         description: |
-          Zones where the regional managed instance group will create and manage
+          A list of zones where the regional managed instance group creates and manages
           instances.
         items:
           type: object
@@ -187,7 +186,8 @@ properties:
   autoscaler:
     type: object
     description: |
-      Automatically adjust number of instances in a group based on current load.
+      The configuration of the autosaler - a mechanism that automatically adjusts 
+      the number of instances in a group based on the current load.
     anyOf:
       - required:
         - cpuUtilization
@@ -198,26 +198,26 @@ properties:
     properties:
       name:
         type: string
-        description: Name of the resource.
+        description: The resource name.
       description:
         type: string
-        description: Description of the resource.
+        description: The resource description.
       coolDownPeriodSec:
         type: integer
         default: 60
         description: |
-          The number of seconds that the autoscaler should wait before it starts
-          collecting information from a new instance.
+          The number of seconds the autoscaler must wait before starting
+          to collect information from a new instance.
       minSize:
         type: integer
         default: 1
         minimum: 0
         description: |
-          The minimum number of replicas that the autoscaler can scale down to.
+          The minimum number of replicas the autoscaler can scale down to.
       cpuUtilization:
         type: object
         description: |
-          Defines the CPU utilization policy that allows the autoscaler to
+          The CPU utilization policy that allows the autoscaler to
           scale based on the average CPU utilization of a managed instance group.
         required:
           - utilizationTarget
@@ -227,23 +227,23 @@ properties:
             minimum: 0
             maximum: 1
             description: |
-              The target CPU utilization that the autoscaler should maintain.
+              The target CPU utilization the autoscaler must maintain.
       loadBalancingUtilization:
         type: object
         required:
           - utilizationTarget
         description: |
-          Configuration parameters of autoscaling based on load balancer.
+          The autoscaling configuration prameters based on the load balancer.
         properties:
           utilizationTarget:
             type: number
             minimum: 0
             maximum: 1
-            description: Fraction of backend capacity utilization.
+            description: The ??? required? minimum? maximum ??? fraction ??? in percents? or... ??? of back-end capacity utilization.
       customMetricUtilizations:
         type: array
         description: |
-          Configuration parameters of autoscaling based on a custom metric.
+          A list of autoscaling configuration parameters based on a custom metric.
         items:
           type: object
           requried:
@@ -258,7 +258,7 @@ properties:
             utilizationTarget:
               type: number
               description: |
-                The target value of the metric that autoscaler should maintain.
+                The target value of the metric the autoscaler must maintain.
                 This must be a positive value.
             utilizationTargetType:
               type: string
@@ -268,9 +268,8 @@ properties:
                 - DELTA_PER_SECOND
                 - DELTA_PER_MINUTE
               description: |
-                Defines how target utilization value is expressed for a
+                Defines how the target utilization value is expressed for the
                 Stackdriver Monitoring metric.
-
 outputs:
   properties:
     - name:
@@ -278,10 +277,10 @@ outputs:
         description: The name of the managed instance group.
     - selfLink:
         type: string
-        description: The URL for this managed instance group.
+        description: The URL of the managed instance group.
     - instanceGroup:
         type: string
-        description: The URL of the Instance Group resource.
+        description: The URL of the instance group resource.
     - region:
         type: string
         description: |
@@ -295,12 +294,11 @@ outputs:
     - autoscalerSelfLink:
         type: string
         description: |
-          When used with autoscaler, the URL of the Autoscaler resource.
+          The URL of the autoscaler resource (if the group is used with the autoscaler).
     - instanceTemplateSelfLink:
         type: string
         description: |
-          When creating an instance template, the URL of newly created instance
-          template
+          The URL of the newly created instance template.
 
 documentation:
   - templates/managed_instance_group/README.md
