@@ -98,8 +98,9 @@ def create_instance_template(properties, context):
     ]
 
 def get_instance_template(properties, context):
-    """ Gets a link to the instance template and to resource/outputs if one needs
-        to be created. ??? An if one does not need to be created ???
+    """ If an instance template exists, returns a link to that template. 
+    If no instance template exists: (a) creates that template; (b) retruns a link to it; 
+    and (c) returns resources/outputs that were required to create the template. 
     """
 
     if 'url' in properties:
@@ -108,7 +109,7 @@ def get_instance_template(properties, context):
     return create_instance_template(properties, context)
 
 def get_autoscaler(properties, is_regional, igm):
-    """ Creates an autoscaler if one is necessary. ??? An dif ine is not necessary ??? """
+    """ Creates an autoscaler if one is necessary. """
 
     autoscaler_spec = properties.get('autoscaler')
     if autoscaler_spec:
@@ -158,7 +159,7 @@ def get_autoscaler(properties, is_regional, igm):
     return [], []
 
 def get_igm_outputs(igm_name, igm_properties):
-    """ Creates Instance Group Manaher (ISM) resource outputs. """
+    """ Creates Instance Group Manaher (IGM) resource outputs. """
 
     igm_outputs = [
         {

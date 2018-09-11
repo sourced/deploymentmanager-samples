@@ -56,8 +56,8 @@ properties:
   namedPorts:
     type: array
     description: |
-      A list of the named ports configured for the instance groups complementary to this
-      Instance Group Manager. ??? What "this" IGM? This is the first time in this file we mention an IGM... ???
+      A list of the named ports configured for the instance groups complementary to the
+      Instance Group Manager.
     items:
       type: object
       required:
@@ -239,7 +239,9 @@ properties:
             type: number
             minimum: 0
             maximum: 1
-            description: The ??? required? minimum? maximum ??? fraction ??? in percents? or... ??? of back-end capacity utilization.
+            description: |
+              The target fraction of the back-end capacity utilization the autoscaler must maintain. 
+              Must be a positive float value. The default is 0.8. 
       customMetricUtilizations:
         type: array
         description: |
