@@ -13,9 +13,9 @@
 # limitations under the License.
 
 info:
-  title: CloudSpanner
-  author: Sourced Group Inc
-  description: Creates cloud spanner instances and databases
+  title: Cloud Spanner
+  author: Sourced Group Inc.
+  description: Creates a Cloud Spanner instance and database.
 
 required:
   - displayName
@@ -25,13 +25,13 @@ required:
 properties:
   displayName:
     type: string
-    description: Cluster's display name in GCP Console
+    description: The cluster display name in GCP Console.
   nodeCount:
     type: integer
-    description: Number of instances allocated to your node
+    description: The number of instances allocated to your node.
   instanceConfig:
     type: string
-    description: Cluster's location
+    description: The cluster location.
     enum:
       - northamerica-northeast1
       - us-central1
@@ -50,7 +50,7 @@ properties:
       - nam-eur-asia1
   bindings:
     type: array
-    description: IAM Policies applied on the CLUSTER level
+    description: IAM policies applied at the CLUSTER level.
     items:
       type: object
       required:
@@ -59,20 +59,20 @@ properties:
       properties:
         role:
           type: string
-          description: Role been assigned as part of IAM policy
+          description: The IAM role assigned as part of the IAM policy.
           enum:
             - roles/spanner.admin
             - roles/spanner.viewer
             - roles/spanner.databaseAdmin
         members:
           type: array
-          description: Members been granted as given role for the IAM policy
+          description: A list of members granted the given role for ??? under ??? the IAM policy.
           items:
             type: string
             pattern: user:.*|serviceAccount:.*|group:.*
   databases:
     type: array
-    description: Databases created as part of the instance cluster
+    description: A list of databases created under the instance cluster.
     items:
       type: object
       required:
@@ -80,10 +80,10 @@ properties:
       properties:
         name:
           type: string
-          description: Name of the database created under the instance cluster
+          description: The name of the database created under the instance cluster.
         bindings:
           type: array
-          description: IAM policies applied on the DATABASE level
+          description: A list of IAM policies applied at the DATABASE level.
           items:
             type: object
             required:
@@ -92,14 +92,14 @@ properties:
             properties:
               role:
                 type: string
-                description: Role been assigned as part of IAM policy
+                description: The role assigned as part of ??? under ??? the IAM policy.
                 enum:
                   - roles/spanner.databaseAdmin
                   - roles/spanner.databaseReader
                   - roles/spanner.databaseUser
               members:
                 type: array
-                description: Members been granted as given role for the IAM policy
+                description: A list of members granted the given role for ??? under ??? the IAM policy.
                 items:
                   type: string
                   pattern: user:.*|serviceAccount:.*|group:.*

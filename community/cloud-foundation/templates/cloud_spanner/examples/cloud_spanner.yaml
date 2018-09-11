@@ -1,5 +1,4 @@
----
-# Cloud Spanner example
+# Example of the Cloud Spanner template usage.
 
 imports:
 - path: templates/cloud_spanner/cloud_spanner.py
