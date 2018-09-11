@@ -58,7 +58,7 @@ properties:
     items:
       type: string
       description: |
-        The URI of service account scope to be included in the Compute Engine instances ??? or "instance" ???.
+        The URI of service account scope to be included in the Compute Engine instances.
   internalIpOnly:
     type: boolean
     description: |

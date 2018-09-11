@@ -4,18 +4,14 @@ This template creates a Dataproc cluster.
 
 ## Prerequisites
 
-- Install [gcloud](https://cloud.google.com/sdk)
-- Create a [GCP project, set up billing, enable requisite APIs](../project/README.md)
-- Enable the [Cloud Dataproc API](https://cloud.google.com/dataproc/docs/reference/rest/)
-- Grant the default service account the [Dataproc Worker](`roles/dataproc.worker`) IAM role.
-  Alternatively, grant it the following permissions:
-    - dataproc.agents.create
-    - dataproc.agents.get
-    - dataproc.agents.update
-    - dataproc.tasks.lease
-    - dataproc.tasks.listInvalidatedLeases
-    - dataproc.tasks.reportStatus
-- Add the above service account to template's `resources.properties.serviceAccountEmail` property.
+- Install [gcloud](https://cloud.google.com/sdk).
+- Create a [GCP project, set up billing, enable requisite APIs](../project/README.md).
+- Enable the [Cloud Dataproc API](https://cloud.google.com/dataproc/docs/reference/rest/).
+- Grant the default service account the [Dataproc Worker](`roles/dataproc.worker`) IAM role.\
+  Alternatively:
+    - Create a new service account
+    - Grant the [Dataproc Worker](`roles/dataproc.worker`) IAM role to that account
+    - Assign the new service account's email as a value to the `serviceAccountEmail` property
 
 ## Deployment
 
