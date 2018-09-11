@@ -1,6 +1,6 @@
 # Managed Instance Group
 
-Templated Managed Instance Group deployment
+This template creates a Managed Instance Group.
 
 ## Prerequisites
 
@@ -20,52 +20,51 @@ Templated Managed Instance Group deployment
 
 ### Properties
 
-See `properties` section in the schema files
+See the `properties` section in the schema file(s):
 
 - [Managed Instance Group](managed_instance_group.py.schema)
 
-### Outputs
+### Usage
 
-See `outputs` section in the schema files
+1. Clone the [Deployment Manager samples repository](https://github.com/GoogleCloudPlatform/deploymentmanager-samples)
 
-- [Managed Instance Group](managed_instance_group.py.schema)
+```shell
+    git clone https://github.com/GoogleCloudPlatform/deploymentmanager-samples
+```
 
-### Deployment
-
-#### Usage
-
-1. Clone the [DM Samples repository](https://github.com/GoogleCloudPlatform/deploymentmanager-samples)
 2. Go to the [community/cloud-foundation](../../) directory
+
+```shell
+    cd community/cloud-foundation
+```
+
 3. Copy the example DM config to be used as a model for the deployment, in this
    case [examples/managed\_instance\_group.yaml](examples/managed_instance_group.yaml)
+
+```shell
+    cp templates/managed_instance_group/examples/managed_instance_group.yaml \
+        my_managed_instance_group.yaml
+```
+
 4. Change the values in the config file to match your specific GCP setup.
    Refer to the properties in the schema files described above.
+
+```shell
+    vim my_managed_instance_group.yaml  # <== change values to match your GCP setup
+```
+
 5. Create your deployment as described below, replacing <YOUR_DEPLOYMENT_NAME>
    with your with your own deployment name
 
-For example:
-
-``` bash
-git clone https://github.com/GoogleCloudPlatform/deploymentmanager-samples
-cd community/cloud-foundation
-cp templates/managed_instance_group/examples/managed_instance_group.yaml \
-    my_managed_instance_group.yaml
-vim my_managed_instance_group.yaml  # <== change values to match your GCP setup
-gcloud deployment-manager deployments create <YOUR_DEPLOYMENT_NAME> \
-    --config my_managed_instance_group.yaml
+```shell
+    gcloud deployment-manager deployments create <YOUR_DEPLOYMENT_NAME> \
+        --config my_managed_instance_group.yaml
 ```
 
-#### Create
+6. In case you need to delete your deployment:
 
-``` bash
-gcloud deployment-manager deployments create <YOUR_DEPLOYMENT_NAME> \
-    --config my_managed_instance_group.yaml
-```
-
-#### Delete
-
-``` bash
-gcloud deployment-manager deployments delete <YOUR_DEPLOYMENT_NAME>
+```shell
+    gcloud deployment-manager deployments delete <YOUR_DEPLOYMENT_NAME>
 ```
 
 ## Examples
