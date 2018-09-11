@@ -13,12 +13,12 @@ def get(args):
     configs = ConfigList(args.config)
     [Deployment(c).get() for c in configs]
 
-def sync(args):
+def apply(args):
     configs = ConfigList(args.config)
-    [Deployment(c).sync(preview=args.preview) for c in configs]
+    [Deployment(c).apply(preview=args.preview) for c in configs]
 
 def update(args):
     configs = ConfigList(args.config)
-    [Deployment(c).upsert(preview=args.preview) for c in configs]
+    [Deployment(c).update(preview=args.preview) for c in configs]
 
 

@@ -480,7 +480,7 @@ class Deployment(DM_API):
         operation = self.client.deployments.CancelPreview(req)
         self.wait(operation)
 
-    def sync(self, preview=False, create_policy=None, delete_policy=None):
+    def apply(self, preview=False, create_policy=None, delete_policy=None):
         """Creates or updates this deployment in DM.
 
         Args:

@@ -13,8 +13,8 @@
 # $ make clean-venv (or make clean-all)
 #
 
-TESTDIR := tests
 PYTHON  := python2.7
+TESTDIR := tests
 SHELL   := /bin/bash
 
 help:
@@ -81,7 +81,7 @@ clean-all: clean-virtualenv clean
 # cleans up python compiled files, built packages, tests results, caches, etc
 clean:
 	find . \( -path '*__pycache__/*' -o -name __pycache__ \) -delete
-	rm -rf build dist *.egg-info .cache .eggs .coverage bats
+	rm -rf bats build dist *.egg-info .cache .eggs .coverage
 
 # cleans up a python virtual environment.
 # IMPORTANT: deactivate virtualenv prior to running this!

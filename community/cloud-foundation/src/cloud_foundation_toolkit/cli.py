@@ -21,7 +21,7 @@ import argparse
 import sys
 
 from cloud_foundation_toolkit import LOG
-from cloud_foundation_toolkit.actions import create, delete, get, sync, update
+from cloud_foundation_toolkit.actions import create, delete, get, apply, update
 from cloud_foundation_toolkit.deployment import Config, Deployment
 
 
@@ -59,7 +59,7 @@ def parse_args(args):
         'delete',
         'get',
         'update',
-        'sync',
+        'apply',
         'render',
         'validate'
     ]
@@ -81,7 +81,7 @@ def parse_args(args):
     )
 
     # upsert
-    subparsers['sync'].add_argument(
+    subparsers['apply'].add_argument(
         '--preview',
         '-p',
         action='store_true',
