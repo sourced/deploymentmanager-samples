@@ -46,7 +46,6 @@ properties:
     type: object
     description: The cluster configuration.
     required:
-      - name
       - network
       - subnetwork
     properties:

@@ -56,7 +56,8 @@ function setup() {
             --subnet-mode custom
         
         gcloud compute networks subnets create "${SUBNET_NAME}" \
-            --network "${NETWORK_NAME}" --range 10.200.0.0/24
+            --region ${REGION} --network "${NETWORK_NAME}" \
+            --range 10.200.0.0/24
     fi
 
     # Per-test setup steps.
@@ -68,7 +69,8 @@ function teardown() {
         delete_config
         rm -f "${RANDOM_FILE}"
         # Delete the VPC subnets and network after the tests are completed.
-        gcloud compute networks subnets delete "${SUBNET_NAME}" -q
+        gcloud compute networks subnets delete "${SUBNET_NAME}" \
+            --region ${REGION} -q
         
         gcloud compute networks delete "${NETWORK_NAME}" -q
     fi

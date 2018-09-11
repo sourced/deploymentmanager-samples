@@ -10,13 +10,13 @@ imports:
     name: gke.py
 
 resources:
-  - name: myk8scluster-regional
+  - name: myk8sregional
     type: gke.py
     properties:
       clusterLocationType: Regional
       region: us-east1
       cluster:
-        name: myk8scluster-regional
+        name: myk8sregional
         description: my awesome k8s cluster
         network: <FIXME:network_name>
         subnetwork: <FIXME:subnet_name>

@@ -1,6 +1,6 @@
 # Example of the GKE template usage.
 #
-# In this example, a GKE regional private cluster is created.
+# In this example, a GKE private regional cluster is created.
 # Optional properties are also set in this example.
 #
 # Replace the following with valid values
@@ -12,13 +12,13 @@ imports:
     name: gke.py
 
 resources:
-  - name: myk8scluster-regional
+  - name: myk8sregional
     type: gke.py
     properties:
       clusterLocationType: Regional
       region: us-east1
       cluster:
-        name: myk8scluster-regional
+        name: myk8sregional
         description: my awesome k8s cluster
         network: <FIXME:network_name>
         subnetwork: <FIXME:subnet_name>
@@ -57,4 +57,4 @@ resources:
         clusterIpv4Cidr: 10.0.0.0/11
         ipAllocationPolicy:
           useIpAliases: True
-          servicesIpv4CidrBlock: 10.96.0.0/18          
+          servicesIpv4CidrBlock: 10.96.0.0/18

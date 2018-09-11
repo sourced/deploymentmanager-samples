@@ -32,7 +32,7 @@ def generate_config(context):
                 'cluster':
                     {
                         'name':
-                            name,
+                            name + '-cluster',
                         'initialNodeCount':
                             propc.get('initialNodeCount'),
                         'initialClusterVersion':
@@ -65,7 +65,7 @@ def generate_config(context):
 
     gke_cluster['type'] = provider
 
-    req_props = ['name', 'network', 'subnetwork']
+    req_props = ['network', 'subnetwork']
 
     optional_props = [
         'description',
@@ -93,7 +93,7 @@ def generate_config(context):
 
     for prop in req_props:
         cluster_props[prop] = propc.get(prop)
-        if not prop in propc:
+        if prop not in propc:
             raise KeyError(
                 "{} is a required cluster property for a {} Cluster."
                 .format(prop,
