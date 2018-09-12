@@ -309,6 +309,7 @@ class Deployment(DM_API):
         # Wait for operation to finish
         self.wait(operation)
         self.print_resources_and_outputs()
+        return self.current
 #
 #        if preview:
 #            func = self.confirm_preview()
@@ -316,6 +317,7 @@ class Deployment(DM_API):
 #        elif getattr(self.current, 'update', False):
 #            self.update_preview()
 #
+
 
     def update(self, preview=False, create_policy=None, delete_policy=None):
         """Updates this deployment in DM.

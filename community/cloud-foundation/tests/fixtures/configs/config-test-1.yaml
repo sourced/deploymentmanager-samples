@@ -1,0 +1,12 @@
+{% set environment = 'prod' %}
+name: my-network-{{environment}}
+description: my network deployment for {{environment}} environment
+project: my-project
+imports:
+  - path: templates/network/network.py
+resources:
+  - type: templates/network/network.py
+    name: my-network-{{environment}}
+    properties:
+      autoCreateSubnetworks: false
+

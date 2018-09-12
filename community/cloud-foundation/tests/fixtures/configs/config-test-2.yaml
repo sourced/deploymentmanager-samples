@@ -1,0 +1,34 @@
+{% set environment = 'prod' %}
+name: my-firewall-{{environment}}
+description: My firewall deployment for {{environment}} environment
+project: my-project
+imports:
+  - path: templates/firewall/firewall.py
+resources:
+  - type: templates/firewall/firewall.py
+    name: my-firewall-{{environment}}
+    properties:
+      network: !DMOutput dm://my-project/my-network-{{environment}}/my-network-prod/name
+      rules:
+        - name: allow-proxy-from-inside-prod
+          allowed:
+            - IPProtocol: tcp
+              ports:
+                - "80"
+                - "444"
+          description: This rule allows connectivity to the HTTP proxies
+          direction: INGRESS
+          sourceRanges:
+            - 10.0.0.0/8
+        - name: allow-dns-from-inside-prod
+          allowed:
+            - IPProtocol: udp
+              ports:
+                - "53"
+            - IPProtocol: tcp
+              ports:
+                - "53"
+          description: this rule allows DNS queries to google's 8.8.8.8
+          direction: EGRESS
+          destinationRanges:
+            - 8.8.8.8/32

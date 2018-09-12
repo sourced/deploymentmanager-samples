@@ -108,8 +108,7 @@ case :$CLOUDSDK_PYTHON_SITEPACKAGES:$VIRTUAL_ENV: in
 *)    # remove -S from CLOUDSDK_PYTHON_ARGS if already there
       while :; do
         case " $CLOUDSDK_PYTHON_ARGS " in
-        *" -S "*) CLOUDSDK_PYTHON_ARGS=${CLOUDSDK_PYTHON_ARGS%%-S*}'
-'${CLOUDSDK_PYTHON_ARGS#*-S} ;;
+        *" -S "*) CLOUDSDK_PYTHON_ARGS=${CLOUDSDK_PYTHON_ARGS%%-S*}' '${CLOUDSDK_PYTHON_ARGS#*-S} ;;
         *) break ;;
         esac
       done

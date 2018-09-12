@@ -1,3 +1,5 @@
+mock
 pylint
+pytest
 yapf
 
