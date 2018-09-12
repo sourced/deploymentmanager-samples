@@ -51,13 +51,14 @@ properties:
   targetSize:
     type: integer
     description: |
-      The target number of running instances for the managed instance group. If
-      used with an autoscaler, this is the maximum number of instances in the group.
+      The target number of running instances for the managed instance group. 
+      If used with an autoscaler, this is the maximum number of instances 
+      in the group.
   namedPorts:
     type: array
     description: |
-      A list of the named ports configured for the instance groups complementary to the
-      Instance Group Manager.
+      A list of the named ports configured for the instance groups complementary 
+      to the Instance Group Manager.
     items:
       type: object
       required:
@@ -104,8 +105,8 @@ properties:
       canIpForward:
         type: boolean
         description: |
-          Defines whether the instance is allowed to send and receive packets with non-matching
-          destination or source IPs.
+          Defines whether the instance is allowed to send and receive 
+          packets with non-matching destination or source IPs.
       diskType:
         type: string
         default: pd-standard
@@ -119,7 +120,7 @@ properties:
         description: |
           The source image for creating the disk. To create the disk with one of the
           public operating system images, specify the image by its family name.
-          For example, specify family/debian-9 to use the latest Debian 9 image:
+          For example, specify family/debian-9 to use the latest Debian 9 image as
           projects/debian-cloud/global/images/family/debian-9.
           To create a disk with a custom image, specify the image
           name in the following format: global/images/my-custom-image.
@@ -240,7 +241,8 @@ properties:
             minimum: 0
             maximum: 1
             description: |
-              The target fraction of the back-end capacity utilization the autoscaler must maintain. 
+              The target fraction of the back-end capacity 
+              utilization the autoscaler must maintain. 
               Must be a positive float value. The default is 0.8. 
       customMetricUtilizations:
         type: array
