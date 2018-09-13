@@ -1,24 +1,37 @@
 from cloud_foundation_toolkit import LOG
 from cloud_foundation_toolkit.deployment import ConfigList, Deployment
 
+
 def create(args):
-    configs = ConfigList(args.config)
-    [Deployment(c).create(preview=args.preview) for c in configs]
+    config_list = ConfigList(args.config)
+    for configs in config_list:
+        for config in configs:
+            Deployment(config).create(preview=args.preview)
+
 
 def delete(args):
-    configs = ConfigList(args.config)
-    [Deployment(c).delete() for c in configs[::-1]]
+    config_list = ConfigList(args.config)
+    for configs in config_list[::-1]:
+        for config in configs[::-1]:
+            Deployment(config).delete()
+
 
 def get(args):
-    configs = ConfigList(args.config)
-    [Deployment(c).get() for c in configs]
+    config_list = ConfigList(args.config)
+    for configs in config_list:
+        for config in configs:
+            Deployment(config).get()
+
 
 def apply(args):
-    configs = ConfigList(args.config)
-    [Deployment(c).apply(preview=args.preview) for c in configs]
+    config_list = ConfigList(args.config)
+    for configs in config_list:
+        for config in configs:
+            Deployment(config).apply(preview=args.preview)
+
 
 def update(args):
-    configs = ConfigList(args.config)
-    [Deployment(c).update(preview=args.preview) for c in configs]
-
-
+    config_list = ConfigList(args.config)
+    for configs in config_list:
+        for config in configs:
+            Deployment(config).update(preview=args.preview)

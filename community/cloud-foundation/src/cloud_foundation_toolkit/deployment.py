@@ -20,6 +20,7 @@ from googlecloudsdk.third_party.apis.deploymentmanager.v2 import deploymentmanag
 import jinja2
 from cloud_foundation_toolkit import LOG
 from cloud_foundation_toolkit.dm_utils import DM_API, get_deployment
+from cloud_foundation_toolkit.dependency import ConfigParser, Dependency
 
 
 #def run(paths):
@@ -83,12 +84,30 @@ class ConfigList(list):
 
         """
 
-        super(ConfigList, self).__init__([Config(item) for item in items])
-        self.sort()
+        # Create a list of config objects
+        dependency_list = [Config(item) for item in items]
 
-    def sort(self):
-        """ Sorts the deployments based on the dependency graph"""
-        pass
+        # Instantiate the ConfigParser object to generate the dependencies
+        # for each deployment configuration
+        config_obj = ConfigParser(dependency_list)
+
+        # Instantiate the Dependency object to generate the list of object
+        # dependencies
+        dependency_obj = Dependency(config_obj.get_dependency_list())
+
+        # Check if there is a cyclical dependency
+        cyclic = dependency_obj.get_cyclic()
+        if cyclic:
+            message = 'Cyclical dependency detected: {}'.format(cyclic)
+            LOG.error(message)
+            raise ValueError(message)
+
+        # Get the list of `config` object dependencies sorted by levels
+        # The list starts with a list of root nodes, the next item is a list
+        # of dependents on the root nodes, and so on and so forth
+        dependency_list = dependency_obj.get_level_dependency_list()
+
+        super(ConfigList, self).__init__(dependency_list)
 
 
 class Deployment(DM_API):

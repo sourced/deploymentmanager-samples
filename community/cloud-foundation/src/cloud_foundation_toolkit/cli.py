@@ -71,6 +71,15 @@ def parse_args(args):
 
     # action-specficic arguments
     #
+    # create
+    subparsers['create'].add_argument(
+        '--preview',
+        '-p',
+        action='store_true',
+        default=False,
+        help='Preview changes'
+    )
+
     # update
     subparsers['update'].add_argument(
         '--preview',
