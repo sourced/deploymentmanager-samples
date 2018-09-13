@@ -1,5 +1,7 @@
+coverage
 mock
 pylint
 pytest
+pytest-cov
 yapf
 

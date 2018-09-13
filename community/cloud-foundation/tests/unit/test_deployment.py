@@ -32,8 +32,10 @@ def test_config(configs):
 def test_config_list(configs):
     config_paths = [c.path for c in configs.files]
     config_list = ConfigList(config_paths)
-    for c in config_list:
-        assert isinstance(c, Config)
+    for level in config_list:
+        assert isinstance(level, list)
+        for c in level:
+            assert isinstance(c, Config)
 
 
 def test_deployment_object(configs):
