@@ -55,25 +55,25 @@ function teardown() {
 }
 
 @test "Verifying that Spanner cluster was created as part of ${DEPLOYMENT_NAME}" {
-    run gcloud spanner instances list myspannercluster-"${RAND}" \
+    run gcloud spanner instances list test-myspannercluster-"${RAND}" \
         --project "${CLOUD_FOUNDATION_PROJECT_ID}"
-    [[ "$output" =~ "myspannercluster-${RAND}" ]]
+    [[ "$output" =~ "test-myspannercluster-${RAND}" ]]
 }
 
 @test "Verifying that Spanner cluster IAM was created as part of ${DEPLOYMENT_NAME}" {
-    run gcloud spanner instances get-iam-policy myspannercluster-"${RAND}" \
+    run gcloud spanner instances get-iam-policy test-myspannercluster-"${RAND}" \
         --project "${CLOUD_FOUNDATION_PROJECT_ID}"
     [[ "$output" =~ "${PROJECT_NUMBER}@cloudservices.gserviceaccount.com" ]]
 }
 
 @test "Verifying that Spanner DB was created as part of ${DEPLOYMENT_NAME}" {
-    run gcloud spanner databases list --instance myspannercluster-"${RAND}" \
+    run gcloud spanner databases list --instance test-myspannercluster-"${RAND}" \
         --project "${CLOUD_FOUNDATION_PROJECT_ID}"
     [[ "$output" =~ "spannerdb1" ]]
 }
 
 @test "Verifying that Spanner DB IAM was created as part of ${DEPLOYMENT_NAME}" {
-    run gcloud spanner databases get-iam-policy spannerdb1 --instance myspannercluster-"${RAND}" \
+    run gcloud spanner databases get-iam-policy spannerdb1 --instance test-myspannercluster-"${RAND}" \
         --project "${CLOUD_FOUNDATION_PROJECT_ID}"
     [[ "$output" =~ "role: roles/spanner.databaseAdmin" ]]
 }
@@ -83,5 +83,5 @@ function teardown() {
         --project "${CLOUD_FOUNDATION_PROJECT_ID}" -q
     run gcloud  run gcloud spanner instances list \
         --project "${CLOUD_FOUNDATION_PROJECT_ID}"
-    [[ ! "$output" =~ "myspannercluster-${RAND}" ]]
+    [[ ! "$output" =~ "test-myspannercluster-${RAND}" ]]
 }
