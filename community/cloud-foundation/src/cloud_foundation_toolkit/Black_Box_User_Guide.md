@@ -1,15 +1,15 @@
-# 1. Cloud Foundation Toolkit v0.x
+# 1. Cloud Foundation Toolkit
 
 User Guide
 <!-- TOC -->
 
-- [1. Cloud Foundation Toolkit v0.x](#1-cloud-foundation-toolkit-v0x)
+- [1. Cloud Foundation Toolkit](#1-cloud-foundation-toolkit)
     - [1.1. Overview](#11-overview)
-        - [1.1.1. CFT](#111-cft)
+        - [1.1.1. CLU](#111-clu)
         - [1.1.2. Templates](#112-templates)
-    - [1.2. Installation](#12-installation)
+    - [1.2. Toolkit Installation](#12-toolkit-installation)
     - [1.3. Deployment of a Single Config](#13-deployment-of-a-single-config)
-    - [1.4. Concurrent Deployment of Multiple Configs](#14-concurrent-deployment-of-multiple-configs)
+    - [1.4. Deployment of Multiple Configs](#14-deployment-of-multiple-configs)
     - [1.5. Cross-deployment References](#15-cross-deployment-references)
     - [1.6. *** What else? ***](#16--what-else-)
 
@@ -17,32 +17,32 @@ User Guide
 
 ## 1.1. Overview
 
-The Cloud Foundation toolkit expands the capabilities of Google's Deployment Manager and gcloud to support the following scenarios:
+The Cloud Foundation toolkit (henceforth, CFT) expands the capabilities of Google's Deployment Manager and gcloud to support the following scenarios:
 
-* Concurrent creation/update of multipe deployments/resources. This operation:
+* Creation or update of multiple deployments/resources in a single operation that:
   * Accepts multiple config files as input
   * Automatically resolves dependencies between the multiple configs
-  * Deploys the config-defined resources in the dependency-stipulated order
-* Cross-deployment (or even cross-project) referencing of any of the resource parameters. This operation: *** does what? ***.
+  * Deploys or updates the config-defined resources in the dependency-stipulated order
+* Cross-deployment (including cross-project) referencing of deployment outputs, which obviates the need for hard-coding many parameters in the configs.
 
-The Cloud Foundation toolkit includes:
+The CFT includes:
 
-* A comprehenvive set of resource deployment templates *** would be nice toat least briefly state how **our** remplates are better/richer than all the others *** 
-* A command-line untility (henceforth, Cloud Foundation Tool, or CFT) that deploys resources using the above templates
+* A comprehencive set of production-ready resource templates that follow Google's best practices
+* A command-line utility (henceforth, CLU) that deploys resources defined in single or multiple enhanced config files that utilize the above templates
 
-`Note:` The templates included in the toolkit are guaranteed to work with Deployment Manager / gcloud. CFT is not guatanteed to support multiple-deployment and cross-deployment scenatios with templates other than those included in the toolkit.
+`Note:` The CLU does not support gcloud-standard config files. *** Need to explain the difference between the "standard" and "enhanced." We provide only config **examples** with our templates... Are these examples sufficient for the users to start creating their own "enhanced" configs? ***  
 
-### 1.1.1. CFT
+### 1.1.1. CLU
 
-*** Whatever we want to say here about the tool sas such - codebase, reliance on gcloud, possibility of parsing/API'ing, eyc. - keeing in mind that this User Guide is more for "black box" users than opens source gurus. ***
+*** Whatever we want to say here about the tool sas such - codebase, reliance on gcloud, possibility of parsing/API'ing, etc. - keeping in mind that this User Guide is more for "black box" users than opens source gurus. ***
 
 ### 1.1.2. Templates
 
 *** I envision a table of our templates with very brief descriptions, and with links to the templates' Readmes for more info. ***
 
-## 1.2. Installation
+## 1.2. Toolkit Installation
 
-To install CFT, proceed as follows:
+To install the CFT, proceed as follows:
 
 1. Copy *** to ***:
 
@@ -66,7 +66,7 @@ To install CFT, proceed as follows:
 
 ## 1.3. Deployment of a Single Config
 
-Deployment of a single config with the use of CFT is quite similar to that with the use of gcloud:
+Deployment of a single config with the use of the CLU is quite similar to that with the use of gcloud:
 
 1. Do ***
 
@@ -82,7 +82,7 @@ Deployment of a single config with the use of CFT is quite similar to that with 
 
 3. Etc.
 
-## 1.4. Concurrent Deployment of Multiple Configs
+## 1.4. Deployment of Multiple Configs
 
 To deploy multiple interdependent configs, proceed as follows:
 
@@ -92,7 +92,7 @@ To deploy multiple interdependent configs, proceed as follows:
     cp ***
 ```
 
-2. Run CFT.
+2. Run the CLU.
 
    The following prompt appears:
 
