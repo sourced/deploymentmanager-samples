@@ -54,7 +54,7 @@ See the `properties` section in the schema file(s):
     --config my_cloud_spanner.yaml
 ```
 
-6. In case you need to delete your deployment: 
+6. In case you need to delete your deployment:
 
 ```shell
     gcloud deployment-manager deployments delete <YOUR_DEPLOYMENT_NAME>
