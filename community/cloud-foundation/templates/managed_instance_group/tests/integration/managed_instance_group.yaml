@@ -1,0 +1,44 @@
+# Test of the Managed Instance Group template.
+#
+# Variables:
+#   RAND: a random string used by the testing suite
+#   CLOUD_FOUNDATION_PROJECT_ID: the current project ID
+
+imports:
+  - path: templates/managed_instance_group/managed_instance_group.py
+    name: managed_instance_group.py
+
+resources:
+  - name: mig-${RAND}
+    type: managed_instance_group.py
+    properties:
+      name: zonal-mig-${RAND}
+      zone: us-central1-c
+      autoscaler:
+        name: autoscaler-${RAND}
+        coolDownPeriodSec: 70
+        minSize: 1
+        cpuUtilization:
+          utilizationTarget: 0.7
+      healthChecks:
+        - initialDelaySec: 500
+          healthCheck: projects/${CLOUD_FOUNDATION_PROJECT_ID}/global/httpHealthChecks/health-${RAND}
+      namedPorts:
+        - name: http
+          port: 80
+      baseInstanceName: bin-${RAND}
+      targetSize: 2
+      instanceTemplate:
+        name: it-${RAND}
+        diskImage: projects/ubuntu-os-cloud/global/images/family/ubuntu-1804-lts
+        network: default
+  - name: regional-mig-${RAND}
+    type: managed_instance_group.py
+    properties:
+      region: us-central1
+      autoscaler:
+        cpuUtilization:
+          utilizationTarget: 0.7
+      targetSize: 2
+      instanceTemplate:
+        url: $(ref.mig-${RAND}.instanceTemplateSelfLink)
