@@ -104,10 +104,7 @@ class ConfigList(list):
             LOG.error(message)
             raise ValueError(message)
 
-        # Get the list of `config` object dependencies sorted by levels
-        # The list starts with a list of root nodes, the next item is a list
-        # of dependents on the root nodes, and so on and so forth
-        dependency_list = dependency_obj.get_level_dependency_list()
+        dependency_list = dependency_obj.get_sequential_dependency_list()
 
         self.print_dep_list(dependency_obj)
 
@@ -126,17 +123,6 @@ class ConfigList(list):
 
             msg = '{}{}: {}'.format(space, node_num, node.name)
             LOG.error(msg)
-
-        LOG.error('\nLevel dep list:')
-        node_list = dependency_obj.get_level_dependency_list()
-        for level, node_list in enumerate(node_list, 0):
-            space = ''
-            for x in range(0, level):
-                space += '    '
-
-            for node in node_list:
-                msg = '{}Dep Level {}: {}'.format(space, level, node.name)
-                LOG.error(msg)
 
         LOG.error('\n')
 

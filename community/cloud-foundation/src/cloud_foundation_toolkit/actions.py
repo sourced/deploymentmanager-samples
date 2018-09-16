@@ -56,46 +56,41 @@ def create(args):
     """ Create deployments """
 
     config_list = ConfigList(get_config_files(args.config))
-    for configs in config_list:
-        for config in configs:
-            Deployment(config).create(preview=args.preview)
+    for config in config_list:
+        Deployment(config).create(preview=args.preview)
 
 
 def delete(args):
     """ Delete deployments """
 
     config_list = ConfigList(get_config_files(args.config))
-    for configs in config_list[::-1]:
-        for config in configs[::-1]:
-            try:
-                Deployment(config).delete()
-            except apitools_exceptions.HttpNotFoundError:
-                LOG.error('Deployment %s not found.', config.name)
-                continue
+    for config in config_list[::-1]:
+        try:
+            Deployment(config).delete()
+        except apitools_exceptions.HttpNotFoundError:
+            LOG.error('Deployment %s not found.', config.name)
+            continue
 
 
 def get(args):
     """ Get deployments """
 
     config_list = ConfigList(get_config_files(args.config))
-    for configs in config_list:
-        for config in configs:
-            Deployment(config).get()
+    for config in config_list:
+        Deployment(config).get()
 
 
 def apply(args):
     """ Apply deployments """
 
     config_list = ConfigList(get_config_files(args.config))
-    for configs in config_list:
-        for config in configs:
-            Deployment(config).apply(preview=args.preview)
+    for config in config_list:
+        Deployment(config).apply(preview=args.preview)
 
 
 def update(args):
     """ Update deployments """
 
     config_list = ConfigList(get_config_files(args.config))
-    for configs in config_list:
-        for config in configs:
-            Deployment(config).update(preview=args.preview)
+    for config in config_list:
+        Deployment(config).update(preview=args.preview)

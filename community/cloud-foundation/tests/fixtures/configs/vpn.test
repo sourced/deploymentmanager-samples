@@ -1,0 +1,31 @@
+# Example on how to use the vpn template
+#
+# In this example, a vpn is created.
+#
+# Upon successfully deploying the vpn resource, the following resources
+# are created:
+#   - a Target VPN Gateway (compute.v1.targetVpnGateway)
+#   - a static address (compute.v1.address)
+#   - ESP forwarding rule (compute.v1.forwardingRule)
+#   - UDP 4500 forwarding rule (compute.v1.forwardingRule)
+#   - UDP 500 forwarding rule (compute.v1.forwardingRule)
+#   - a VPN Tunnel (compute.v1.vpnTunnel)
+{% set environment = 'prod' %}
+name: my-vpn-{{environment}}
+description: my vpn deployment for {{environment}} environment
+project: mytestproject-vpun-test1
+
+imports:
+  - path: templates/vpn/vpn.py
+    name: vpn.py
+
+resources:
+  - name: test-vpn
+    type: vpn.py
+    properties:
+      region: us-east1
+      network: !DMOutput dm://mytestproject-vpun-test1/my-network-{{environment}}/my-network-prod/name
+      peerAddress: 1.2.3.4
+      asn: 65001
+      sharedSecret: superSecretPassw0rd
+      router: !DMOutput dm://mytestproject-vpun-test1/my-cloudrouter-{{environment}}/my-cloudrouter-prod/name
