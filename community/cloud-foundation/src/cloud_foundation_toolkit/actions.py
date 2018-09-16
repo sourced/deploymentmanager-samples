@@ -15,6 +15,7 @@
 import glob
 from cloud_foundation_toolkit import LOG
 from cloud_foundation_toolkit.deployment import ConfigList, Deployment
+from apitools.base.py import exceptions as apitools_exceptions
 
 
 def get_config_files(config):
@@ -66,7 +67,11 @@ def delete(args):
     config_list = ConfigList(get_config_files(args.config))
     for configs in config_list[::-1]:
         for config in configs[::-1]:
-            Deployment(config).delete()
+            try:
+                Deployment(config).delete()
+            except apitools_exceptions.HttpNotFoundError:
+                LOG.error('Deployment %s not found.', config.name)
+                continue
 
 
 def get(args):
