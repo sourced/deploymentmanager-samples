@@ -51,13 +51,33 @@ properties:
 
 outputs:
   properties:
-    - names:
+    folders:
       type: array
-      description: List of folder resource names.
+      description: Array of folder resource information.
       items:
-        type: string
-        description: |
-          Name of the folder resource in the format `folders/<folderID>`.
+        description: The name of the folder resource. For example, the output
+        can be referenced as:
+        $(ref.<my-folder>.rules.<folder-name>.parent)
+        patternProperties:
+          ".*":
+            type: object
+            description: Details for a folder resource.
+            properties:
+              name:
+                type: string
+                description: Name of the folder resource in the format `folders/<folderID>`.
+              parent:
+                type: string
+                description: The resource name of the parent Folder or Organization.
+              displayName:
+                type: string
+                description: The folder's display name.
+              createTime:
+                type: string
+                description: Creation timestamp in RFC3339 text format.
+              lifecycleState:
+                type: string
+                description: The Folder's current lifecycle state.
 
 documentation:
   - templates/folder/README.md
