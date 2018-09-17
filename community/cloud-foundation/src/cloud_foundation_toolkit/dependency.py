@@ -164,6 +164,10 @@ class Dependency(object):
         # first level
         self.level_dependencies_list.append(self.root_list)
 
+        '''
+        FIXME: The following code will potentially duplicate nodes
+        on different levels if they have multiple dependnecies.
+
         # Create a list containing a list of nodes starting from the root.
         # Each subsequent list of nodes groups all nodes of the same
         # dependency level.
@@ -185,6 +189,7 @@ class Dependency(object):
 
             # Process successors for the next level of nodes
             current_list = list(level_set)
+        '''
 
         return True
 
@@ -212,6 +217,7 @@ class Dependency(object):
         return self.root_list
 
 
+    '''
     def get_level_dependency_list(self):
         """
             Returns a list containing a list of nodes starting from the root.
@@ -222,6 +228,7 @@ class Dependency(object):
             dependencies for those nodes and so on and so forth.
         """
         return self.level_dependencies_list
+    '''
 
 
     def get_sequential_dependency_list(self):

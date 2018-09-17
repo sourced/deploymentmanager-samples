@@ -57,6 +57,8 @@ class Config(object):
         Args:
             item (str): The content or the path to a config file
         """
+        self.name = item
+
         if os.path.exists(item):
             with open(item) as f:
                 self.raw = f.read()
@@ -102,12 +104,27 @@ class ConfigList(list):
             LOG.error(message)
             raise ValueError(message)
 
-        # Get the list of `config` object dependencies sorted by levels
-        # The list starts with a list of root nodes, the next item is a list
-        # of dependents on the root nodes, and so on and so forth
-        dependency_list = dependency_obj.get_level_dependency_list()
+        dependency_list = dependency_obj.get_sequential_dependency_list()
+
+        self.print_dep_list(dependency_obj)
 
         super(ConfigList, self).__init__(dependency_list)
+
+
+    def print_dep_list(self, dependency_obj):
+        """ Print the dependency list """
+
+        node_list = dependency_obj.get_sequential_dependency_list()
+        LOG.error('\nSequential dep list:')
+        for node_num, node in enumerate(node_list, 0):
+            space = ''
+            for x in range(0, node_num):
+                space += '    '
+
+            msg = '{}{}: {}'.format(space, node_num, node.name)
+            LOG.error(msg)
+
+        LOG.error('\n')
 
 
 class Deployment(DM_API):
