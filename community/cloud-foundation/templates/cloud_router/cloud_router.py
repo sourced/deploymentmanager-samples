@@ -46,8 +46,16 @@ def generate_config(context):
         'outputs':
             [
                 {
-                    'name': 'routerUrl',
+                    'name': 'name',
+                    'value': context.env['name']
+                },
+                {
+                    'name': 'selfLink',
                     'value': '$(ref.' + context.env['name'] + '.selfLink)'
+                },
+                {
+                    'name': 'creationTimestamp',
+                    'value': '$(ref.' + context.env['name'] + '.creationTimestamp)'
                 }
             ]
     }
