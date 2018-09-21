@@ -35,7 +35,7 @@ properties:
     description: The name of the resource.
   network:
     type: string
-    description: The URI of the network to which the router belongs.
+    description: The name of the network to which the router belongs.
   region:
     type: string
     description: The URI of the region where the router resides.
