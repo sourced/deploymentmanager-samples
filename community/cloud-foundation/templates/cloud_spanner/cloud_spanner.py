@@ -15,13 +15,13 @@
 
 
 def get_spanner_instance_id(project_id, base_name):
-    ''' Generate the instance URL '''
+    """ Generate the instance URL """
 
     return "projects/{}/instances/{}".format(project_id, base_name)
 
 
 def get_spanner_instance_config(project_id, config):
-    ''' Generate the instance config URL '''
+    """ Generate the instance config URL """
 
     return "projects/{}/instanceConfigs/{}".format(project_id, config)
 
@@ -67,10 +67,7 @@ def generate_config(context):
             'name':
                 "{}{}".format(context.env['name'],
                               '-setIamPolicy'),
-            'action':
-                (
-                    'gcp-types/spanner-v1:spanner.projects.instances.setIamPolicy'  # pylint: disable=line-too-long
-                ),
+            'action': 'gcp-types/spanner-v1:spanner.projects.instances.setIamPolicy',  # pylint: disable=line-too-long
             'properties':
                 {
                     'resource': instance_id,
@@ -109,10 +106,7 @@ def generate_config(context):
                 'name':
                     "{}{}".format(database_resource_name,
                                   "-setIamPolicy"),
-                'action':
-                    (
-                        'gcp-types/spanner-v1:spanner.projects.instances.databases.setIamPolicy'  # pylint: disable=line-too-long
-                    ),
+                'action': 'gcp-types/spanner-v1:spanner.projects.instances.databases.setIamPolicy',  # pylint: disable=line-too-long
                 'properties':
                     {
                         'resource': database_resource_name,

@@ -49,39 +49,47 @@ function teardown() {
 }
 
 @test "Creating deployment ${DEPLOYMENT_NAME} from ${CONFIG}" {
-    gcloud deployment-manager deployments create "${DEPLOYMENT_NAME}" \
+    run gcloud deployment-manager deployments create "${DEPLOYMENT_NAME}" \
         --config ${CONFIG} \
         --project "${CLOUD_FOUNDATION_PROJECT_ID}"
+    [[ "$status" -eq 0 ]]
 }
 
 @test "Verifying that Spanner cluster was created as part of ${DEPLOYMENT_NAME}" {
-    run gcloud spanner instances list test-myspannercluster-"${RAND}" \
+    run gcloud spanner instances list \
         --project "${CLOUD_FOUNDATION_PROJECT_ID}"
+    [[ "$status" -eq 0 ]]
     [[ "$output" =~ "test-myspannercluster-${RAND}" ]]
 }
 
 @test "Verifying that Spanner cluster IAM was created as part of ${DEPLOYMENT_NAME}" {
     run gcloud spanner instances get-iam-policy test-myspannercluster-"${RAND}" \
         --project "${CLOUD_FOUNDATION_PROJECT_ID}"
+    [[ "$status" -eq 0 ]]
     [[ "$output" =~ "${PROJECT_NUMBER}@cloudservices.gserviceaccount.com" ]]
 }
 
 @test "Verifying that Spanner DB was created as part of ${DEPLOYMENT_NAME}" {
     run gcloud spanner databases list --instance test-myspannercluster-"${RAND}" \
         --project "${CLOUD_FOUNDATION_PROJECT_ID}"
+    [[ "$status" -eq 0 ]]
     [[ "$output" =~ "spannerdb1" ]]
 }
 
 @test "Verifying that Spanner DB IAM was created as part of ${DEPLOYMENT_NAME}" {
     run gcloud spanner databases get-iam-policy spannerdb1 --instance test-myspannercluster-"${RAND}" \
         --project "${CLOUD_FOUNDATION_PROJECT_ID}"
+    [[ "$status" -eq 0 ]]
     [[ "$output" =~ "role: roles/spanner.databaseAdmin" ]]
 }
 
 @test "Deleting deployment" {
-    gcloud deployment-manager deployments delete "${DEPLOYMENT_NAME}" \
+    run gcloud deployment-manager deployments delete "${DEPLOYMENT_NAME}" \
         --project "${CLOUD_FOUNDATION_PROJECT_ID}" -q
-    run gcloud  run gcloud spanner instances list \
+    [[ "$status" -eq 0 ]]
+
+    run gcloud spanner instances list \
         --project "${CLOUD_FOUNDATION_PROJECT_ID}"
+    [[ "$status" -eq 0 ]]
     [[ ! "$output" =~ "test-myspannercluster-${RAND}" ]]
 }
