@@ -18,14 +18,15 @@
 def generate_config(context):
     """ Entry point for the deployment resources. """
 
+    name = context.properties.get('name')
+
     resources = [
         {
             'name': context.env['name'],
             'type': 'compute.v1.router',
             'properties':
                 {
-                    'name':
-                        context.properties.get('name', context.env['name']),
+                    'name': name,
                     'bgp': {
                         'asn': context.properties['asn']
                     },
@@ -47,7 +48,7 @@ def generate_config(context):
             [
                 {
                     'name': 'name',
-                    'value': context.env['name']
+                    'value': name
                 },
                 {
                     'name': 'selfLink',

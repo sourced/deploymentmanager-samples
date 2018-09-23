@@ -58,7 +58,8 @@ outputs:
       type: array
       description: Array of IAM policy resource information.
       items:
-        description: IAM policy resource name. Will be in the format
+        description: |
+          IAM policy resource name. Will be in the format
           'iam-subnet-policy-<subnetId>'. For example, the output
           can be referenced as:
           $(ref.<my-policies>.policies.iam-subnet-policy-<subnet1>.selfLink)
