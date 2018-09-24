@@ -147,49 +147,49 @@ class Dependency(object):
             self.is_cyclic = True
             return False
 
+        #
         # List of isolated nodes (no ancestors or dependents)
+        #
         self.isolates_list = [i for i in nx.isolates(self.graph)]
 
+        #
         # Complete list of dependencies that can be traversed sequentially
+        #
         self.sequential_dependencies_list = [
             i for i in nx.topological_sort(self.graph)
         ]
 
+        #
         # List of root nodes that have dependencies (has dependents)
+        #
         for node in self.sequential_dependencies_list:
-            if len(nx.ancestors(self.graph, node)) == 0:
+            if not nx.ancestors(self.graph, node):
                 self.root_list.append(node)
 
-        # Group nodes on their dependency 'levels'. Add the root nodes as the
-        # first level
-        self.level_dependencies_list.append(self.root_list)
+        #
+        # Group nodes on their dependency 'levels'.
+        #
+        seq_dep_list = list(self.sequential_dependencies_list)
+        dependency_list = []
+        while seq_dep_list:
+            level = []
 
-        '''
-        FIXME: The following code will potentially duplicate nodes
-        on different levels if they have multiple dependnecies.
+            # Iterate through the nodes for dependencies
+            for node in seq_dep_list:
+                if not nx.ancestors(self.graph, node):
+                    # No dependencies. Add to the level list
+                    level.append(node)
 
-        # Create a list containing a list of nodes starting from the root.
-        # Each subsequent list of nodes groups all nodes of the same
-        # dependency level.
+            # The level list should contain all nodes with no dependencies
+            dependency_list.append(level)
 
-        # Begin finding the successors for the root nodes
-        current_list = self.root_list
-        while current_list:
-            level_set = set()
+            # Remove all the nodes in the level list so that we can find the
+            # next set of nodes with no dependencies
+            for node in level:
+                seq_dep_list.remove(node)
+                self.graph.remove_node(node)
 
-            # Find all the successors to the nodes and add to the set
-            for node in current_list:
-                successors = self.graph.successors(node)
-                level_set |= set(list(successors))
-
-            # Do not add empty sets/lists
-            if level_set:
-                # Add the list of nodes for this dependency level
-                self.level_dependencies_list.append(list(level_set))
-
-            # Process successors for the next level of nodes
-            current_list = list(level_set)
-        '''
+        self.level_dependencies_list = dependency_list
 
         return True
 
@@ -217,7 +217,6 @@ class Dependency(object):
         return self.root_list
 
 
-    '''
     def get_level_dependency_list(self):
         """
             Returns a list containing a list of nodes starting from the root.
@@ -228,7 +227,6 @@ class Dependency(object):
             dependencies for those nodes and so on and so forth.
         """
         return self.level_dependencies_list
-    '''
 
 
     def get_sequential_dependency_list(self):
