@@ -68,8 +68,9 @@ outputs:
   properties:
     rules:
       type: array
-      description: Array of firewall rule details. For example, the output
-        can be referenced as:
+      description: |
+        Array of firewall rule details. For example, the output can be
+        referenced as:
         $(ref.<my-firewall>.rules.<firewall-rule-name>.selfLink)
       items:
         description: The name of the firewall rule resource.

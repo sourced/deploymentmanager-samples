@@ -25,7 +25,6 @@ imports:
   - path: cloud_router.py
 
 required:
-  - name
   - network
   - region
   - asn

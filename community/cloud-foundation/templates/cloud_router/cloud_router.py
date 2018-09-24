@@ -11,14 +11,13 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 """ This template creates a Cloud Router. """
 
 
 def generate_config(context):
     """ Entry point for the deployment resources. """
 
-    name = context.properties.get('name')
+    name = context.properties.get('name', context.env['name'])
 
     resources = [
         {
@@ -26,7 +25,8 @@ def generate_config(context):
             'type': 'compute.v1.router',
             'properties':
                 {
-                    'name': name,
+                    'name':
+                        name,
                     'bgp': {
                         'asn': context.properties['asn']
                     },
@@ -55,8 +55,10 @@ def generate_config(context):
                     'value': '$(ref.' + context.env['name'] + '.selfLink)'
                 },
                 {
-                    'name': 'creationTimestamp',
-                    'value': '$(ref.' + context.env['name'] + '.creationTimestamp)'
+                    'name':
+                        'creationTimestamp',
+                    'value':
+                        '$(ref.' + context.env['name'] + '.creationTimestamp)'
                 }
             ]
     }

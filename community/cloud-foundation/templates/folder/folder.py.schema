@@ -14,7 +14,9 @@
 
 info:
   title: Folder
-  description: Creates a folder under an organization or under a parent folder.
+  description: |
+    Creates a folder under an organization or under a parent
+    folder.
 
 imports:
   - path: folder.py
@@ -65,10 +67,13 @@ outputs:
             properties:
               name:
                 type: string
-                description: Name of the folder resource in the format `folders/<folderID>`.
+                description: |
+                  Name of the folder resource in the format
+                  `folders/<folderID>`.
               parent:
                 type: string
-                description: The resource name of the parent Folder or Organization.
+                description: |
+                  The resource name of the parent Folder or Organization.
               displayName:
                 type: string
                 description: The folder's display name.
