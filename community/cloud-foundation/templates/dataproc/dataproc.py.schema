@@ -36,10 +36,11 @@ properties:
   zone:
     type: string
     description: |
-      The zone where the Compute Engine cluster is located. Valid values are:
-      - full URL
-      - partial URI
-      - Short name
+      The zone where the Compute Engine cluster is located. A full URL, partial
+      URI, or short name are valid. Examples:
+        - https://www.googleapis.com/compute/v1/projects/[projectId]/zones/[zone]
+        - projects/[projectId]/zones/[zone]
+        - us-central1-f
       Mandatory if the region parameter value is 'global', or is not defined.
   image:
     type: string
@@ -133,10 +134,10 @@ properties:
         type: string
         description: |
           The Compute Engine machine type used for the cluster instances.
-          For example, 'n1-standard-4'. Valid values are:
-          - Full URL
-          - Partial URI
-          - Short name
+          A full URL, partial URI, or short name are valid. Examples:
+            - https://www.googleapis.com/compute/v1/projects/[projectId]/zones/us-east1-a/machineTypes/n1-standard-2
+            - projects/[projectId]/zones/us-east1-a/machineTypes/n1-standard-2
+            - n1-standard-2
       diskType:
         type: string
         description: The boot disk type.
@@ -166,10 +167,10 @@ properties:
         type: string
         description: |
           The Compute Engine machine type used for cluster instances.
-          For example, 'n1-standard-4'. Valid values are:
-          - Full URL
-          - Partial URI
-          - Short name
+          A full URL, partial URI, or short name are valid. Examples:
+            - https://www.googleapis.com/compute/v1/projects/[projectId]/zones/us-east1-a/machineTypes/n1-standard-2
+            - projects/[projectId]/zones/us-east1-a/machineTypes/n1-standard-2
+            - n1-standard-2
       diskType:
         type: string
         description: The boot disk type.
