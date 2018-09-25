@@ -43,14 +43,27 @@ def get_manifest(project, deployment):
     )
 
 
-def parse_dm_url(url):
+def parse_dm_url(url, project=''):
+    error_msg = (
+        'The url must look like '
+        '"dm://${project}/${deployment}/${resource}/${name}" or'
+        '"dm://${deployment}/${resource}/${name}"'
+    )
     parsed_url = urlparse(url)
     if parsed_url.scheme != 'dm':
-        raise ValueError(
-            'The url must look like '
-            '"dm://${project}/${deployment}/${resource}/${name}"'
-        )
-    return DM_URL(parsed_url.netloc, *parsed_url.path.split('/')[1:])
+        raise ValueError(error_msg)
+    path = parsed_url.path.split('/')[1:]
+
+    # path == 2 if project isn't specified in the URL
+    # path == 3 if project is specified in the URL
+    if len(path) == 2:
+        args = [project] + [parsed_url.netloc] + path
+    elif len(path) == 3:
+        args = [parsed_url.netloc] + path
+    else:
+        raise ValueError(error_msg)
+
+    return DM_URL(*args)
 
 
 def get_deployment_output(project, deployment, resource, name):
