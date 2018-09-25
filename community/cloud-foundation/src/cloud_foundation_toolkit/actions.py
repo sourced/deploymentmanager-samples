@@ -13,9 +13,13 @@
 # limitations under the License.
 """ Deployment Actions """
 import glob
-from cloud_foundation_toolkit import LOG
-from cloud_foundation_toolkit.deployment import ConfigGraph, Deployment
+import sys
+
 from apitools.base.py import exceptions as apitools_exceptions
+from ruamel.yaml import YAML
+
+from cloud_foundation_toolkit import LOG
+from cloud_foundation_toolkit.deployment import Config, ConfigGraph, Deployment
 
 
 # To avoid code repetition this ACTION_MAP is used to translate the 
@@ -78,10 +82,15 @@ def execute(args):
         args.action, args.config, arguments
     )
 
-    for level in graph:
-        for config in level:
-            LOG.debug('%s config %s', action, config.deployment)
-            deployment = Deployment(config)
-            method = getattr(deployment, action)
-            method(**arguments)
+    if args.dry_run:
+        yaml = YAML()
+        yaml.register_class(Config)
+        yaml.dump(list(graph), sys.stdout)
+    else:
+        for level in graph:
+            for config in level:
+                LOG.debug('%s config %s', action, config.deployment)
+                deployment = Deployment(config)
+                method = getattr(deployment, action)
+                method(**arguments)
 

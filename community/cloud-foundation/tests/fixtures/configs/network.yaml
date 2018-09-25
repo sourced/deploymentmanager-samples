@@ -1,7 +1,6 @@
 {% set environment = 'prod' %}
 name: my-network-{{environment}}
 description: my network deployment for {{environment}} environment
-project: mytestproject-vpun-test1
 
 imports:
   - path: templates/network/network.py

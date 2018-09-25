@@ -73,6 +73,13 @@ class Config(object):
         # scanning the file ourselves.
         self.as_dict = self.yaml.load(self.as_string)
 
+    @classmethod
+    def to_yaml(cls, representer, node):
+        return representer.represent_scalar(
+            cls.__name__, u'{.project}:{.deployment}'.format(node, node)
+        )
+
+
     @property
     def as_file(self):
         return io.StringIO(self.as_string)
@@ -115,6 +122,9 @@ class Config(object):
 
         return self._dependencies
 
+    def __repr__(self):
+        return '{}({}:{})'.format(self.__class__, self.deployment,
+                self.project)
 
 
 class ConfigGraph(object):
@@ -146,18 +156,20 @@ class ConfigGraph(object):
         # Populate the config dict
         self.configs = {c.id: c for c in (Config(x) for x in configs)}
 
-        # Build the graph
-        self.graph = nx.DiGraph()
+    @property
+    def graph(self):
+        if hasattr(self, '_graph'):
+            return self._graph
+        self._graph = nx.DiGraph()
         for _, config in self.configs.items():
-            if not config.dependencies:
-                self.graph.add_node(config)
-            else:
-                for dependency in config.dependencies:
-                    self.graph.add_edge(self.configs[dependency], config)
+            self._graph.add_node(config)
+            for dependency in config.dependencies:
+#                self._graph.add_edge(config, self.configs[dependency])
+                self.graph.add_edge(self.configs[dependency], config)
 
-            if not nx.is_directed_acyclic_graph(self.graph):
+            if not nx.is_directed_acyclic_graph(self._graph):
                 raise SystemExit('Dependency is graph is cyclic')
-
+        return self._graph
 
     @property
     def roots(self):
@@ -167,25 +179,26 @@ class ConfigGraph(object):
             ]
         return self._roots
 
-
     @property
     def levels(self):
         if hasattr(self, '_levels'):
             return self._levels
 
-        sorted_nodes = []
-        self._levels = [self.roots]
+        graph = self.graph.copy()
+        remaining_nodes = list(self.sort())
+        self._levels = []
 
-        while True:
-            current_level_nodes = self._levels[-1]
+        while remaining_nodes:
             level = []
-            for node in current_level_nodes:
-                new_nodes = list(self.graph.successors(node))
-                level += [n for n in new_nodes if n not in sorted_nodes]
-                sorted_nodes += new_nodes
-            if not level:
-                break
+            for node in remaining_nodes:
+                if not nx.ancestors(graph, node):
+                    level.append(node)
             self._levels.append(level)
+
+            for node in level:
+                remaining_nodes.remove(node)
+                graph.remove_node(node)
+
         return self._levels
 
     def __iter__(self):

@@ -63,7 +63,6 @@ def parse_args(args):
         'apply',
         'create',
         'delete',
-        'get',
         'update'
     ]
 

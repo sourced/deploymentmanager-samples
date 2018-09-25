@@ -4,7 +4,6 @@
 {% set environment = 'prod' %}
 name: my-instance-{{environment}}
 description: My instance deployment for {{environment}} environment
-project: mytestproject-vpun-test1
 
 imports:
   - path: templates/instance/instance.py
@@ -19,7 +18,7 @@ resources:
       diskSizeGb: 100
       machineType: f1-micro
       diskType: pd-ssd
-      network: !DMOutput dm://mytestproject-vpun-test1/my-network-{{environment}}/my-network-prod/name
+      network: !DMOutput dm://my-network-{{environment}}/my-network-{{environment}}/name
       metadata:
         items:
           - key: startup-script
