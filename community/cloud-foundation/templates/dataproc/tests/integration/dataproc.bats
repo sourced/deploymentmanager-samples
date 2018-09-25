@@ -65,46 +65,46 @@ function teardown() {
 }
 
 @test "Verifying that ${CLUSTER_NAME} settings are correct" {
-     run gcloud dataproc clusters describe "${CLUSTER_NAME}" \
+    run gcloud dataproc clusters describe "${CLUSTER_NAME}" \
         --format="yaml(config.gceClusterConfig)" \
         --project "${CLOUD_FOUNDATION_PROJECT_ID}"
     [[ "$status" -eq 0 ]]
-     [[ "$output" =~ "${NETWORK_NAME}" ]]
-     [[ "$output" =~ "${SA_NAME}" ]]
-     [[ "$output" =~ "us-central1-a" ]]
-     [[ "$output" =~ "test-tag-${RAND}" ]]
+    [[ "$output" =~ "${NETWORK_NAME}" ]]
+    [[ "$output" =~ "${SA_NAME}" ]]
+    [[ "$output" =~ "us-central1-a" ]]
+    [[ "$output" =~ "test-tag-${RAND}" ]]
 }
 
 @test "Verifying that master group settings are correct" {
-     run gcloud dataproc clusters describe "${CLUSTER_NAME}" \
+    run gcloud dataproc clusters describe "${CLUSTER_NAME}" \
         --format="yaml(config.masterConfig)" \
         --project "${CLOUD_FOUNDATION_PROJECT_ID}"
     [[ "$status" -eq 0 ]]
-     [[ "$output" =~ "numInstances: 1" ]]
-     [[ "$output" =~ "bootDiskSizeGb: 100" ]]
-     [[ "$output" =~ "bootDiskType: pd-ssd" ]]
-     [[ "$output" =~ "n1-standard-8" ]]
+    [[ "$output" =~ "numInstances: 1" ]]
+    [[ "$output" =~ "bootDiskSizeGb: 100" ]]
+    [[ "$output" =~ "bootDiskType: pd-ssd" ]]
+    [[ "$output" =~ "n1-standard-8" ]]
 }
 
 @test "Verifying that worker group settings are correct" {
-     run gcloud dataproc clusters describe "${CLUSTER_NAME}" \
+    run gcloud dataproc clusters describe "${CLUSTER_NAME}" \
         --format="yaml(config.workerConfig)" \
         --project "${CLOUD_FOUNDATION_PROJECT_ID}"
     [[ "$status" -eq 0 ]]
-     [[ "$output" =~ "numInstances: 2" ]]
-     [[ "$output" =~ "n1-standard-4" ]]
-     [[ "$output" =~ "bootDiskSizeGb: 500" ]] # Default size
-     [[ "$output" =~ "bootDiskType: pd-standard" ]] # Default type
+    [[ "$output" =~ "numInstances: 2" ]]
+    [[ "$output" =~ "n1-standard-4" ]]
+    [[ "$output" =~ "bootDiskSizeGb: 500" ]] # Default size
+    [[ "$output" =~ "bootDiskType: pd-standard" ]] # Default type
 }
 
 @test "Verifying that secondary worker group settings are correct" {
-     run gcloud dataproc clusters describe "${CLUSTER_NAME}" \
+    run gcloud dataproc clusters describe "${CLUSTER_NAME}" \
         --format="yaml(config.secondaryWorkerConfig)" \
         --project "${CLOUD_FOUNDATION_PROJECT_ID}"
     [[ "$status" -eq 0 ]]
-     [[ "$output" =~ "numInstances: 1" ]] # Copied from worker node
-     [[ "$output" =~ "n1-standard-4" ]] # Copied from worker node
-     [[ "$output" =~ "isPreemptible: true" ]]
+    [[ "$output" =~ "numInstances: 1" ]] # Copied from worker node
+    [[ "$output" =~ "n1-standard-4" ]] # Copied from worker node
+    [[ "$output" =~ "isPreemptible: true" ]]
 }
 
 @test "Deleting deployment" {
