@@ -113,15 +113,15 @@ outputs:
           be referenced as: $(ref.<my-routes>.routes.<route-name>.selfLink)
         patternProperties:
           ".*":
-          type: object
-          description: Details for a route resource.
-          properties:
-            selfLink:
-              type: string
-              description: The URI (SelfLink) of the firewall rule resource.
-            nextHopNetwork:
-              type: string
-              description: URL to a Network that should handle matching packets.
+            type: object
+            description: Details for a route resource.
+            properties:
+              selfLink:
+                type: string
+                description: The URI (SelfLink) of the firewall rule resource.
+              nextHopNetwork:
+                type: string
+                description: URL to a Network that should handle matching packets.
 
 documentation:
   - templates/route/README.md
