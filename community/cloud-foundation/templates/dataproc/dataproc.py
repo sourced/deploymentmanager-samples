@@ -11,26 +11,20 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 """ This template creates a Dataproc cluster. """
 
 DEFAULT_REGION = 'global'
 
-PRIMARY_GROUP_SCHEMA = {
-    'numInstances': None,
-    'machineType': 'machineTypeUri'
-}
+PRIMARY_GROUP_SCHEMA = {'numInstances': None, 'machineType': 'machineTypeUri'}
 
-SECONDARY_GROUP_SCHEMA = {
-    'numInstances': None,
-    'isPreemptible': None
-}
+SECONDARY_GROUP_SCHEMA = {'numInstances': None, 'isPreemptible': None}
 
 GROUP_SCHEMAS = {
     'master': PRIMARY_GROUP_SCHEMA,
     'worker': PRIMARY_GROUP_SCHEMA,
     'secondaryWorker': SECONDARY_GROUP_SCHEMA
 }
+
 
 def get_disk_config(properties):
     """ If any disk property is specified, creates the diskConfig section.
@@ -44,6 +38,7 @@ def get_disk_config(properties):
 
     return read_configuration(properties, disk_schema)
 
+
 def read_configuration(properties, schema):
     """ Creates a new config section by reading and renaming properties
         from the source section.
@@ -56,6 +51,7 @@ def read_configuration(properties, schema):
         return config
 
     return None
+
 
 def get_instance_group_config(properties, image, cluster_schema):
     """ Creates a cluster instance group. """
@@ -71,12 +67,16 @@ def get_instance_group_config(properties, image, cluster_schema):
 
     return config
 
+
 def add_optional_property(destination, source, property_name, rename_to=None):
-    """ Copies each property defined in the source object to the destination object. """
+    """ Copies each property defined in the source object to the destination
+        object.
+    """
 
     rename_to = rename_to or property_name
     if property_name in source:
         destination[rename_to] = source[property_name]
+
 
 def get_gce_cluster_config(properties):
     """ Creates the configuration section for a cluster. """
@@ -98,14 +98,31 @@ def get_gce_cluster_config(properties):
 
     return read_configuration(properties, gce_schema)
 
+
+def set_instance_group_config(properties, cluster, image, instance_group):
+    """ Assign instance group config to the cluster. """
+
+    group_spec = properties.get(instance_group)
+    group_schema = GROUP_SCHEMAS[instance_group]
+    group_config = get_instance_group_config(group_spec, image, group_schema)
+    config_name = instance_group + 'Config'
+    cluster['properties']['config'][config_name] = group_config
+    config_output_path = 'ref.{}.config.{}'.format(cluster['name'], config_name)
+
+    return {
+        'name': '{}InstanceNames'.format(instance_group),
+        'value': '$({}.instanceNames)'.format(config_output_path)
+    }
+
+
 def generate_config(context):
     """ Entry point for the deployment resources. """
 
     properties = context.properties
-    name = properties.get('name') or context.env['name']
+    name = properties.get('name', context.env['name'])
     project_id = context.env['project']
     image = context.properties.get('image')
-    region = properties.get('region') or DEFAULT_REGION
+    region = properties.get('region', DEFAULT_REGION)
 
     cluster_config = get_gce_cluster_config(properties)
 
@@ -117,41 +134,25 @@ def generate_config(context):
                 'clusterName': name,
                 'projectId': project_id,
                 'region': region,
-                'config':
-                    {
-                        'gceClusterConfig': cluster_config,
-                    }
+                'config': {
+                    'gceClusterConfig': cluster_config,
+                }
             }
     }
 
     for prop in ['configBucket', 'softwareConfig', 'initializationActions']:
-        add_optional_property(cluster['properties']['config'],
-                              properties,
-                              prop)
+        add_optional_property(cluster['properties']['config'], properties, prop)
 
-    outputs = [
-        {
-            'name': 'name',
-            'value': name
-        }
-    ]
+    outputs = [{'name': 'name', 'value': name}]
 
     for instance_group in ['master', 'worker', 'secondaryWorker']:
         if instance_group in properties:
-            group_spec = properties.get(instance_group)
-            group_schema = GROUP_SCHEMAS[instance_group]
-            group_config = get_instance_group_config(group_spec,
-                                                     image,
-                                                     group_schema)
-            config_name = instance_group + 'Config'
-            cluster['properties']['config'][config_name] = group_config
-            outputs.append({
-                'name': '{}InstanceNames'.format(instance_group),
-                'value': '$(ref.{}.config.{}Config.instanceNames)'.format(name,
-                                                                          instance_group) # pylint: disable=line-too-long
-            })
+            instance_group_output = set_instance_group_config(
+                properties,
+                cluster,
+                image,
+                instance_group
+            )
+            outputs.append(instance_group_output)
 
-    return {
-        'resources': [cluster],
-        'outputs': outputs
-    }
+    return {'resources': [cluster], 'outputs': outputs}

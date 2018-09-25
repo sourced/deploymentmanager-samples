@@ -30,17 +30,17 @@ properties:
     type: string
     description: |
       The region where the Compute Engine cluster is located. When deployed
-      in the 'global' region, or with no region specified, the 'zone' parameter must be
-      provided.
+      in the 'global' region, or with no region specified, the 'zone' parameter
+      must be provided.
     default: global
   zone:
     type: string
     description: |
-      The zone where the Compute Engine cluster is located. Valid values are: 
+      The zone where the Compute Engine cluster is located. Valid values are:
       - full URL
       - partial URI
       - Short name
-      Mandatory if the region parameter value is 'global', or is not defined. 
+      Mandatory if the region parameter value is 'global', or is not defined.
   image:
     type: string
     description: |
@@ -54,11 +54,13 @@ properties:
   serviceAccountScopes:
     type: array
     description: |
-      A list of URIs of service account scopes to be included in the Compute Engine instances.
+      A list of URIs of service account scopes to be included in the Compute
+      Engine instances.
     items:
       type: string
       description: |
-        The URI of service account scope to be included in the Compute Engine instances.
+        The URI of service account scope to be included in the Compute Engine
+        instances.
   internalIpOnly:
     type: boolean
     description: |
@@ -85,7 +87,8 @@ properties:
   configBucket:
     type: string
     description: |
-      The Cloud Storage staging bucket used for sharing the generated SSH keys and config.
+      The Cloud Storage staging bucket used for sharing the generated SSH keys
+      and config.
   softwareConfig:
     type: object
     description: |
@@ -129,7 +132,7 @@ properties:
       machineType:
         type: string
         description: |
-          The Compute Engine machine type used for the cluster instances. 
+          The Compute Engine machine type used for the cluster instances.
           For example, 'n1-standard-4'. Valid values are:
           - Full URL
           - Partial URI
@@ -162,11 +165,11 @@ properties:
       machineType:
         type: string
         description: |
-          The Compute Engine machine type used for cluster instances. 
+          The Compute Engine machine type used for cluster instances.
           For example, 'n1-standard-4'. Valid values are:
           - Full URL
           - Partial URI
-          - Short name 
+          - Short name
       diskType:
         type: string
         description: The boot disk type.
@@ -223,4 +226,3 @@ documentation:
 
 examples:
   - templates/dataproc/examples/dataproc.yaml
-

@@ -68,6 +68,7 @@ function teardown() {
      run gcloud dataproc clusters describe "${CLUSTER_NAME}" \
         --format="yaml(config.gceClusterConfig)" \
         --project "${CLOUD_FOUNDATION_PROJECT_ID}"
+    [[ "$status" -eq 0 ]]
      [[ "$output" =~ "${NETWORK_NAME}" ]]
      [[ "$output" =~ "${SA_NAME}" ]]
      [[ "$output" =~ "us-central1-a" ]]
@@ -78,6 +79,7 @@ function teardown() {
      run gcloud dataproc clusters describe "${CLUSTER_NAME}" \
         --format="yaml(config.masterConfig)" \
         --project "${CLOUD_FOUNDATION_PROJECT_ID}"
+    [[ "$status" -eq 0 ]]
      [[ "$output" =~ "numInstances: 1" ]]
      [[ "$output" =~ "bootDiskSizeGb: 100" ]]
      [[ "$output" =~ "bootDiskType: pd-ssd" ]]
@@ -88,6 +90,7 @@ function teardown() {
      run gcloud dataproc clusters describe "${CLUSTER_NAME}" \
         --format="yaml(config.workerConfig)" \
         --project "${CLOUD_FOUNDATION_PROJECT_ID}"
+    [[ "$status" -eq 0 ]]
      [[ "$output" =~ "numInstances: 2" ]]
      [[ "$output" =~ "n1-standard-4" ]]
      [[ "$output" =~ "bootDiskSizeGb: 500" ]] # Default size
@@ -98,6 +101,7 @@ function teardown() {
      run gcloud dataproc clusters describe "${CLUSTER_NAME}" \
         --format="yaml(config.secondaryWorkerConfig)" \
         --project "${CLOUD_FOUNDATION_PROJECT_ID}"
+    [[ "$status" -eq 0 ]]
      [[ "$output" =~ "numInstances: 1" ]] # Copied from worker node
      [[ "$output" =~ "n1-standard-4" ]] # Copied from worker node
      [[ "$output" =~ "isPreemptible: true" ]]

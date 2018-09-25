@@ -1,6 +1,6 @@
 # Example of the Dataproc template usage.
 #
-# In this example, a Dataproce cluster is created.
+# In this example, a Dataproc cluster is created.
 #
 
 imports:

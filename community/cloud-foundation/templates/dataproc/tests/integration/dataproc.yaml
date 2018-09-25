@@ -37,10 +37,8 @@ resources:
         - test-network-${RAND}-allow-ssh
         - test-network-${RAND}-allow-internal
 
-# Prerequisites ??? We have what comes below in the Prerequisites section of the Readme file... 
-# Other template tests don't have Prerequisiytes. Why this one? 
-
-# Set up the network:
+# Test setup.
+# Set up a network:
   - name: test-network-${RAND}
     type: compute.v1.network
     properties:
@@ -82,7 +80,8 @@ resources:
       displayName: dataproc-sa-${RAND}
       projectId: ${CLOUD_FOUNDATION_PROJECT_ID}
 
-# Patch the project IAM policy to grant to the newly created account the dataproc.worker role:
+# Patch the project IAM policy to grant the dataproc.worker role to the newly
+# created account:
 
 # Get the existing policy:
   - name: dataproc-sa-get-iam-${RAND}
