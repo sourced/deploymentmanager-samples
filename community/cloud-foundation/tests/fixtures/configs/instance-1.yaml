@@ -2,7 +2,7 @@
 #
 # In this example, a Ubuntu 18.04 instance with Nginx is created.
 {% set environment = 'prod' %}
-name: my-instance-{{environment}}
+name: my-instance-{{environment}}-1
 description: My instance deployment for {{environment}} environment
 
 imports:
@@ -10,7 +10,7 @@ imports:
     name: instance.py
 
 resources:
-  - name: test-instance
+  - name: my-instance-{{environment}}-1
     type: instance.py
     properties:
       zone: us-central1-a

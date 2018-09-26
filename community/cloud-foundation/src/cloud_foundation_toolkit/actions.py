@@ -1,4 +1,4 @@
-# Copyright 2018 Google Inc. All rights reserved.
+# Copyr ight2018 Google Inc. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -79,18 +79,28 @@ def execute(args):
             arguments[ACTION_MAP[action][k]] = v
 
     LOG.debug('Excuting %s on %s with arguments %s',
-        args.action, args.config, arguments
+        action, args.config, arguments
     )
 
-    if args.dry_run:
-        yaml = YAML()
-        yaml.register_class(Config)
-        yaml.dump(list(graph), sys.stdout)
-    else:
-        for level in graph:
-            for config in level:
+    for i, level in enumerate(graph, start=1):
+        print('---------- Stage {} ----------'.format(i))
+        for config in level:
+            if args.dry_run:
+                print(
+                    ' - project: {}, deployment: {}'.format(
+                        config.project,
+                        config.deployment
+                    )
+                )
+            else:
                 LOG.debug('%s config %s', action, config.deployment)
                 deployment = Deployment(config)
                 method = getattr(deployment, action)
-                method(**arguments)
+                try:
+                    method(**arguments)
+                except apitools_exceptions.HttpNotFoundError:
+                    LOG.warn('Deployment %s does not exit', config.deployment)
+                    if action != 'delete':
+                        raise
+    print('------------------------------')
 

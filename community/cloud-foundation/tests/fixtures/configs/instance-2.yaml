@@ -1,0 +1,27 @@
+# Example on how to use the instance template
+#
+# In this example, a Ubuntu 18.04 instance with Nginx is created.
+{% set environment = 'prod' %}
+
+name: my-instance-{{environment}}-2
+description: |
+  My instance dependend on my-instance-{{environment}}-2
+  ( !DMOutput dm://my-instance-{{environment}}-1/my-instance-{{environment}}-1/internalIp )
+imports:
+  - path: templates/instance/instance.py
+    name: instance.py
+
+resources:
+  - name: my-instance-{{environment}}-2
+    type: instance.py
+    properties:
+      zone: us-central1-a
+      diskImage: projects/ubuntu-os-cloud/global/images/family/ubuntu-1804-lts
+      diskSizeGb: 100
+      machineType: f1-micro
+      diskType: pd-ssd
+      network: !DMOutput dm://my-network-{{environment}}/my-network-{{environment}}/name
+      metadata:
+        items:
+          - key: startup-script
+            value: sudo apt-get update && sudo apt-get install -y nginx
