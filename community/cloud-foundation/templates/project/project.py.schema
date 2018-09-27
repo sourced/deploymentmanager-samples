@@ -123,9 +123,39 @@ properties:
     type: array
     default: []
     items:
-      type: string
-      pattern: ^[a-z]([-a-z0-9]{0,61}[a-z0-9])?$
-    description: A list of service accounts to create for the project.
+      accountId:
+        type: string
+        pattern: ^[a-z]([-a-z0-9]{0,61}[a-z0-9])?$
+        description: The name used to create the service account.
+      displayName:
+        type: string
+        description: |
+          The name to display for the service account. If not set the display
+          name will use the `accountId` as the display name.
+      roles:
+        type: array
+        items:
+          type: string
+          description: A list of roles to grant the service account.
+      networkAccess:
+        type: boolean
+        description: |
+          Boolean flag if set to True grants shared vpc subnet IAM permissions
+          to this service account for the subnet specified by the
+          `sharedVPCSubnets.subnetId` field.
+          This field should not be set if `sharedVPCHost` is set to True.
+  groups:
+    type: array
+    default: []
+    items:
+      name:
+        type: string
+        description: The name of the Google group.
+      roles:
+        type: array
+        items:
+          type: string
+          description: A list of roles to grant the Google group.
   concurrentApiActivation:
     type: boolean
     default: False
@@ -149,7 +179,8 @@ properties:
     description: |
       If True, indicates that the project is to be used as a
       host project for Shared VPC networks.
-      The `sharedVPCService` property cannot bet set if this property is set.
+      The `sharedVPC` and `sharedVPCSubnets` properties cannot be set if this
+      property is set.
   removeDefaultVPC:
     type: boolean
     default: True

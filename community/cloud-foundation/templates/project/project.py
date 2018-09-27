@@ -11,11 +11,11 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
 """ This template creates a single project, with the specified 
 service accounts and APIs enabled.
 """
 
-# No such line of code in amy of the .py files I'd seen so far... Is it correct?
 import copy
  
 
@@ -90,15 +90,16 @@ def generate_config(context):
 
 
 def activate_apis(properties):
-    """Resources for API activation."""
+
+    """ Resources for API activation. """
 
     concurrent_api_activation = properties.get('concurrentApiActivation')
     apis = properties.get('activateApis', [])
 
     # Enable the storage-component API if the usage export bucket is enabled.
     if (
-        properties.get('usageExportBucket') and
-        'storage-component.googleapis.com' not in apis
+            properties.get('usageExportBucket') and
+            'storage-component.googleapis.com' not in apis
     ):
         apis.append('storage-component.googleapis.com')
 
@@ -134,14 +135,119 @@ def activate_apis(properties):
     return resources, api_names_list
 
 
-def create_service_accounts(properties):
-    """Resources for service accounts"""
+  def create_project_iam(dependencies, role_member_list):
+    """ Grant shared project IAM permissions. """
+
+    policies_to_add = role_member_list
+    resources = [
+        {
+            # Get the IAM policy first so that we do not remove
+            # any existing bindings.
+            'name': 'get-iam-policy',
+            'action': 'gcp-types/cloudresourcemanager-v1:cloudresourcemanager.projects.getIamPolicy', # pylint: disable=line-too-long
+            'properties': {
+                'resource': '$(ref.project.projectId)'
+            },
+            'metadata':
+                {
+                    'dependsOn': dependencies,
+                    'runtimePolicy': ['UPDATE_ALWAYS']
+                }
+        },
+        {
+            # Set the IAM policy patching the existing policy
+            # with what ever is currently in the config
+            'name': 'patch-iam-policy',
+            'action': 'gcp-types/cloudresourcemanager-v1:cloudresourcemanager.projects.setIamPolicy', # pylint: disable=line-too-long
+            'properties':
+                {
+                    'resource': '$(ref.project.projectId)',
+                    'policy': '$(ref.get-iam-policy)',
+                    'gcpIamPolicyPatch':
+                        {
+                            'add': policies_to_add
+                        }
+                }
+        }
+    ]
+
+    return resources
+
+
+def create_shared_vpc_subnet_iam(context, dependencies, members_list):
+    """ Grant shared VPC subnet IAM permissions to Service Accounts. """
 
     resources = []
-    for service_account in properties['serviceAccounts']:
+    if (
+            context.properties.get('sharedVPCSubnets') and
+            context.properties.get('sharedVPC')
+    ):
+        # Grant the Service Accounts access to the shared VPC subnets
+        # Note that until there is subnetwork IAM patch support
+        # setIamPolicy will overwrite any existing policies on the subnet
+        for i, subnet in enumerate(
+                context.properties.get('sharedVPCSubnets'), 1
+            ):
+            resources.append(
+                {
+                    'name': 'add-vpc-subnet-iam-policy-{}'.format(i),
+                    'type': 'gcp-types/compute-beta:compute.subnetworks.setIamPolicy',  # pylint: disable=line-too-long
+                    'metadata':
+                        {
+                            'dependsOn': dependencies,
+                        },
+                    'properties':
+                        {
+                            'name': subnet['subnetId'],
+                            'project': context.properties['sharedVPC'],
+                            'region': subnet['region'],
+                            'bindings': [
+                                {
+                                    'role': 'roles/compute.networkUser',
+                                    'members': members_list
+                                }
+                            ]
+                        }
+                }
+            )
+
+    return resources
+
+
+def create_service_accounts(context):
+    """ Create Service Accounts and grant project IAM permissions. """
+
+    resources = []
+    network_list = []
+    service_account_dep = []
+    policies_to_add = []
+
+    for service_account in context.properties['serviceAccounts']:
+        account_id = service_account['accountId']
+        display_name = service_account.get('accountId', account_id)
+        sa_name = 'serviceAccount:{}@{}.iam.gserviceaccount.com'.format(
+            account_id,
+            context.env['name']
+        )
+
+        # Check if member needs shared vpc permissions and put in
+        # a list to grant shared VPC subnet IAM permissions
+        if service_account.get('networkAccess'):
+            network_list.append(sa_name)
+
+        # Build the service account bindings for project IAM permissions
+        for role in service_account['roles']:
+            policies_to_add.append({'role': role, 'members': [sa_name]})
+
+        # Build a list of SA resources to be used as a dependency
+        # for when we grant permissions.
+        name = 'service-account-' + account_id
+        service_account_dep.append(name)
+
+        # Create the service account resource
         resources.append(
             {
-                'name': 'service-account-' + service_account,
+                'name': name,
                 'type': 'iam.v1.serviceAccount',
                 'properties':
                     {
@@ -151,11 +257,33 @@ def create_service_accounts(properties):
                     }
             }
         )
+
+
+    # Build the group bindings for project IAM permissions
+    for group in context.properties['groups']:
+        group_name = 'group:{}'.format(group['name'])
+        for role in group['roles']:
+            policies_to_add.append({'role': role, 'members': [group_name]})
+
+    # Create the project IAM permissions
+    resources.extend(create_project_iam(service_account_dep, policies_to_add))
+
+    if network_list and not context.properties.get('sharedVPCHost'):
+        # Create the shared vpc subnet IAM permissions
+        resources.extend(
+            create_shared_vpc_subnet_iam(
+                context,
+                service_account_dep,
+                network_list
+            )
+        )
+
     return resources
 
 
 def create_bucket(properties):
-    """Resources for the usage export bucket."""
+
+    """ Resources for usage export bucket. """
 
     resources = []
     if properties.get('usageExportBucket'):
@@ -276,6 +404,7 @@ def patch_iam_policies(properties):
 
 
 def create_shared_vpc(project_id, properties):
+
     """ Configure project's Shared VPC properties. """
 
     resources = []
