@@ -6,7 +6,9 @@
 name: my-instance-{{environment}}-2
 description: |
   My instance dependend on my-instance-{{environment}}-2
-  ( !DMOutput dm://my-instance-{{environment}}-1/my-instance-{{environment}}-1/internalIp )
+  ( !DMOutputas dm://my-instance-{{environment}}-1/my-instance-{{environment}}-1/internalIp )
+  $(out.my-instance-{{environment}}-1.my-instance-{{environment}}-1.internalIp)
+  $(out.my-instance-{{environment}}-1.my-instance-{{environment}}-1.internalIp)
 imports:
   - path: templates/instance/instance.py
     name: instance.py
@@ -20,8 +22,14 @@ resources:
       diskSizeGb: 100
       machineType: f1-micro
       diskType: pd-ssd
-      network: !DMOutput dm://my-network-{{environment}}/my-network-{{environment}}/name
+      network: $(out.my-network-{{environment}}.my-network-{{environment}}.name)
       metadata:
         items:
           - key: startup-script
-            value: sudo apt-get update && sudo apt-get install -y nginx
+            value: |
+                #!/bin/bash
+                apt-get update
+                apt-get install -y nginx
+                cat << EOF > /tmp/instance-1-ip.txt
+                $(out.my-instance-{{environment}}-1.my-instance-{{environment}}-1.internalIp)
+                EOF

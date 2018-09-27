@@ -24,9 +24,12 @@ import networkx as nx
 
 from cloud_foundation_toolkit import LOG
 from cloud_foundation_toolkit.dm_utils import DM_API
+from cloud_foundation_toolkit.dm_utils import DM_OUTPUT_QUERY_REGEX
+from cloud_foundation_toolkit.dm_utils import DMOutputQueryAttributes
 from cloud_foundation_toolkit.dm_utils import get_deployment
 from cloud_foundation_toolkit.dm_utils import get_deployment_output
-from cloud_foundation_toolkit.dm_utils import parse_dm_url
+from cloud_foundation_toolkit.dm_utils import parse_dm_output_url
+from cloud_foundation_toolkit.dm_utils import parse_dm_output_token
 from cloud_foundation_toolkit.yaml_utils import CFTBaseYAML
 
 Node = namedtuple('Node', ['project', 'deployment'])
@@ -73,13 +76,6 @@ class Config(object):
         # scanning the file ourselves.
         self.as_dict = self.yaml.load(self.as_string)
 
-    @classmethod
-    def to_yaml(cls, representer, node):
-        return representer.represent_scalar(
-            cls.__name__, u'{.project}:{.deployment}'.format(node, node)
-        )
-
-
     @property
     def as_file(self):
         return io.StringIO(self.as_string)
@@ -107,18 +103,22 @@ class Config(object):
         if hasattr(self, '_dependencies'):
             return self._dependencies
 
-        pattern = re.compile(r'!DMOutput\s+(?P<url>\bdm://[-/a-z0-9]+\b)')
-
         self._dependencies = set()
         for line in self.as_file.readlines():
             # Ignore comments
             if re.match(r'^\s*#', line):
                 continue
 
-            # Match !DMOutput token
-            for match in pattern.finditer(line):
-                url = parse_dm_url(match.group('url'), self.project)
-                self._dependencies.add(Node(url.project, url.deployment))
+            # Match !DMOutput, $(out.x.y.w.z), etc tokens
+            for match in DM_OUTPUT_QUERY_REGEX.finditer(line):
+                for k, v in match.groupdict().items():
+                    if not v:
+                        continue
+                    if k == 'url':
+                        url = parse_dm_output_url(v, self.project)
+                    elif k == 'token':
+                        url = parse_dm_output_token(v, self.project)
+                    self._dependencies.add(Node(url.project, url.deployment))
 
         return self._dependencies
 
@@ -273,15 +273,52 @@ class Deployment(DM_API):
             self.yaml_dm_output_constructor
         )
         self._config = config
-        self.config = self.yaml.load(config.as_string)
+
+        # Regex search/replace before loading the yaml
+        self.config = self.yaml.load(
+            DM_OUTPUT_QUERY_REGEX.sub(
+                self.get_dm_output,
+                config.as_string
+            )
+        )
         self.config['project'] = self._config.project
         self.tmp_file_path = None
 
         LOG.debug('==> %s', self.config)
         self.current = None
 
+    def get_dm_output(self, match):
+        """ Custom function for the regex.sub()
+
+        This function gets executed everytime there's a match on one
+        tokens used to represent the cross-deployment references (
+        !DMOutput, $(out.x.y.w.z), etc.
+
+        Args:
+            match (re.MatchObject): A regex matche object
+
+        Returns: A string with the value of the deployment output
+        """
+
+        for k, v in match.groupdict().items():
+            if not v:
+                continue
+            if k == 'url':
+                query_attributes = parse_dm_output_url(v, self._config.project)
+            elif k == 'token':
+                query_attributes = parse_dm_output_token(
+                    v,
+                    self._config.project
+                )
+            return get_deployment_output(
+                query_attributes.project,
+                query_attributes.deployment,
+                query_attributes.resource,
+                query_attributes.name
+            )
+
     def yaml_dm_output_constructor(self, loader, node):
-        """ Implements the !DMOutpuet yaml tag
+        """ Implements the !DMOutput yaml tag
 
         The tag takes string represeting an DM item URL.
 
@@ -290,7 +327,7 @@ class Deployment(DM_API):
         """
 
         data = loader.construct_scalar(node)
-        url = parse_dm_url(data, self._config.project)
+        url = parse_dm_output_url(data, self._config.project)
         return get_deployment_output(
             url.project,
             url.deployment,

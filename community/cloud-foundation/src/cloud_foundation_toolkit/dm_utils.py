@@ -1,12 +1,20 @@
 from collections import namedtuple
+import io
+import re
 from six.moves.urllib.parse import urlparse
 import yaml
 
 from googlecloudsdk.api_lib.deployment_manager import dm_base
-#from deployment import DM_API
 
-DM_URL = namedtuple(
-    'URL', ['project', 'deployment', 'resource', 'name']
+
+DM_OUTPUT_QUERY_REGEX = re.compile(
+    r'!DMOutput\s+(?P<url>\bdm://[-/a-zA-Z0-9]+\b)|'
+    r'\$\(out\.(?P<token>[-.a-zA-Z0-9]+)\)'
+)
+
+
+DMOutputQueryAttributes = namedtuple(
+    'DMOutputQueryAttributes', ['project', 'deployment', 'resource', 'name']
 )
 
 
@@ -43,7 +51,7 @@ def get_manifest(project, deployment):
     )
 
 
-def parse_dm_url(url, project=''):
+def parse_dm_output_url(url, project=''):
     error_msg = (
         'The url must look like '
         '"dm://${project}/${deployment}/${resource}/${name}" or'
@@ -63,7 +71,25 @@ def parse_dm_url(url, project=''):
     else:
         raise ValueError(error_msg)
 
-    return DM_URL(*args)
+    return DMOutputQueryAttributes(*args)
+
+
+def parse_dm_output_token(token, project=''):
+    error_msg = (
+        'The url must look like '
+        '$(out.${project}.${deployment}.${resource}.${name}" or '
+        '$(out.${deployment}.${resource}.${name}"'
+    )
+    parts = token.split('.')
+
+    # parts == 3 if project isn't specified in the token
+    # parts == 4 if project is specified in the token
+    if len(parts) == 3:
+        return DMOutputQueryAttributes(project, *parts)
+    elif len(parts) == 4:
+        return DMOutputQueryAttributes(*parts)
+    else:
+        raise ValueError(error_msg)
 
 
 def get_deployment_output(project, deployment, resource, name):

@@ -8,7 +8,7 @@ resources:
   - type: templates/firewall/firewall.py
     name: my-firewall-{{environment}}
     properties:
-      network: !DMOutput dm://my-network-{{environment}}/my-network-prod/name
+      network: $(out.my-network-{{environment}}.my-network-prod.name)
       rules:
         - name: allow-proxy-from-inside-prod
           allowed:
@@ -35,7 +35,7 @@ resources:
   - type: templates/firewall/firewall.py
     name: my-firewall-dev
     properties:
-      network: !DMOutput dm://my-network-{{environment}}/my-network-dev/name
+      network: $(out.my-network-{{environment}}.my-network-prod.name)
       rules:
         - name: allow-proxy-from-inside-dev
           allowed:

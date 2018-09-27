@@ -18,7 +18,7 @@ resources:
       diskSizeGb: 100
       machineType: f1-micro
       diskType: pd-ssd
-      network: !DMOutput dm://my-network-{{environment}}/my-network-{{environment}}/name
+      network: $(out.my-network-{{environment}}.my-network-{{environment}}.name)
       metadata:
         items:
           - key: startup-script
