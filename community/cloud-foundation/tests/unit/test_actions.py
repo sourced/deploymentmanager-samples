@@ -1,4 +1,3 @@
-from contextlib import nested
 from six import PY2
 
 if PY2:
@@ -7,72 +6,66 @@ else:
     import unittest.mock as mock
 
 from cloud_foundation_toolkit import actions
-from cloud_foundation_toolkit.deployment import ConfigList
+from cloud_foundation_toolkit.deployment import Config, ConfigGraph
+
+
+ACTIONS = ['apply', 'create', 'delete', 'update']
+
 
 class Args(object):
-    config = [['a1', 'b1', 'c1'], ['a21', 'a22', 'b21'], ['a31']]
-    preview = False
 
-def execute_action(action, args):
-    with mock.patch('cloud_foundation_toolkit.actions.Deployment') as m1, \
-         mock.patch('cloud_foundation_toolkit.actions.ConfigList') as m2:
-        m2.return_value = [['x1', 'y1', 'z1'], ['x21', 'x22', 'y21'], ['z31']]
-        f = getattr(actions, action)
-        r = f(args)
-    return (r, m1, m2)
+    def __init__(self, **kwargs):
+        self.preview = False
+        [setattr(self, k, v) for k, v in kwargs.items()]
 
-def get_number_of_elements(item):
+
+def get_number_of_elements(items):
     if isinstance(item, list):
         return sum(get_number_of_elements(subitem) for subitem in item)
     else:
         return 1
 
-def test_get():
-    args = Args()
-    r, m1, m2 = execute_action('get', args)
-    # ensure action returned the correct value
-    assert r == None
-    # ensure the action was executed the correct number of times
-    assert m1.call_count == get_number_of_elements(args.config)
-    # ensure the right args were passed
-    assert m1.mock_calls.count(mock.call().get()) == get_number_of_elements(args.config)
 
-def test_create():
-    args = Args()
-    r, m1, m2 = execute_action('create', args)
-    # ensure action returned the correct value
-    assert r == None
-    # ensure the action was executed the correct number of times
-    assert m1.call_count == get_number_of_elements(args.config)
-    # ensure the right args were passed
-    assert m1.mock_calls.count(mock.call().create(preview=args.preview)) == get_number_of_elements(args.config)
+def test_execute(configs):
+    args = Args(action='apply', config=[configs.directory], dry_run=False)
+    with mock.patch('cloud_foundation_toolkit.actions.Deployment') as m1:
+        graph = ConfigGraph([v.path for k, v in configs.files.items()])
+        n_configs = len(configs.files)
 
-def test_delete():
-    args = Args()
-    r, m1, m2 = execute_action('delete', args)
-    # ensure action returned the correct value
-    assert r == None
-    # ensure the action was executed the correct number of times
-    assert m1.call_count == get_number_of_elements(args.config)
-    # ensure the right args were passed
-    assert m1.mock_calls.count(mock.call().delete()) == get_number_of_elements(args.config)
+        r = actions.execute(args)
+        assert r == None
+        assert m1.call_count == n_configs
 
-def test_update():
-    args = Args()
-    r, m1, m2 = execute_action('update', args)
-    # ensure action returned the correct value
-    assert r == None
-    # ensure the action was executed the correct number of times
-    assert m1.call_count == get_number_of_elements(args.config)
-    # ensure the right args were passed
-    assert m1.mock_calls.count(mock.call().update(preview=args.preview)) == get_number_of_elements(args.config)
+        args.dry_run = True
+        r = actions.execute(args)
+        assert r == None
+        assert m1.call_count == n_configs
 
-def test_apply():
-    args = Args()
-    r, m1, m2 = execute_action('apply', args)
-    # ensure action returned the correct value
-    assert r == None
-    # ensure the action was executed the correct number of times
-    assert m1.call_count == get_number_of_elements(args.config)
-    # ensure the right args were passed
-    assert m1.mock_calls.count(mock.call().apply(preview=args.preview)) == get_number_of_elements(args.config)
+
+def test_valid_actions():
+    ACTUAL_ACTIONS = actions.ACTION_MAP.keys()
+    ACTUAL_ACTIONS.sort()
+    assert ACTUAL_ACTIONS == ACTIONS
+
+
+def test_action(configs):
+    args = Args(config=[configs.directory], dry_run=False)
+    for action in ACTIONS:
+        with mock.patch('cloud_foundation_toolkit.actions.Deployment') as m1:
+            args.action = action
+            r = actions.execute(args)
+            n_configs = len(configs.files)
+            method = getattr(mock.call(), action)
+            assert m1.call_count == n_configs
+            if action != 'delete':
+                assert m1.mock_calls.count(method(preview=args.preview)) == n_configs
+            else:
+                assert m1.mock_calls.count(method()) == n_configs
+
+
+def test_get_config_files(configs):
+    r = actions.get_config_files([configs.directory])
+    files = [v.path for k, v in configs.files.items()]
+    files.sort()
+    r.sort()
+    assert files == r

@@ -164,7 +164,6 @@ class ConfigGraph(object):
         for _, config in self.configs.items():
             self._graph.add_node(config)
             for dependency in config.dependencies:
-#                self._graph.add_edge(config, self.configs[dependency])
                 self.graph.add_edge(self.configs[dependency], config)
 
             if not nx.is_directed_acyclic_graph(self._graph):

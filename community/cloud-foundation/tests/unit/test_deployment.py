@@ -1,12 +1,12 @@
-from contextlib import nested
 from six import PY2
 
 from apitools.base.py.exceptions import HttpNotFoundError
 import jinja2
 import pytest
+from ruamel.yaml import YAML
 
 from cloud_foundation_toolkit.deployment import Config
-from cloud_foundation_toolkit.deployment import ConfigList
+from cloud_foundation_toolkit.deployment import ConfigGraph
 from cloud_foundation_toolkit.deployment import Deployment
 
 if PY2:
@@ -24,14 +24,13 @@ def args():
     return Args()
 
 def test_config(configs):
-    c = Config(configs.files[0].path)
-    assert c.raw == configs.files[0].content
-    assert c.rendered == jinja2.Template(configs.files[0].content).render()
+    c = Config(configs.files['network.yaml'].path)
+    assert c.as_string == configs.files['network.yaml'].jinja
 
 
 def test_config_list(configs):
-    config_paths = [c.path for c in configs.files]
-    config_list = ConfigList(config_paths)
+    config_paths = [v.path for k, v in configs.files.items()]
+    config_list = ConfigGraph(config_paths)
     for level in config_list:
         assert isinstance(level, list)
         for c in level:
@@ -39,14 +38,13 @@ def test_config_list(configs):
 
 
 def test_deployment_object(configs):
-    config = Config(configs.files[0].path)
+    config = Config(configs.files['network.yaml'].path)
     deployment = Deployment(config)
     assert deployment.config['name'] == 'my-network-prod'
-    assert deployment.config['project'] == 'my-project'
 
 
 def test_deployment_get(configs):
-    config = Config(configs.files[0].path)
+    config = Config(configs.files['network.yaml'].path)
     deployment = Deployment(config)
     with mock.patch.object(deployment.client.deployments, 'Get') as m:
         m.return_value = Message(
@@ -59,7 +57,7 @@ def test_deployment_get(configs):
 
 
 def test_deployment_get_doesnt_exist(configs):
-    config = Config(configs.files[0].path)
+    config = Config(configs.files['network.yaml'].path)
     deployment = Deployment(config)
     with mock.patch.object(deployment.client.deployments, 'Get') as m:
         m.side_effect = HttpNotFoundError('a', 'b', 'c')
@@ -69,7 +67,7 @@ def test_deployment_get_doesnt_exist(configs):
 
 
 def test_deployment_create(configs):
-    config = Config(configs.files[0].path)
+    config = Config(configs.files['network.yaml'].path)
     patches = {
         'client': mock.DEFAULT,
         'wait': mock.DEFAULT,

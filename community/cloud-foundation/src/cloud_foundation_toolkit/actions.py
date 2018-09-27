@@ -28,6 +28,7 @@ from cloud_foundation_toolkit.deployment import Config, ConfigGraph, Deployment
 ACTION_MAP = {
     'apply':  {'preview': 'preview'},
     'create': {'preview': 'preview'},
+    'delete': {},
     'update': {'preview': 'preview'}
 }
 

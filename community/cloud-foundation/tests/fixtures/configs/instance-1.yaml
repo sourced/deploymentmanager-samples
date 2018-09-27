@@ -1,16 +1,15 @@
 # Example on how to use the instance template
 #
 # In this example, a Ubuntu 18.04 instance with Nginx is created.
-{% set environment = 'prod' %}
-name: my-instance-{{environment}}-1
-description: My instance deployment for {{environment}} environment
+name: my-instance-prod-1
+description: My instance deployment for prod environment
 
 imports:
   - path: templates/instance/instance.py
     name: instance.py
 
 resources:
-  - name: my-instance-{{environment}}-1
+  - name: my-instance-prod-1
     type: instance.py
     properties:
       zone: us-central1-a
@@ -18,7 +17,7 @@ resources:
       diskSizeGb: 100
       machineType: f1-micro
       diskType: pd-ssd
-      network: $(out.my-network-{{environment}}.my-network-{{environment}}.name)
+      network: $(out.my-network-prod.my-network-prod.name)
       metadata:
         items:
           - key: startup-script
