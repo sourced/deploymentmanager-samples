@@ -1,3 +1,9 @@
+# Test of the project template.
+#
+# Variables:
+#   RAND: A random string used by the testing suite.
+#
+
 imports:
   - path: templates/project/project.py
     name: project.py
@@ -14,9 +20,6 @@ resources:
         - deploymentmanager.googleapis.com
         - pubsub.googleapis.com
       serviceAccounts:
-        - accountId: sa-${RAND}
-          roles:
-            - roles/editor
-            - roles/viewer
+        - sa-${RAND}
       usageExportBucket: true
       sharedVPCHost: true
