@@ -1,10 +1,12 @@
 import base64
+from collections import namedtuple
+import io
 import os
 import os.path
 import re
 from six.moves import input
+import sys
 import tempfile
-import yaml
 
 from apitools.base.py import exceptions as apitools_exceptions
 from googlecloudsdk.api_lib.deployment_manager import dm_api_util
@@ -18,21 +20,20 @@ from googlecloudsdk.command_lib.deployment_manager.importer import BuildTargetCo
 from googlecloudsdk.core.resource import resource_printer
 from googlecloudsdk.third_party.apis.deploymentmanager.v2 import deploymentmanager_v2_messages as messages
 import jinja2
+import networkx as nx
+
 from cloud_foundation_toolkit import LOG
-from cloud_foundation_toolkit.dm_utils import DM_API, get_deployment
-from cloud_foundation_toolkit.dependency import ConfigParser, Dependency
+from cloud_foundation_toolkit.dm_utils import DM_API
+from cloud_foundation_toolkit.dm_utils import DM_OUTPUT_QUERY_REGEX
+from cloud_foundation_toolkit.dm_utils import DMOutputQueryAttributes
+from cloud_foundation_toolkit.dm_utils import get_deployment
+from cloud_foundation_toolkit.dm_utils import get_deployment_output
+from cloud_foundation_toolkit.dm_utils import parse_dm_output_url
+from cloud_foundation_toolkit.dm_utils import parse_dm_output_token
+from cloud_foundation_toolkit.yaml_utils import CFTBaseYAML
 
+Node = namedtuple('Node', ['project', 'deployment'])
 
-#def run(paths):
-#    config = Config(paths)
-#    for i in config:
-#        LOG.debug('===> %s', i.rendered)
-#        deployment = Deployment(i)
-#        try:
-#            deployment.create()
-#        except apitools_exceptions.HttpConflictError as err:
-#            deployment.update()
-#
 
 def ask():
     """Function that asks for user input from stdin."""
@@ -47,84 +48,185 @@ class Config(object):
     """Class representing a CFT config.
 
     Attributes:
-        raw(string): The raw content of a config, prior to any processing.
-        rendered(string): The jinja-rederened config from the raw content
+        as_file (io.StringIO): A file-like interface to the
+            jinja-rendered config.
+        as_string (string): the jinja-rendered config.
+        id (string): A base64-encoded id representing the path or raw
+            content of the config. Could be used as a dict key.
+        source (string): The path or the raw content of config (obtained
+            by base64-decoding the 'id' attribute
     """
+    yaml = CFTBaseYAML()
 
     def __init__(self, item):
-        """ Contructor
+        """ Contructor """
 
-        Args:
-            item (str): The content or the path to a config file
-        """
-        self.name = item
-
+        self.source = item
         if os.path.exists(item):
-            with open(item) as f:
-                self.raw = f.read()
+            with io.open(item) as _fd:
+                self.as_string = jinja2.Template(_fd.read()).render()
         else:
-            self.raw = item
+            self.as_string = jinja2.Template(item).render()
 
-        self.rendered = jinja2.Template(self.raw).render()
+        # YAML gets parsed twice:
+        # 1. Here, to figure out deployment name, project and dependency list.
+        # 2. When the Deployment() obj gets instantiated (to get the value of
+        #    the output from the DM API)
+        # This approach takes more CPU, but it's less error prone than
+        # scanning the file ourselves.
+        self.as_dict = self.yaml.load(self.as_string)
+
+    @property
+    def as_file(self):
+        return io.StringIO(self.as_string)
+
+    @property
+    def id(self):
+        return Node(self.project, self.deployment)
+
+    @property
+    def deployment(self):
+        return self.as_dict['name']
+
+    @property
+    def project(self):
+        return self.as_dict.get(
+            'project',
+            os.environ.get('CLOUD_FOUNDATION_PROJECT_ID') or
+            dm_base.GetProject()
+        )
+
+    @property
+    def dependencies(self):
+        """
+        """
+        if hasattr(self, '_dependencies'):
+            return self._dependencies
+
+        self._dependencies = set()
+        for line in self.as_file.readlines():
+            # Ignore comments
+            if re.match(r'^\s*#', line):
+                continue
+
+            # Match !DMOutput, $(out.x.y.w.z), etc tokens
+            for match in DM_OUTPUT_QUERY_REGEX.finditer(line):
+                for k, v in match.groupdict().items():
+                    if not v:
+                        continue
+                    if k == 'url':
+                        url = parse_dm_output_url(v, self.project)
+                    elif k == 'token':
+                        url = parse_dm_output_token(v, self.project)
+                    self._dependencies.add(Node(url.project, url.deployment))
+
+        return self._dependencies
+
+    def __repr__(self):
+        return '{}({}:{})'.format(self.__class__, self.deployment,
+                self.project)
 
 
-class ConfigList(list):
-    """A container Class for CFT config files.
+class ConfigGraph(object):
+    """ Class representing the dependency graph between configs
 
-    This class represents a list of Config() objects.
+    This is a container class holding the dependencies between configs.
+    An instance of this class be be used as an iterator over the
+    "levels" of dependencies.
+
+    ```
+    graph = ConfigGraph(["config-1.yaml", "config-2.yaml"])
+    for level in graph:
+        for config in level:
+            deployment = Deployment(config)
+            ...
+    ```
+
+    Attributes:
+        graph(networkx.DiGraph): A networkx DiGraph()
+        roots(list): List of all root nodes in the graph
+        levels(list): List of dependency levels. Each element in the
+           list is another list of nodes that can be processed in
+           parallel.
+
     """
+    def __init__(self, configs):
+        """ Constructor """
 
-    def __init__(self, items):
-        """ Contructor
+        # Populate the config dict
+        self.configs = {c.id: c for c in (Config(x) for x in configs)}
+
+    @property
+    def graph(self):
+        if hasattr(self, '_graph'):
+            return self._graph
+        self._graph = nx.DiGraph()
+        for _, config in self.configs.items():
+            self._graph.add_node(config)
+            for dependency in config.dependencies:
+                self.graph.add_edge(self.configs[dependency], config)
+
+            if not nx.is_directed_acyclic_graph(self._graph):
+                raise SystemExit('Dependency is graph is cyclic')
+        return self._graph
+
+    @property
+    def roots(self):
+        if not hasattr(self, '_roots'):
+            self._roots = [
+                n for n in self.sort() if not list(self.graph.predecessors(n))
+            ]
+        return self._roots
+
+    @property
+    def levels(self):
+        if hasattr(self, '_levels'):
+            return self._levels
+
+        graph = self.graph.copy()
+        remaining_nodes = list(self.sort())
+        self._levels = []
+
+        while remaining_nodes:
+            level = []
+            for node in remaining_nodes:
+                if not nx.ancestors(graph, node):
+                    level.append(node)
+            self._levels.append(level)
+
+            for node in level:
+                remaining_nodes.remove(node)
+                graph.remove_node(node)
+
+        return self._levels
+
+    def __iter__(self):
+        """ Makes this class an iterator.
+
+        Notice the iterator over `self.levels` not `self`
+        """
+        return iter(self.levels)
+
+    def __reversed__(self):
+        """ Class can be iterated in reverse order. """
+        return reversed(self.levels)
+
+    def sort(self, reverse=False):
+        """ Sorts the graph in topological order.
+
 
         Args:
-            paths (str): The paths to the CFT configs.
-                paths can be a list of files, a directory, or wildcards
-                such as "*", or "/some/dir/prod*". In the case of
-                wildcards, only files with extentions ".yaml", ".yml"
-                and ".jinja" are matched
+            reverse(boolean): Whether to return the nodes in reverse
+                order on not.
 
+        Returns: A generator of nodes sorted by topology, ie the
+            elements are returned sequentially in order of dependency (
+            independent nodes come first, unless 'reverse' is used.
         """
-
-        # Create a list of config objects
-        dependency_list = [Config(item) for item in items]
-
-        # Instantiate the ConfigParser object to generate the dependencies
-        # for each deployment configuration
-        config_obj = ConfigParser(dependency_list)
-
-        # Instantiate the Dependency object to generate the list of object
-        # dependencies
-        dependency_obj = Dependency(config_obj.get_dependency_list())
-
-        # Check if there is a cyclical dependency
-        cyclic = dependency_obj.get_cyclic()
-        if cyclic:
-            message = 'Cyclical dependency detected: {}'.format(cyclic)
-            LOG.error(message)
-            raise ValueError(message)
-
-        dependency_list = dependency_obj.get_sequential_dependency_list()
-
-        self.print_dep_list(dependency_obj)
-
-        super(ConfigList, self).__init__(dependency_list)
-
-
-    def print_dep_list(self, dependency_obj):
-        """ Print the dependency list """
-
-        node_list = dependency_obj.get_sequential_dependency_list()
-        LOG.error('\nSequential dep list:')
-        for node_num, node in enumerate(node_list, 0):
-            space = ''
-            for x in range(0, node_num):
-                space += '    '
-
-            msg = '{}{}: {}'.format(space, node_num, node.name)
-            LOG.error(msg)
-
-        LOG.error('\n')
+        generator = nx.topological_sort(self.graph)
+        if reverse:
+            return reversed(list(generator))
+        return generator
 
 
 class Deployment(DM_API):
@@ -153,7 +255,7 @@ class Deployment(DM_API):
     # The keys required by a DM config (not CFT config)
     DM_CONFIG_KEYS = ['imports', 'resources', 'outputs']
 
-    def __init__(self, config_file):
+    def __init__(self, config):
         """ The class constructor
 
         Args:
@@ -161,22 +263,76 @@ class Deployment(DM_API):
                 Normally provided when creating/updating a deployment.
         """
 
-        # This import is here to avoid circular dependencies
-        from cloud_foundation_toolkit.yaml_utils import DMYamlLoader # pylint: disable=g-import-not-at-top, circular dependency
-
         # Resolve custom yaml tags only during deployment instantiation
         # because if parsed earlier, the DM queries implemented for the
         # tags would likely fail with 404s
-        self.config = yaml.load(
-            config_file.rendered,
-            Loader=DMYamlLoader
+        self.yaml = CFTBaseYAML()
+        self.yaml.Constructor.add_constructor(
+            '!DMOutput',
+            self.yaml_dm_output_constructor
         )
-        self.config['project'] = self.config.get(
-            'project',
-            dm_base.GetProject()
+        self._config = config
+
+        # Regex search/replace before loading the yaml
+        self.config = self.yaml.load(
+            DM_OUTPUT_QUERY_REGEX.sub(
+                self.get_dm_output,
+                config.as_string
+            )
         )
+        self.config['project'] = self._config.project
+        self.tmp_file_path = None
+
         LOG.debug('==> %s', self.config)
         self.current = None
+
+    def get_dm_output(self, match):
+        """ Custom function for the regex.sub()
+
+        This function gets executed everytime there's a match on one
+        tokens used to represent the cross-deployment references (
+        !DMOutput, $(out.x.y.w.z), etc.
+
+        Args:
+            match (re.MatchObject): A regex matche object
+
+        Returns: A string with the value of the deployment output
+        """
+
+        for k, v in match.groupdict().items():
+            if not v:
+                continue
+            if k == 'url':
+                query_attributes = parse_dm_output_url(v, self._config.project)
+            elif k == 'token':
+                query_attributes = parse_dm_output_token(
+                    v,
+                    self._config.project
+                )
+            return get_deployment_output(
+                query_attributes.project,
+                query_attributes.deployment,
+                query_attributes.resource,
+                query_attributes.name
+            )
+
+    def yaml_dm_output_constructor(self, loader, node):
+        """ Implements the !DMOutput yaml tag
+
+        The tag takes string represeting an DM item URL.
+
+        Example:
+          network: !DMOutput dm://${project}/${deployment}/${resource}/${name}
+        """
+
+        data = loader.construct_scalar(node)
+        url = parse_dm_output_url(data, self._config.project)
+        return get_deployment_output(
+            url.project,
+            url.deployment,
+            url.resource,
+            url.name
+        )
 
     @property
     def dm_config(self):
@@ -213,17 +369,6 @@ class Deployment(DM_API):
         self.delete_tmp_file()
         return target
 
-    def render(self, content=None):
-        """ Returns a yaml dump of the deployment config.
-
-        Args:
-
-        Returns: None
-        """
-        content = content or self.dm_config
-        return yaml.dump(content, indent=2)
-
-
     def write_tmp_file(self):
         """ Writes the yaml dump of the deployment to a temp file.
 
@@ -236,10 +381,12 @@ class Deployment(DM_API):
         """
 
         with tempfile.NamedTemporaryFile(dir=os.getcwd(), delete=False) as tmp:
-            tmp.write(self.render())
+            self.yaml.dump(self.dm_config, tmp)
             self.tmp_file_path = tmp.name
 
     def delete_tmp_file(self):
+        """ Delete the temporary config file """
+
         os.remove(self.tmp_file_path)
 
 
@@ -390,13 +537,13 @@ class Deployment(DM_API):
 
         message = self.messages.DeploymentmanagerDeploymentsUpdateRequest
 
-        # gettattr() below overwrites existing preview mode as targets
+        # getattr() below overwrites existing preview mode as targets
         # cannot be sent when deployment is already in preview mode
         request = message(
             deployment=self.config['name'],
             deploymentResource=new_deployment,
             project=self.config['project'],
-            preview=preview or getattr(self.current, 'update', False)
+            preview=preview or bool(getattr(self.current, 'update', False))
         )
         if delete_policy:
             request['deletePolicy'] = message.DeletePolicyValueValuesEnum(

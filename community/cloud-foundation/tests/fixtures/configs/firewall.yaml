@@ -1,16 +1,13 @@
-{% set environment = 'prod' %}
-name: my-firewall-{{environment}}
-description: My firewall deployment for {{environment}} environment
-project: mytestproject-vpun-test1
+name: my-firewall-prod
+description: My firewall deployment for prod environment
 
 imports:
   - path: templates/firewall/firewall.py
 resources:
   - type: templates/firewall/firewall.py
-    name: my-firewall-{{environment}}
+    name: my-firewall-prod
     properties:
-      network: !DMOutput dm://mytestproject-vpun-test1/my-network-{{environment}}/my-network-prod/name
-#      ox: !DMOutput dm://mytestproject-vpun-test1/my-network-{{environment}}/output/networkUrl
+      network: $(out.my-network-prod.my-network-prod.name)
       rules:
         - name: allow-proxy-from-inside-prod
           allowed:
@@ -37,7 +34,7 @@ resources:
   - type: templates/firewall/firewall.py
     name: my-firewall-dev
     properties:
-      network: !DMOutput dm://mytestproject-vpun-test1/my-network-{{environment}}/my-network-dev/name
+      network: $(out.my-network-prod.my-network-prod.name)
       rules:
         - name: allow-proxy-from-inside-dev
           allowed:
@@ -49,7 +46,3 @@ resources:
           direction: INGRESS
           sourceRanges:
             - 10.0.0.0/8
-
-     #network: $(ref.my-project/my-network-{{environment}}:my-network-{{environment}}.name)
-      # network: $(out.my-project/my-network-{{environment}}:name)
-

@@ -1,4 +1,4 @@
-# Copyright 2018 Google Inc. All rights reserved.
+# Copyr ight2018 Google Inc. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -11,11 +11,28 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
 """ Deployment Actions """
+
 import glob
-from cloud_foundation_toolkit import LOG
-from cloud_foundation_toolkit.deployment import ConfigList, Deployment
+import sys
+
 from apitools.base.py import exceptions as apitools_exceptions
+from ruamel.yaml import YAML
+
+from cloud_foundation_toolkit import LOG
+from cloud_foundation_toolkit.deployment import Config, ConfigGraph, Deployment
+
+
+# To avoid code repetition this ACTION_MAP is used to translate the 
+# args provided to the cmd line to the appropriate method of the
+# deployment object
+ACTION_MAP = {
+    'apply':  {'preview': 'preview'},
+    'create': {'preview': 'preview'},
+    'delete': {},
+    'update': {'preview': 'preview'}
+}
 
 
 def get_config_files(config):
@@ -52,45 +69,42 @@ def get_config_files(config):
     return config_list
 
 
-def create(args):
-    """ Create deployments """
+def execute(args):
+    action = args.action
 
-    config_list = ConfigList(get_config_files(args.config))
-    for config in config_list:
-        Deployment(config).create(preview=args.preview)
+    if action == 'delete' or (hasattr(args, 'reverse') and args.reverse):
+        graph = reversed(ConfigGraph(get_config_files(args.config)))
+    else:
+        graph = ConfigGraph(get_config_files(args.config))
 
+    arguments = {}
+    for k, v in vars(args).items():
+        if k in ACTION_MAP.get(action, {}):
+            arguments[ACTION_MAP[action][k]] = v
 
-def delete(args):
-    """ Delete deployments """
+    LOG.debug('Excuting %s on %s with arguments %s',
+        action, args.config, arguments
+    )
 
-    config_list = ConfigList(get_config_files(args.config))
-    for config in config_list[::-1]:
-        try:
-            Deployment(config).delete()
-        except apitools_exceptions.HttpNotFoundError:
-            LOG.error('Deployment %s not found.', config.name)
-            continue
+    for i, level in enumerate(graph, start=1):
+        print('---------- Stage {} ----------'.format(i))
+        for config in level:
+            if args.dry_run:
+                print(
+                    ' - project: {}, deployment: {}'.format(
+                        config.project,
+                        config.deployment
+                    )
+                )
+            else:
+                LOG.debug('%s config %s', action, config.deployment)
+                deployment = Deployment(config)
+                method = getattr(deployment, action)
+                try:
+                    method(**arguments)
+                except apitools_exceptions.HttpNotFoundError:
+                    LOG.warn('Deployment %s does not exit', config.deployment)
+                    if action != 'delete':
+                        raise
+    print('------------------------------')
 
-
-def get(args):
-    """ Get deployments """
-
-    config_list = ConfigList(get_config_files(args.config))
-    for config in config_list:
-        Deployment(config).get()
-
-
-def apply(args):
-    """ Apply deployments """
-
-    config_list = ConfigList(get_config_files(args.config))
-    for config in config_list:
-        Deployment(config).apply(preview=args.preview)
-
-
-def update(args):
-    """ Update deployments """
-
-    config_list = ConfigList(get_config_files(args.config))
-    for config in config_list:
-        Deployment(config).update(preview=args.preview)

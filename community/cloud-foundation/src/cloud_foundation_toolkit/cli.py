@@ -21,8 +21,7 @@ import argparse
 import sys
 
 from cloud_foundation_toolkit import LOG
-from cloud_foundation_toolkit.actions import create, delete, get, apply, update
-from cloud_foundation_toolkit.deployment import Config, Deployment
+from cloud_foundation_toolkit.actions import execute
 
 
 def build_common_args(parser):
@@ -41,6 +40,12 @@ def parse_args(args):
     parser = argparse.ArgumentParser('Cloud Foundation Toolkit')
 
     parser.add_argument(
+        '--project',
+        type=str,
+        default='',
+        help='The GCP project name'
+    )
+    parser.add_argument(
         '--dry-run',
         action='store_true',
         help='Not implemented yet'
@@ -55,13 +60,10 @@ def parse_args(args):
     # subparser for each action
     subparser_obj = parser.add_subparsers(dest='action')
     actions = [
+        'apply',
         'create',
         'delete',
-        'get',
-        'update',
-        'apply',
-        'render',
-        'validate'
+        'update'
     ]
 
     subparsers = {}
@@ -97,6 +99,14 @@ def parse_args(args):
         default=False,
         help='Preview changes'
     )
+    subparsers['apply'].add_argument(
+        '--reverse',
+        '-r',
+        action='store_true',
+        default=False,
+        help='Whether to apply changes in reverse order'
+    )
+
     return parser.parse_args(args)
 
 
@@ -108,12 +118,8 @@ def main():
 
     # logging
     LOG.setLevel(args.verbosity.upper())
-
-    globals()[args.action](args)
-
-#    config = Config(args.config)
-#    [print(c) for c in config]
-#    [Deployment(c).upsert(preview=args.preview) for c in config]
+    execute(args)
+#    globals()[args.action](args)
 
 
 if __name__ == '__main__':

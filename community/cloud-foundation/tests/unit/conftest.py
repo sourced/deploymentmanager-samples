@@ -1,11 +1,13 @@
 from collections import namedtuple
+import io
+import jinja2
 import os
 import os.path
 import pytest
 
 FIXTURES_DIR = '../fixtures'
 
-ConfigType = namedtuple('ConfigType', ['path', 'content'])
+ConfigType = namedtuple('ConfigType', ['path', 'content', 'jinja'])
 
 def get_fixtures_fullpath():
     """ Returns the full path for the fixture directory
@@ -57,18 +59,23 @@ class Configs():
     @property
     def files(self):
         if not hasattr(self, '_files'):
-            self._files = []
+            self._files = {}
             files = [f for f in os.listdir(self.directory) if '.yaml' == f[-5:]]
-            files.sort()
             for f in files:
                 fullpath = get_config_fullpath(f)
-                self._files.append(ConfigType(path=fullpath, content=open(fullpath).read()))
+                content = io.open(fullpath).read()
+                self._files[f] = ConfigType(
+                    path=fullpath,
+                    content=content,
+                    jinja=jinja2.Template(content).render()
+                )
         return self._files
 
 
 @pytest.fixture
 def configs():
     return Configs()
+
 
 if __name__ == '__main__':
     c = Configs()

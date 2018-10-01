@@ -1,14 +1,15 @@
 {% set environment = 'prod' %}
 name: my-firewall-{{environment}}
 description: My firewall deployment for {{environment}} environment
-project: sourced-gus-1
+#project: sourced-gus-1
 imports:
   - path: templates/firewall/firewall.py
 resources:
   - type: templates/firewall/firewall.py
     name: my-firewall-{{environment}}
     properties:
-      network: !DMOutput dm://sourced-gus-1/my-network-{{environment}}/my-network-prod/name
+      network: !DMOutput dm://my-network-{{environment}}/my-network-prod/name
+#      network: !DMOutput dm://sourced-gus-1/my-network-{{environment}}/my-network-prod/name
 #      ox: !DMOutput dm://sourced-gus-1/my-network-{{environment}}/output/networkUrl
       rules:
         - name: allow-proxy-from-inside-prod
@@ -25,7 +26,7 @@ resources:
           allowed:
             - IPProtocol: udp
               ports:
-                - "53"
+                - "52"
             - IPProtocol: tcp
               ports:
                 - "53"
@@ -36,14 +37,15 @@ resources:
   - type: templates/firewall/firewall.py
     name: my-firewall-dev
     properties:
-      network: !DMOutput dm://sourced-gus-1/my-network-{{environment}}/my-network-dev/name
+      network: !DMOutput dm://my-network-{{environment}}/my-network-dev/name
+#      network: !DMOutput dm://sourced-gus-1/my-network-{{environment}}/my-network-dev/name
       rules:
         - name: allow-proxy-from-inside-dev
           allowed:
             - IPProtocol: tcp
               ports:
                 - "80"
-                - "444"
+                - "443"
           description: This rule allows connectivity to the HTTP proxies
           direction: INGRESS
           sourceRanges:
