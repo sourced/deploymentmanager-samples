@@ -11,7 +11,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
 """ Deployment Actions """
+
 import glob
 import sys
 
@@ -31,6 +33,7 @@ ACTION_MAP = {
     'delete': {},
     'update': {'preview': 'preview'}
 }
+
 
 def get_config_files(config):
     """ Build a list of config files """

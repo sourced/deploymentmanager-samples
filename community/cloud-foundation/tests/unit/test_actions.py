@@ -5,6 +5,10 @@ if PY2:
 else:
     import unittest.mock as mock
 
+
+from apitools.base.py.exceptions import HttpNotFoundError
+import pytest
+
 from cloud_foundation_toolkit import actions
 from cloud_foundation_toolkit.deployment import Config, ConfigGraph
 
@@ -16,6 +20,7 @@ class Args(object):
 
     def __init__(self, **kwargs):
         self.preview = False
+        self.dry_run = False
         [setattr(self, k, v) for k, v in kwargs.items()]
 
 
@@ -27,7 +32,7 @@ def get_number_of_elements(items):
 
 
 def test_execute(configs):
-    args = Args(action='apply', config=[configs.directory], dry_run=False)
+    args = Args(action='apply', config=[configs.directory])
     with mock.patch('cloud_foundation_toolkit.actions.Deployment') as m1:
         graph = ConfigGraph([v.path for k, v in configs.files.items()])
         n_configs = len(configs.files)
@@ -49,18 +54,44 @@ def test_valid_actions():
 
 
 def test_action(configs):
-    args = Args(config=[configs.directory], dry_run=False)
+    args = Args(config=[configs.directory])
     for action in ACTIONS:
+        args.action = action
+        args.dry_run = False
+        n_configs = len(configs.files)
         with mock.patch('cloud_foundation_toolkit.actions.Deployment') as m1:
-            args.action = action
+            # Test the normal/expected flow of the function
             r = actions.execute(args)
-            n_configs = len(configs.files)
             method = getattr(mock.call(), action)
             assert m1.call_count == n_configs
-            if action != 'delete':
-                assert m1.mock_calls.count(method(preview=args.preview)) == n_configs
-            else:
+            if action == 'delete':
                 assert m1.mock_calls.count(method()) == n_configs
+            else:
+                assert m1.mock_calls.count(method(preview=args.preview)) == n_configs
+
+            # Test exception handling in the function
+            m1.reset_mock()
+            getattr(m1.return_value, action).side_effect = HttpNotFoundError('a', 'b', 'c')
+            if action == 'delete':
+                # if delete is called, execute() should catch the exception
+                # and keep going as if nothing happens
+                r = actions.execute(args)
+                assert m1.mock_calls.count(method()) == n_configs
+            else:
+                # If exception is raised in any method other than delete,
+                # something is really wrong, so exception in re-raised
+                # by `execute()`, making the script exit
+                # called onde
+                with pytest.raises(HttpNotFoundError):
+                    r = actions.execute(args)
+                assert m1.mock_calls.count(method(preview=args.preview)) == 1
+
+            # Test dry-run
+            m1.reset_mock()
+            args.dry_run = True
+            r = actions.execute(args)
+            method = getattr(mock.call(), action)
+            m1.assert_not_called()
 
 
 def test_get_config_files(configs):

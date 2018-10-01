@@ -76,6 +76,7 @@ class Configs():
 def configs():
     return Configs()
 
+
 if __name__ == '__main__':
     c = Configs()
     print(c.directory)

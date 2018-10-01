@@ -8,4 +8,4 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 source "$DIR/../src/cftenv"
 
 # Executes cft
-exec python -m pytest -vv
+exec python -m pytest -v
