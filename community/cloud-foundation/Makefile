@@ -1,5 +1,6 @@
 PYTHON  ?= python
 SHELL   := /bin/bash
+PACKAGE =  cloud_foundation_toolkit
 
 help:
 	@echo "cft-prerequisites         Installs prerequisites for CFT python utility development"
@@ -8,6 +9,10 @@ help:
 	@echo "cft-test                  Runs all unit tests from outside of the venv (for CI tools)"
 	@echo "cft-test-venv             Runs all unit tests from withing the venv (for active development)"
 	@echo "template-prerequisites    Install prerequisites for template development"
+	@echo "build                     Builds the package"
+	@echo "install                   Installs the package system wide"
+	@echo "uninstall                 Uninstalls the package"
+	@echo "clean                     Cleanup build/test/cache files"
 
 
 .ONESHELL:
@@ -30,3 +35,17 @@ cft-test-venv:
 
 template-prerequisites:
 	rm -rf bats && git clone https://github.com/sstephenson/bats.git && ./bats/install.sh ../venv && rm -rf bats
+
+build:
+	${PYTHON} setup.py sdist bdist_wheel
+
+install:
+	${PYTHON} -m pip install dist/${PACKAGE}-$$(cat VERSION)-py2.py3-none-any.whl
+
+uninstall:
+	${PYTHON} -m pip uninstall ${PACKAGE} -y
+
+clean:
+	find src/${PACKAGE} \( -path '*__pycache__/*' -o -name __pycache__ \) -delete
+	find tests \( -path '*__pycache__/*' -o -name __pycache__ \) -delete
+	rm -rf build dist *.egg-info .cache .eggs .coverage

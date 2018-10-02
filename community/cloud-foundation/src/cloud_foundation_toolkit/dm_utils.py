@@ -2,9 +2,9 @@ from collections import namedtuple
 import io
 import re
 from six.moves.urllib.parse import urlparse
-import yaml
 
 from googlecloudsdk.api_lib.deployment_manager import dm_base
+from ruamel.yaml import YAML
 
 
 DM_OUTPUT_QUERY_REGEX = re.compile(
@@ -94,7 +94,7 @@ def parse_dm_output_token(token, project=''):
 
 def get_deployment_output(project, deployment, resource, name):
     manifest = get_manifest(project, deployment)
-    layout = yaml.load(manifest.layout)
+    layout = YAML().load(manifest.layout)
     for r in layout.get('resources', []):
         if r['name'] != resource:
             continue

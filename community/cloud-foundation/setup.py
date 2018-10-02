@@ -14,11 +14,6 @@ def get_install_requirements():
         return [l.strip() for l in f if l.strip() and not l.startswith('#')]
 
 
-def get_dev_requirements():
-    with open('requirements/development.txt') as f:
-        return [l.strip() for l in f if l.strip() and not l.startswith('#')]
-
-
 config = {
     'name': 'cloud-foundation-toolkit',
     'version': get_version(),
@@ -28,16 +23,11 @@ config = {
     'url': 'https://github.com/GoogleCloudPlatform/deploymentmanager-sample',
     'packages': find_packages('src'),
     'package_dir': {'': 'src'},
-#    'entry_points': {
-#        'console_scripts': ['cft=cloud_foundation_toolkit.cli:main']
-#    },
-    'data_files': [
-        ('bin', 'src/cft'),
-        ('bin', 'src/cftenv')
-
+    'scripts': [
+        'src/cft',
+        'src/cftenv'
     ],
     'install_requires': get_install_requirements(),
-#    'tests_require': get_dev_requirements(),
     'include_package_data': True
 }
 

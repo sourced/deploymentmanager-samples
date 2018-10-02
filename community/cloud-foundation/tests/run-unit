@@ -7,5 +7,5 @@
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 source "$DIR/../src/cftenv"
 
-# Executes cft
+# Executes tests
 exec python -m pytest -v

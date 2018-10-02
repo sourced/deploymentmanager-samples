@@ -8,5 +8,4 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 source "$DIR/cftenv"
 
 # Executes cft
-#exec "$CLOUDSDK_PYTHON" $CLOUDSDK_PYTHON_ARGS -m "cloud_foundation_toolkit.cli" "$@"
-exec python $CLOUDSDK_PYTHON_ARGS -m "cloud_foundation_toolkit.cli" "$@"
+exec python -m "cloud_foundation_toolkit.cli" "$@"
