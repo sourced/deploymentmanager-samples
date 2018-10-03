@@ -1,7 +1,7 @@
 # Example of the Dataproc template usage.
 #
 # In this example, a Dataproc cluster is created.
-#
+
 imports:
   - path: templates/dataproc/dataproc.py
     name: dataproc.py
