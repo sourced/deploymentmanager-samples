@@ -19,10 +19,10 @@ User Guide
     - [Test Configuration](#test-configuration)
 - [CLI Usage](#cli-usage)
     - [Syntax](#syntax)
-    - [Deployment Creation](#deployment-creation)
-    - [Deployment Update](#deployment-update)
-    - [Deployment Application](#deployment-application)
-    - [Deployment Deletion](#deployment-deletion)
+    - [The "create" Action](#the-create-action)
+    - [The "update" action](#the-update-action)
+    - [The "apply" action](#the-apply-action)
+    - [The "delete" action](#the-delete-action)
 - [Notes for Developers](#notes-for-developers)
 
 <!-- /TOC -->
@@ -37,7 +37,7 @@ The Cloud Foundation toolkit (henceforth, CFT) expands the capabilities of Googl
   - Creates or updates deployments in the dependency-stipulated order, or deletes deployments in the reverse dependency order
 - Cross-deployment (including cross-project) referencing of deployment outputs, which obviates the need for hard-coding many parameters in the configs
 
-`Note:` This User Guide assumes that you are familiar with the Google Cloud SDK operations related to resource deployment and management. If you are uncertain of your skills in this domain, please refer to the [SDK documentation](https://cloud.google.com/sdk/docs/).
+`Note:` This User Guide assumes that you are familiar with the Google Cloud SDK operations related to resource deployment and management. For additional information, refer to the [SDK documentation](https://cloud.google.com/sdk/docs/).
 
 The CFT includes:
 
@@ -48,7 +48,9 @@ The CFT includes:
 
 ### Dependency Resolution
 
-The automated dependency resolution the CFT supports is based on *** need an explanation... **or NOT**. We need to decide whether the readers need to understand how things work "under the hood", or just enjoy the fact that the things do work ***.
+Deployment Manger does not support ordering of deployments and inter-deployment dependencies. For example, if config file A contains all resources for networking, config file B contains all instances, and config C contains firewall rules, router, and VPN, you will need to manually define the config deployment order according to the resource dependencies. For example, a VPN would depend on a cloud router, both of them would depend on a network, etc. The CFT computes the dependencies automatically, which eliminates the need for manual deployment ordering.
+
+`Note:` The current version of the CFT does not support updates to upstream dependencies of an updated resource. For example, if an update to a VPN bound to a cloud router removes that cloud router, the CFT will not remove the VPN prior to the cloud router's removal. As a result, the update will fail.
 
 ### Cross-deployment References
 
@@ -58,13 +60,7 @@ The CFT supports cross-deployment (including cross-project) references by *** ne
 
 ### Principles
 
-To use the CFT, you need to first create the config files for the desired deployments. To support the expanded capabilities of the CFT (multi-config deployment and cross-deployment references), every config file must include the following components, which are not found in gcloud-standard configs: *** I understand that the contents of this section have to change. Can you please go right in and make the changes. Don't worry about verbiage/format - I'll edit after. ***
-
-- The environment in which the config is to be deployed, For example:
-
-```yaml
-    {% set environment = 'prod' %}
-```
+To use the CFT, you need to first create the config files for the desired deployments. To support the expanded capabilities of the CFT (multi-config deployment and cross-deployment references), every config file must include the following components, which are not found in gcloud-standard configs:
 
 - The resource name that includes the environment. For example:
 
@@ -84,13 +80,24 @@ To use the CFT, you need to first create the config files for the desired deploy
     project: my-project
 ```
 
-- Support for cross-deployment references. For example:
+- Support for cross-deployment references via the `$(out)` tag:
 
 ```yaml
-    network: !DMOutput dm://my-project/my-network-{{environment}}/my-network-prod/name
+    $(out.<deployment-name>.<resource-name>.<output-name>)  
 ```
 
-The `!DMOutput` construct works as follows: *** need to explain what it does and how ***.
+wherein:
+
+- `$(out)` is the prefix that indicates the value is referencing an output from a resource defined in an external deployment (in another config file)
+- `deployment-name` is the he name of the external deployment (config) that defines the referenced resource
+- `resource-name` is the DM name of the referenced resource
+- `output-name` is the name of the output parameter to be referenced
+
+For example:
+
+```yaml
+    network: $(out.my-network-prod.my-network-prod.name)
+```
 
 ### Samples
 
@@ -100,7 +107,7 @@ Following are three sample config files that illustrate the above principles, an
 - [firewall.yaml](#firewall.yaml) - two firewall rules, which depend on the corresponding networks
 - [instance.yaml](#instance.yaml) - one VM instance, which depends on the network
 
-*** is the above correct? Don't we want to have at least 2 levels of dependency in the examples? ***
+*** I understand that the "sample" config changed. However, before I replace the "old" ones with the "current" ones in the text below, can you tell me that the "current" are final - at least for the initial CFT/UG release?  ***
 
 #### network.yaml
 
@@ -209,9 +216,35 @@ resources:
 
 ## Templates
 
-The CFT-compliant configs can use templates (Python or Jinja2). You can (although you don't have to) use templates from the set that is included in the toolkit:
+CFT-compliant configs can use templates written in Python or Jinja2. Templates included in the toolkit are recommended (although not mandatory) as they offer robust functionality, ease of use, and adherence to best practices:
 
-*** I envision a list (table) of our templates with very brief descriptions, and with links to the templates' Readmes for more info. Alternative suggestions are welcome. ***
+- [autoscaler](https://github.com/GoogleCloudPlatform/deploymentmanager-samples/tree/cloud-foundation/community/cloud-foundation/templates/autoscaler)
+- [backend_service](https://github.com/GoogleCloudPlatform/deploymentmanager-samples/tree/cloud-foundation/community/cloud-foundation/templates/backend_service)
+- [bigquery](https://github.com/GoogleCloudPlatform/deploymentmanager-samples/tree/cloud-foundation/community/cloud-foundation/templates/bigquery)
+- [cloud_function](https://github.com/GoogleCloudPlatform/deploymentmanager-samples/tree/cloud-foundation/community/cloud-foundation/templates/cloud_function)
+- [cloud_router](https://github.com/GoogleCloudPlatform/deploymentmanager-samples/tree/cloud-foundation/community/cloud-foundation/templates/cloud_router)
+- [dns_managed_zone](https://github.com/GoogleCloudPlatform/deploymentmanager-samples/tree/cloud-foundation/community/cloud-foundation/templates/dns_managed_zone)
+- [dns_records](https://github.com/GoogleCloudPlatform/deploymentmanager-samples/tree/cloud-foundation/community/cloud-foundation/templates/dns_records)
+- [firewall](https://github.com/GoogleCloudPlatform/deploymentmanager-samples/tree/cloud-foundation/community/cloud-foundation/templates/firewall)
+- [folder](https://github.com/GoogleCloudPlatform/deploymentmanager-samples/tree/cloud-foundation/community/cloud-foundation/templates/folder)
+- [forwarding_rule](https://github.com/GoogleCloudPlatform/deploymentmanager-samples/tree/cloud-foundation/community/cloud-foundation/templates/forwarding_rule)
+- [gcs_bucket](https://github.com/GoogleCloudPlatform/deploymentmanager-samples/tree/cloud-foundation/community/cloud-foundation/templates/gcs_bucket)
+- [gke](https://github.com/GoogleCloudPlatform/deploymentmanager-samples/tree/cloud-foundation/community/cloud-foundation/templates/gke)
+- [haproxy](https://github.com/GoogleCloudPlatform/deploymentmanager-samples/tree/cloud-foundation/community/cloud-foundation/templates/haproxy)
+- [healthcheck](https://github.com/GoogleCloudPlatform/deploymentmanager-samples/tree/cloud-foundation/community/cloud-foundation/templates/healthcheck)
+- [iam_custom_role](https://github.com/GoogleCloudPlatform/deploymentmanager-samples/tree/cloud-foundation/community/cloud-foundation/templates/iam_custom_role)
+- [iam_member](https://github.com/GoogleCloudPlatform/deploymentmanager-samples/tree/cloud-foundation/community/cloud-foundation/templates/iam_member)
+- [instance](https://github.com/GoogleCloudPlatform/deploymentmanager-samples/tree/cloud-foundation/community/cloud-foundation/templates/instance)
+- [instance_template](https://github.com/GoogleCloudPlatform/deploymentmanager-samples/tree/cloud-foundation/community/cloud-foundation/templates/instance_template)
+- [ip_reservation](https://github.com/GoogleCloudPlatform/deploymentmanager-samples/tree/cloud-foundation/community/cloud-foundation/templates/ip_reservation)
+- [logsink](https://github.com/GoogleCloudPlatform/deploymentmanager-samples/tree/cloud-foundation/community/cloud-foundation/templates/logsink)
+- [network](https://github.com/GoogleCloudPlatform/deploymentmanager-samples/tree/cloud-foundation/community/cloud-foundation/templates/network)
+- [org_policy](https://github.com/GoogleCloudPlatform/deploymentmanager-samples/tree/cloud-foundation/community/cloud-foundation/templates/org_policy)
+- [project](https://github.com/GoogleCloudPlatform/deploymentmanager-samples/tree/cloud-foundation/community/cloud-foundation/templates/project)
+- [pubsub](https://github.com/GoogleCloudPlatform/deploymentmanager-samples/tree/cloud-foundation/community/cloud-foundation/templates/pubsub)
+- [route](https://github.com/GoogleCloudPlatform/deploymentmanager-samples/tree/cloud-foundation/community/cloud-foundation/templates/route)
+- [shared_vpc_subnet_iam](https://github.com/GoogleCloudPlatform/deploymentmanager-samples/tree/cloud-foundation/community/cloud-foundation/templates/shared_vpc_subnet_iam)
+- [vpn](https://github.com/GoogleCloudPlatform/deploymentmanager-samples/tree/cloud-foundation/community/cloud-foundation/templates/vpn)
 
 ## Toolkit Installation and Configuration
 
@@ -279,8 +312,6 @@ To install or update packages, delete and re-create the virtual environment:
 
 ## CLI Usage
 
-Once you have installed the CFT, the CLI becomes available in your Linux or Ubuntu terminal.
-
 ### Syntax
 
 The CLI commands adhere to the following syntax:
@@ -296,24 +327,23 @@ The above syntactic structure includes the following elements:
   - **update** - updates deployments defined in the specified config files, in the dependency order
   - **apply** - checks if the resources defined in the specified configs already exist; if they do, updates them; if they don't, creates them
   - **delete** - deletes deployments defined in the specified config files, in the reverse dependency order
-- `[config files]` - an arbitrary number of config files to be affected by the specified action. The files can be specified in one of the following ways (or by combining any of these ways):
-  - a space-separated list of the actual file names; e.g., config_1.yaml config_2.yaml config_n.yaml *** no path/directory required? ***
+- `[config files]` - an arbitrary number of config files to be affected by the specified action. The files can be specified in one of the following ways (or by combining these ways):
+  - a space-separated list of the actual file names, optionally with wildcards; e.g., config_1.yaml config_2.yaml test*.yaml *** no path/directory required? ***
   - a directory that contains the files; e.g., ../infra1/configs; all .yaml, .yml, and .jinja2 files found in the specified directory are selected
-  - a wildcard-defined pattern; e.g., conf*.yaml, test*.yaml
 - `options` - one or more action-specific options:
   - -**h** (or --**help**) - displays the help content either for the entire CFT (cft --help) or for a specific action (cft [action] --help)
   - --**project** - the name of the GCP project to perform actions in
   - -**v** (or --**verbosity**) - the log level *** what are the possible values? what does each mean? ***
-  - --**dry-run** - pending implementation *** should we mention it before it has been implemented? ***
-  - -**p** (--**preview**) - displays the required changes (action results) for review/approaval before committing these changes to Deployment Manager (for the **apply** action only)
+  - --**dry-run** - *** what will it do? ***; pending implementation
+  - -**p** (--**preview**) - displays the required changes (action results) without committing them to Deployment Manager (for the **apply** action only)
   - -**r** (or --**reverse**) - applies changes in the reverse dependency-defined order (for the **apply** action only)
 
-### Deployment Creation
+### The "create" Action
 
 `Note:` Make sure that the deployments you are going to create do not exist in your environment. An attempt to create a deployment that already exists will result in an error. Yon can, however, do one of the following:
 
-- Use the **update** action to update the existing deployments - see the [Deployment Update](#deployment-update) section
-- Use the **apply** action to let the CFT decide which deployments must be created (because they do not exist), and which ones must be updated (because they do exist) - see the [Deployment Application](#deployment-application) section
+- Use the **update** action to update the existing deployments - see [The "update" Action](#the-update-action) section
+- Use the **apply** action to let the CFT decide which deployments must be created (because they do not exist), and which ones must be updated (because they do exist) - see [The "apply" Action](#the-apply-action) section
 
 To create multiple deployments, in the CLI, type:
 
@@ -323,7 +353,7 @@ To create multiple deployments, in the CLI, type:
 
 The CFT parses the submitted config files and computes the dependencies between them. Based on the computed dependency graph, the CFT determines the sequence of deployments to be created. It then proceeds to sequentially deploy the configs.  
 
-For example, if you submitted the three [sample configs described above](#samples):
+For example, if you submitted the [sample configs described above](#samples):
 
 ```shell
     cft create instance.yaml firewall.yaml network.yaml
@@ -354,17 +384,22 @@ the network would have no dependencies, and the firewall and instance would depe
     my-instance-prod-2  compute.v1.instance  COMPLETED  []
 ```
 
-*** Not sure where we got 2 instances - the instance.yaml file had only 1... Also, not sute why my-instance-prod-1 is deployed in Stage 2, and my-instance-prod-2 is deployed in Stage 3 ***
+*** Not sure where we got 2 instances - the instance.yaml file had only 1... Also, not sure why my-instance-prod-1 is deployed in Stage 2, and my-instance-prod-2 is deployed in Stage 3 ***
 
-*** Do we want to tell the reader that they should check the results/logs/whatever else?
-Do we want to tell the reader what can go wrong and what to do for each type of "wrong"? ***
+*** Do we want to tell the reader that they should check the results/logs/whatever else? ***
 
-### Deployment Update
+The following conditions will result in the actin failure, with an error message displayed:
+
+- One or more of the specified deployments already exist
+- One or more of the submitted config files are invalid
+- One or more of the submitted config files contain circular dependencies (i.e., deployment A depends on deployment B, and B depends on A)
+
+### The "update" action
 
 `Note:` Make sure that the deployments you are going to update already exist in your environment. An attempt to update deployment that does not exist will result in an error. Yon can, however, do one of the following:
 
-- Use the **create** action to create the required deployments - see the [Deployment Creation](#deployment-creation) section
-- Use the **apply** action to let the CFT decide which deployments must be created (because they do not exist), and which ones must be updated (because they do exist) - see the [Deployment Application](#deployment-application) section
+- Use the **create** action to create the required deployments - see [The "create" action](#the-create-action) section
+- Use the **apply** action to let the CFT decide which deployments must be created (because they do not exist), and which ones must be updated (because they do exist) - see [The "apply" action](#the-apply-action) section
 
 To update multiple configs, in the CLI, type:
 
@@ -407,7 +442,13 @@ the networks would have no dependencies, and the firewall and instances would de
 
 *** Same questions / concerns as described in the **create** section ***
 
-### Deployment Application
+The following conditions will result in the actin failure, with an error message displayed:
+
+- One or more of the specified deployments do not exist
+- One or more of the submitted config files are invalid
+- One or more of the submitted config files contain circular dependencies (i.e., deployment A depends on deployment B, and B depends on A)
+
+### The "apply" action
 
 The **apply** action makes the CFT decide which deployments must be created (because they do not exist), and which ones must be updated (because they do exist).
 
@@ -429,13 +470,19 @@ For example, if you submitted the three [sample configs described above](#sample
     cft apply tests/fixtures/configs
 ```
 
-the network would have no dependencies, and the firewall and instance would depend on the network. Therefore, the network would be creted/updated first (Stage 1), and the firewall and instance would be created/updated next (Stage 2). The following would be displayed in the terminal:
+the network would have no dependencies, and the firewall and instance would depend on the network. Therefore, the network would be created/updated first (Stage 1), and the firewall and instance would be created/updated next (Stage 2). The following would be displayed in the terminal:
 
 ```shell
     *** TBD ***
 ```
 
 *** Same questions / concerns as described in the **create** section ***
+
+The following conditions will result in the actin failure, with an error message displayed:
+
+- One or more of the submitted config files are invalid
+- One or more of the submitted config files contain circular dependencies (i.e., deployment A depends on deployment B, and B depends on A)
+- *** Anything else? ***
 
 If you use the --**preview** option
 
@@ -466,7 +513,7 @@ If you entered **s**, the CFT re-computes the dependency graph without the skipp
 
 If you entered **a**, *** what appears on the screen? what does the user need to do, if anything? ***  
 
-### Deployment Deletion
+### The "delete" action
 
 To delete the previously created/updated multiple deployments, in the CLI, type:
 
@@ -497,6 +544,12 @@ the network would have no dependencies, and the firewall and instance would depe
 ```
 
 *** Same questions / concerns as described in the **create** section ***
+
+The following conditions will result in the actin failure, with an error message displayed:
+
+- One or more of the specified deployments do not exist
+- One or more of the submitted config files are invalid
+- One or more of the submitted config files contain circular dependencies (i.e., deployment A depends on deployment B, and B depends on A)
 
 ## Notes for Developers
 
