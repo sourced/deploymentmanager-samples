@@ -19,17 +19,24 @@ if [[ -e "${RANDOM_FILE}" ]]; then
     # Replace underscores with dashes in the deployment name.
     DEPLOYMENT_NAME=${DEPLOYMENT_NAME//_/-}
     CONFIG=".${DEPLOYMENT_NAME}.yaml"
+    export CLUSTER_NAME="dataproc-cluster-${RAND}"
+    export ZONE="us-central1-a"
+    export TAG="test-tag-${RAND}"
+    export MASTER_INSTANCES="1"
+    export MASTER_TYPE="n1-standard-8"
+    export MASTER_DISK_SIZE="100"
+    export MASTER_DISK_TYPE="pd-ssd"
+    export WORKER_INSTANCES="2"
+    export WORKER_TYPE="n1-standard-4"
+    export SECONDARY_WORKER_INSTANCES="1"
+    export SECONDARY_WORKER_PREEMPTIBLE="true"
 fi
-
-SA_NAME="dataproc-sa-${RAND}"
-NETWORK_NAME="test-network-${RAND}"
-CLUSTER_NAME="dataproc-cluster-${RAND}"
 
 ########## HELPER FUNCTIONS ##########
 
 function create_config() {
     echo "Creating ${CONFIG}"
-    envsubst < "templates/dataproc/tests/integration/${TEST_NAME}.yaml" > "${CONFIG}"
+    envsubst < ${BATS_TEST_DIRNAME}/${TEST_NAME}.yaml > "${CONFIG}"
 }
 
 function delete_config() {
@@ -69,10 +76,8 @@ function teardown() {
         --format="yaml(config.gceClusterConfig)" \
         --project "${CLOUD_FOUNDATION_PROJECT_ID}"
     [[ "$status" -eq 0 ]]
-    [[ "$output" =~ "${NETWORK_NAME}" ]]
-    [[ "$output" =~ "${SA_NAME}" ]]
-    [[ "$output" =~ "us-central1-a" ]]
-    [[ "$output" =~ "test-tag-${RAND}" ]]
+    [[ "$output" =~ "${ZONE}" ]]
+    [[ "$output" =~ "${TAG}" ]]
 }
 
 @test "Verifying that master group settings are correct" {
@@ -80,10 +85,10 @@ function teardown() {
         --format="yaml(config.masterConfig)" \
         --project "${CLOUD_FOUNDATION_PROJECT_ID}"
     [[ "$status" -eq 0 ]]
-    [[ "$output" =~ "numInstances: 1" ]]
-    [[ "$output" =~ "bootDiskSizeGb: 100" ]]
-    [[ "$output" =~ "bootDiskType: pd-ssd" ]]
-    [[ "$output" =~ "n1-standard-8" ]]
+    [[ "$output" =~ "numInstances: ${MASTER_INSTANCES}" ]]
+    [[ "$output" =~ "bootDiskSizeGb: ${MASTER_DISK_SIZE}" ]]
+    [[ "$output" =~ "bootDiskType: ${MASTER_DISK_TYPE}" ]]
+    [[ "$output" =~ "${MASTER_TYPE}" ]]
 }
 
 @test "Verifying that worker group settings are correct" {
@@ -91,8 +96,8 @@ function teardown() {
         --format="yaml(config.workerConfig)" \
         --project "${CLOUD_FOUNDATION_PROJECT_ID}"
     [[ "$status" -eq 0 ]]
-    [[ "$output" =~ "numInstances: 2" ]]
-    [[ "$output" =~ "n1-standard-4" ]]
+    [[ "$output" =~ "numInstances: ${WORKER_INSTANCES}" ]]
+    [[ "$output" =~ "${WORKER_TYPE}" ]]
     [[ "$output" =~ "bootDiskSizeGb: 500" ]] # Default size
     [[ "$output" =~ "bootDiskType: pd-standard" ]] # Default type
 }
@@ -102,9 +107,9 @@ function teardown() {
         --format="yaml(config.secondaryWorkerConfig)" \
         --project "${CLOUD_FOUNDATION_PROJECT_ID}"
     [[ "$status" -eq 0 ]]
-    [[ "$output" =~ "numInstances: 1" ]] # Copied from worker node
-    [[ "$output" =~ "n1-standard-4" ]] # Copied from worker node
-    [[ "$output" =~ "isPreemptible: true" ]]
+    [[ "$output" =~ "numInstances: ${SECONDARY_WORKER_INSTANCES}" ]]
+    [[ "$output" =~ "${MASTER_TYPE}" ]] # Copied from worker node
+    [[ "$output" =~ "isPreemptible: ${SECONDARY_WORKER_PREEMPTIBLE}" ]]
 }
 
 @test "Deleting deployment" {

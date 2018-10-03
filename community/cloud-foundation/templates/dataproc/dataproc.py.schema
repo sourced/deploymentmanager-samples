@@ -28,11 +28,11 @@ properties:
       The cluster name. If not provided, the resource name is used.
   region:
     type: string
+    default: global
     description: |
       The region where the Compute Engine cluster is located. When deployed
       in the 'global' region, or with no region specified, the 'zone' parameter
       must be provided.
-    default: global
   zone:
     type: string
     description: |
@@ -99,8 +99,8 @@ properties:
         type: string
         description: |
           The version of the software inside the cluster. One of the
-          supported Cloud Dataproc Versions, such as "1.2" (including a subminor
-          version, such as "1.2.29"), or the "preview" version.
+          supported Cloud Dataproc Versions, such as "1.2" (including a
+          subminor version, such as "1.2.29"), or the "preview" version.
       properties:
         type: object
         description: |
@@ -121,11 +121,13 @@ properties:
         executableTimeout:
           type: string
           description: |
-            The executable completion timeout, e.g. "3.5s". The default value is 10 minutes.
+            The executable completion timeout, e.g. "3.5s". The default value
+            is 10 minutes.
   master:
     type: object
     description: |
-      The Compute Engine config settings for the master instance in the cluster.
+      The Compute Engine config settings for the master instance in the
+      cluster.
     properties:
       numInstances:
         type: integer
@@ -140,21 +142,21 @@ properties:
             - n1-standard-2
       diskType:
         type: string
+        default: pd-standard
         description: The boot disk type.
         enum:
           - pd-standard
           - pd-ssd
-        default: pd-standard
       diskSizeGb:
         type: integer
-        description: The boot disk size in GB.
         default: 500
+        description: The boot disk size in GB.
       numLocalSsds:
         type: integer
+        default: 0
         description: The number of attached SSDs.
         minimum: 0
         maximum: 4
-        default: 0
   worker:
     type: object
     description: |
@@ -173,25 +175,26 @@ properties:
             - n1-standard-2
       diskType:
         type: string
+        default: pd-standard
         description: The boot disk type.
         enum:
           - pd-standard
           - pd-ssd
-        default: pd-standard
       diskSizeGb:
         type: integer
-        description: The boot disk size in GB.
         default: 500
+        description: The boot disk size in GB.
       numLocalSsds:
         type: integer
+        default: 0
         description: The number of attached SSDs.
         minimum: 0
         maximum: 4
-        default: 0
   secondaryWorker:
     type: object
     description: |
-      The Compute Engine config settings for additional worker instances in the cluster.
+      The Compute Engine config settings for additional worker instances in
+      the cluster.
     properties:
       numInstances:
         type: integer
@@ -199,7 +202,8 @@ properties:
       isPreemptible:
         type: boolean
         description: |
-          If True, specifies that the instance group consists of preemptible instances.
+          If True, specifies that the instance group consists of preemptible
+          instances.
 outputs:
   properties:
     - masterInstanceNames:
@@ -221,6 +225,11 @@ outputs:
     - name:
         type: string
         description: The cluster name.
+    - configBucket:
+        type: string
+        description: |
+          A Cloud Storage staging bucket used for sharing generated SSH keys
+          and config.
 
 documentation:
   - templates/dataproc/README.md

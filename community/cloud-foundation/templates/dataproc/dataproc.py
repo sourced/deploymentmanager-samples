@@ -142,7 +142,16 @@ def generate_config(context):
     for prop in ['configBucket', 'softwareConfig', 'initializationActions']:
         add_optional_property(cluster['properties']['config'], properties, prop)
 
-    outputs = [{'name': 'name', 'value': name}]
+    outputs = [
+        {
+            'name': 'name',
+            'value': name
+        },
+        {
+            'name': 'configBucket',
+            'value': '$(ref.{}.config.configBucket)'.format(name)
+        }
+    ]
 
     for instance_group in ['master', 'worker', 'secondaryWorker']:
         if instance_group in properties:

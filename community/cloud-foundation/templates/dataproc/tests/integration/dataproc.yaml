@@ -9,109 +9,20 @@ imports:
     name: dataproc.py
 
 resources:
-# Resource under test
-  - name: dataproc-cluster-${RAND}
+  - name: ${CLUSTER_NAME}
     type: dataproc.py
     properties:
-      zone: us-central1-a
-      region: global
-      serviceAccountEmail: $(ref.dataproc-sa-${RAND}.email)
-      network: $(ref.test-network-${RAND}.selfLink)
+      zone: ${ZONE}
       networkTags:
-        - test-tag-${RAND}
+        - ${TAG}
       master:
-        numInstances: 1
-        machineType: n1-standard-8
-        diskSizeGb: 100
-        diskType: pd-ssd
+        numInstances: ${MASTER_INSTANCES}
+        machineType: ${MASTER_TYPE}
+        diskSizeGb: ${MASTER_DISK_SIZE}
+        diskType: ${MASTER_DISK_TYPE}
       worker:
-        numInstances: 2
-        machineType: n1-standard-4
+        numInstances: ${WORKER_INSTANCES}
+        machineType: ${WORKER_TYPE}
       secondaryWorker:
-        numInstances: 1
-        isPreemptible: true
-    metadata:
-      dependsOn:
-        - dataproc-sa-set-iam-${RAND}
-        - test-network-${RAND}-allow-icmp
-        - test-network-${RAND}-allow-ssh
-        - test-network-${RAND}-allow-internal
-
-# Test setup.
-# Set up a network:
-  - name: test-network-${RAND}
-    type: compute.v1.network
-    properties:
-      autoCreateSubnetworks: true
-
-# Set up firewall rules for the newly created network:
-  - name: test-network-${RAND}-allow-icmp
-    type: compute.v1.firewall
-    properties:
-      network: $(ref.test-network-${RAND}.selfLink)
-      sourceRanges:
-        - 0.0.0.0/0
-      allowed:
-        - IPProtocol: icmp
-  - name: test-network-${RAND}-allow-ssh
-    type: compute.v1.firewall
-    properties:
-      network: $(ref.test-network-${RAND}.selfLink)
-      sourceRanges:
-        - 0.0.0.0/0
-      allowed:
-        - IPProtocol: tcp
-          ports:
-            - 22
-  - name: test-network-${RAND}-allow-internal
-    type: compute.v1.firewall
-    properties:
-      network: $(ref.test-network-${RAND}.selfLink)
-      sourceRanges:
-        - 10.128.0.0/9
-      allowed:
-        - IPProtocol: all
-
-# Create a Service Account for the Dataproc cluster:
-  - name: dataproc-sa-${RAND}
-    type: iam.v1.serviceAccount
-    properties:
-      accountId: dataproc-sa-${RAND}
-      displayName: dataproc-sa-${RAND}
-      projectId: ${CLOUD_FOUNDATION_PROJECT_ID}
-
-# Patch the project IAM policy to grant the dataproc.worker role to the newly
-# created account:
-
-# Get the existing policy:
-  - name: dataproc-sa-get-iam-${RAND}
-    action: gcp-types/cloudresourcemanager-v1:cloudresourcemanager.projects.getIamPolicy
-    properties:
-      resource: ${CLOUD_FOUNDATION_PROJECT_ID}
-
-# Grant the dataproc.worker role to the Service Account:
-  - name: dataproc-sa-set-iam-${RAND}
-    action: gcp-types/cloudresourcemanager-v1:cloudresourcemanager.projects.setIamPolicy
-    properties:
-      resource: ${CLOUD_FOUNDATION_PROJECT_ID}
-      policy: $(ref.dataproc-sa-get-iam-${RAND})
-      gcpIamPolicyPatch:
-        add:
-          - role: roles/dataproc.worker
-            members:
-              - serviceAccount:$(ref.dataproc-sa-${RAND}.email)
-
-# When the Service Account is deleted, remove its IAM policy:
-  - name: dataproc-sa-cleanup-on-delete-${RAND}
-    action: gcp-types/cloudresourcemanager-v1:cloudresourcemanager.projects.setIamPolicy
-    metadata:
-      runtimePolicy:
-        - DELETE
-    properties:
-      resource: ${CLOUD_FOUNDATION_PROJECT_ID}
-      policy: $(ref.dataproc-sa-set-iam-${RAND})
-      gcpIamPolicyPatch:
-        remove:
-          - role: roles/dataproc.worker
-            members:
-              - serviceAccount:$(ref.dataproc-sa-${RAND}.email)
+        numInstances: ${SECONDARY_WORKER_INSTANCES}
+        isPreemptible: ${SECONDARY_WORKER_PREEMPTIBLE}
