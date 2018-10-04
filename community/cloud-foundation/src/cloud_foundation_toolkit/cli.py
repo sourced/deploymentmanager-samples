@@ -37,7 +37,8 @@ def build_common_args(parser):
 
 def parse_args(args):
     """parse CLI options """
-    parser = argparse.ArgumentParser('Cloud Foundation Toolkit')
+#    parser = argparse.ArgumentParser('Cloud Foundation Toolkit')
+    parser = argparse.ArgumentParser('cft')
 
     parser.add_argument(
         '--project',

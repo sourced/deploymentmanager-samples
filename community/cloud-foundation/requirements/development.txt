@@ -3,5 +3,6 @@ mock
 pylint
 pytest
 pytest-cov
+setuptools
+wheel
 yapf
-
