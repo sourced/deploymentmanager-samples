@@ -400,20 +400,19 @@ The above syntactic structure includes the following elements:
   action-specific `--help` option for details:
 
 ```shell
-    cft --help
-    usage: Cloud Foundation Toolkit [-h] [--project PROJECT] [--dry-run]
-                                    [--verbosity VERBOSITY]
-                                    {apply,create,update,delete} ...
+cft --help
+usage: cft [-h] [--project PROJECT] [--dry-run] [--verbosity VERBOSITY]
+           {apply,create,update,delete} ...
 
-    positional arguments:
-      {apply,create,update,delete}
+positional arguments:
+  {apply,create,update,delete}
 
-    optional arguments:
-      -h, --help            show this help message and exit
-      --project PROJECT     The GCP project name
-      --dry-run             Not implemented yet
-      --verbosity VERBOSITY, -v VERBOSITY
-                            The log level
+optional arguments:
+  -h, --help            show this help message and exit
+  --project PROJECT     The GCP project name
+  --dry-run             Not implemented yet
+  --verbosity VERBOSITY, -v VERBOSITY
+                        The log level
 ```
 
 ### Actions

@@ -37,6 +37,7 @@ template-prerequisites:
 	rm -rf bats && git clone https://github.com/sstephenson/bats.git && ./bats/install.sh ../venv && rm -rf bats
 
 build:
+	${PYTHON} -m pip install -r requirements/development.txt
 	${PYTHON} setup.py sdist bdist_wheel
 
 install:
