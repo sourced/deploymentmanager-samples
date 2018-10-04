@@ -33,9 +33,23 @@ function delete_config() {
     rm -f "${CONFIG}"
 }
 
+function get_test_folder_id() {
+        # Get the test folder ID and make it available
+        TEST_ORG_FOLDER_NAME=$(gcloud alpha resource-manager folders list \
+            --project "${CLOUD_FOUNDATION_PROJECT_ID}" \
+            --organization "${CLOUD_FOUNDATION_ORGANIZATION_ID}" | \
+            grep "test-org-folder-${RAND}")
+
+        export TEST_ORG_FOLDER_NAME=`echo ${TEST_ORG_FOLDER_NAME} | cut -d ' ' -f 3`
+}
+
 function setup() {
     # Global setup; this is executed once per test file.
     if [ ${BATS_TEST_NUMBER} -eq 1 ]; then
+        gcloud alpha resource-manager folders create \
+            --display-name="test-org-folder-${RAND}" \
+            --organization="${CLOUD_FOUNDATION_ORGANIZATION_ID}"
+        get_test_folder_id
         create_config
         gcloud pubsub topics create test-topic-${RAND}
         gsutil mb -l us-east1 gs://test-bucket-${RAND}/
@@ -48,6 +62,8 @@ function setup() {
 function teardown() {
     Global teardown; this is executed once per test file
     if [[ "$BATS_TEST_NUMBER" -eq "${#BATS_TEST_NAMES[@]}" ]]; then
+        get_test_folder_id
+        gcloud alpha resource-manager folders delete "${TEST_ORG_FOLDER_NAME}"
         gsutil rm -r gs://test-bucket-${RAND}/
         gcloud pubsub topics delete test-topic-${RAND}
         bq rm -rf test_dataset_${RAND}
@@ -65,9 +81,30 @@ function teardown() {
 
 @test "Verifying that sinks were created each with the requested destination in deployment ${DEPLOYMENT_NAME}" {
     run gcloud logging sinks list --project "${CLOUD_FOUNDATION_PROJECT_ID}"
-    [[ "$output" =~ "test-logsink-bq-${RAND}" ]]
-    [[ "$output" =~ "test-logsink-pubsub-${RAND}" ]]
-    [[ "$output" =~ "test-logsink-storage-${RAND}" ]]
+    [[ "$output" =~ "test-logsink-project-bq-${RAND}" ]]
+    [[ "$output" =~ "test-logsink-project-pubsub-${RAND}" ]]
+    [[ "$output" =~ "test-logsink-project-storage-${RAND}" ]]
+}
+
+@test "Verifying organization sinks were created each with a different as the destination in deployment ${DEPLOYMENT_NAME}" {
+    run gcloud logging sinks list --organization "${CLOUD_FOUNDATION_ORGANIZATION_ID}"
+    [[ "$output" =~ "test-logsink-org-bq-${RAND}" ]]
+    [[ "$output" =~ "test-logsink-org-pubsub-${RAND}" ]]
+    [[ "$output" =~ "test-logsink-org-storage-${RAND}" ]]
+}
+
+@test "Verifying billing account sinks were created each with a different as the destination in deployment ${DEPLOYMENT_NAME}" {
+    run gcloud logging sinks list --billing-account "${CLOUD_FOUNDATION_BILLING_ACCOUNT_ID}"
+    [[ "$output" =~ "test-logsink-billing-bq-${RAND}" ]]
+    [[ "$output" =~ "test-logsink-billing-pubsub-${RAND}" ]]
+    [[ "$output" =~ "test-logsink-billing-storage-${RAND}" ]]
+}
+
+@test "Verifying folder sinks were created each with a different as the destination in deployment ${DEPLOYMENT_NAME}" {
+    run gcloud logging sinks list --folder "${TEST_ORG_FOLDER_NAME}"
+    [[ "$output" =~ "test-logsink-folder-bq-${RAND}" ]]
+    [[ "$output" =~ "test-logsink-folder-pubsub-${RAND}" ]]
+    [[ "$output" =~ "test-logsink-folder-storage-${RAND}" ]]
 }
 
 @test "Deleting deployment" {
@@ -75,7 +112,22 @@ function teardown() {
         --project "${CLOUD_FOUNDATION_PROJECT_ID}"
 
     run gcloud logging sinks list --project "${CLOUD_FOUNDATION_PROJECT_ID}"
-    [[ ! "$output" =~ "test-logsink-bq-${RAND}" ]]
-    [[ ! "$output" =~ "test-logsink-pubsub-${RAND}" ]]
-    [[ ! "$output" =~ "test-logsink-storage-${RAND}" ]]
+    [[ ! "$output" =~ "test-logsink-project-bq-${RAND}" ]]
+    [[ ! "$output" =~ "test-logsink-project-pubsub-${RAND}" ]]
+    [[ ! "$output" =~ "test-logsink-project-storage-${RAND}" ]]
+
+    run gcloud logging sinks list --organization "${CLOUD_FOUNDATION_ORGANIZATION_ID}"
+    [[ ! "$output" =~ "test-logsink-org-bq-${RAND}" ]]
+    [[ ! "$output" =~ "test-logsink-org-pubsub-${RAND}" ]]
+    [[ ! "$output" =~ "test-logsink-org-storage-${RAND}" ]]
+
+    run gcloud logging sinks list --billing-account "${CLOUD_FOUNDATION_BILLING_ACCOUNT_ID}"
+    [[ ! "$output" =~ "test-logsink-billing-bq-${RAND}" ]]
+    [[ ! "$output" =~ "test-logsink-billing-pubsub-${RAND}" ]]
+    [[ ! "$output" =~ "test-logsink-billing-storage-${RAND}" ]]
+
+    run gcloud logging sinks list --folder "${TEST_ORG_FOLDER_NAME}"
+    [[ ! "$output" =~ "test-logsink-folder-bq-${RAND}" ]]
+    [[ ! "$output" =~ "test-logsink-folder-pubsub-${RAND}" ]]
+    [[ ! "$output" =~ "test-logsink-folder-storage-${RAND}" ]]
 }
