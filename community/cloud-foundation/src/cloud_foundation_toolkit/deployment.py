@@ -67,9 +67,11 @@ class Config(object):
 
         if os.path.exists(item):
             with io.open(item) as _fd:
-                self.as_string = jinja2.Template(_fd.read()).render()
+                self.as_string = jinja2.Template(_fd.read()).render(
+                    env=os.environ
+                )
         else:
-            self.as_string = jinja2.Template(item).render()
+            self.as_string = jinja2.Template(item).render(env=os.environ)
 
         # YAML gets parsed twice:
         # 1. Here, to figure out deployment name, project and dependency list.
