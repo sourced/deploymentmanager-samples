@@ -20,6 +20,7 @@ from __future__ import print_function
 import argparse
 import sys
 
+from cloud_foundation_toolkit import __VERSION__ as CFT_VERSION
 from cloud_foundation_toolkit import LOG
 from cloud_foundation_toolkit.actions import execute
 
@@ -40,6 +41,13 @@ def parse_args(args):
     parser = argparse.ArgumentParser('cft')
 
     parser.add_argument(
+        '--version',
+        '-v',
+        action='version',
+        version='%(prog)s-' + CFT_VERSION,
+        help='Print version information and exit'
+    )
+    parser.add_argument(
         '--project',
         default=None,
         help=(
@@ -57,7 +65,6 @@ def parse_args(args):
     )
     parser.add_argument(
         '--verbosity',
-        '-v',
         default='warning',
         help='The log level'
     )

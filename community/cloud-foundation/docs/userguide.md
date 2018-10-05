@@ -418,7 +418,8 @@ The above syntactic structure includes the following elements:
 
 ```shell
 cft --help
-usage: cft [-h] [--project PROJECT] [--dry-run] [--verbosity VERBOSITY]
+usage: cft [-h] [--version] [--project PROJECT] [--dry-run]
+           [--verbosity VERBOSITY]
            {apply,create,update,delete} ...
 
 positional arguments:
@@ -426,13 +427,14 @@ positional arguments:
 
 optional arguments:
   -h, --help            show this help message and exit
+  --version, -v         Print version information and exit
   --project PROJECT     The ID of the GCP project in which ALL config files
                         will be executed. This option will override the
                         "project" directive in the config files, so be careful
                         when using this
   --dry-run             Prints the order of execution of the configs. No
                         changes are made
-  --verbosity VERBOSITY, -v VERBOSITY
+  --verbosity VERBOSITY
                         The log level
 ```
 
