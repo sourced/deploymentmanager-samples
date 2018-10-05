@@ -24,7 +24,6 @@ from cloud_foundation_toolkit import __VERSION__ as CFT_VERSION
 from cloud_foundation_toolkit import LOG
 from cloud_foundation_toolkit.actions import execute
 
-
 def build_common_args(parser):
     """ Configures arguments to all actions/subparsers """
 
@@ -44,7 +43,7 @@ def parse_args(args):
         '--version',
         '-v',
         action='version',
-        version='%(prog)s-' + CFT_VERSION,
+        version=CFT_VERSION,
         help='Print version information and exit'
     )
     parser.add_argument(

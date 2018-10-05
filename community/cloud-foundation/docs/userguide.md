@@ -108,7 +108,7 @@ project: my-project
 
 While this directive is optional, **its use in your configs is highly
 recommended**. In addition to the project directive in the config file,
-the project for a deployment to be created in can be specified by other means.  
+the project for a deployment to be created in can be specified by other means.
 The order of precedence is as follows:
 
 1. The `--project` command-line option. If a project is specified via this
@@ -116,7 +116,7 @@ The order of precedence is as follows:
    quickly overriding the project specified in a config file, which should be
    used with caution.
 2. The `project` directive in the config file.
-3. The `CLOUD_FOUNDATION_TOOLKIT_PROJECT_ID` environment variable.
+3. The `CLOUD_FOUNDATION_PROJECT_ID` environment variable.
 4. The "default project" configured with the GCP SDK.
 
 `Note:` When deployments utilize cross-project resources, the `project`
@@ -366,7 +366,7 @@ sudo make install              # installs the package in /usr/local
 
 ### Uninstalling the CFT
 
-If you need to uninstall the CTT, proceed as follows:
+If you need to uninstall the CFT, proceed as follows:
 
 ```shell
 sudo make uninstall
@@ -374,12 +374,12 @@ sudo make uninstall
 
 ### Updating the CFT
 
-To update CFT with newly release code, proceed as follows:
+To update CFT to a newer version, proceed as follows:
 
 ```shell
-make clean
 git pull origin cloud-foundation --rebase
 cd community/cloud-foundation
+make clean
 sudo make prerequisites
 make build
 sudo make uninstall
