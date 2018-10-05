@@ -23,7 +23,7 @@ fi
 
 function create_config() {
     echo "Creating ${CONFIG}"
-    envsubst < templates/nat_gateway_ha/tests/integration/ha-nat-gateway.yaml > "${CONFIG}"
+    envsubst < templates/nat_gateway_ha/tests/integration/ha_nat_gateway.yaml > "${CONFIG}"
 }
 
 function delete_config() {
@@ -48,7 +48,6 @@ function teardown() {
     # Per-test teardown steps here
 }
 
-rm -f ~/output.txt
 
 @test "Creating deployment ${DEPLOYMENT_NAME} from ${CONFIG}" {
     gcloud deployment-manager deployments create "${DEPLOYMENT_NAME}" --config "${CONFIG}" --project "${CLOUD_FOUNDATION_PROJECT_ID}"
@@ -56,95 +55,56 @@ rm -f ~/output.txt
 
 @test "Verifying resources were created in deployment ${DEPLOYMENT_NAME}" {
     run gcloud compute instances list --filter="name:ha-natgw-${RAND}-gw-1-us-east1-b" --project "${CLOUD_FOUNDATION_PROJECT_ID}"
-    echo "$output" >> ~/output.txt
     [[ "$output" =~ "ha-natgw-${RAND}-gw-1-us-east1-b" ]]
-    
     run gcloud compute instances list --filter="name:ha-natgw-${RAND}-gw-2-us-east1-c" --project "${CLOUD_FOUNDATION_PROJECT_ID}"
-    echo "$output" >> ~/output.txt
     [[ "$output" =~ "ha-natgw-${RAND}-gw-2-us-east1-c" ]]
-    
     run gcloud compute instances list --filter="name:ha-natgw-${RAND}-gw-3-us-east1-d" --project "${CLOUD_FOUNDATION_PROJECT_ID}"
-    echo "$output" >> ~/output.txt
     [[ "$output" =~ "ha-natgw-${RAND}-gw-3-us-east1-d" ]]
 }
 
 @test "Verifying external IP created in deployment ${DEPLOYMENT_NAME}" {
     run gcloud compute addresses list --filter="name:ha-natgw-${RAND}-ip-1" --project "${CLOUD_FOUNDATION_PROJECT_ID}"
-    echo "$output" >> ~/output.txt
     [[ "$output" =~ "ha-natgw-${RAND}-ip-1" ]]
-
     run gcloud compute addresses list --filter="name:ha-natgw-${RAND}-ip-2" --project "${CLOUD_FOUNDATION_PROJECT_ID}"
-    echo "$output" >> ~/output.txt
     [[ "$output" =~ "ha-natgw-${RAND}-ip-2" ]]
-
     run gcloud compute addresses list --filter="name:ha-natgw-${RAND}-ip-3" --project "${CLOUD_FOUNDATION_PROJECT_ID}"
-    echo "$output" >> ~/output.txt
     [[ "$output" =~ "ha-natgw-${RAND}-ip-3" ]]
 }
 
 @test "Verifying routes created in deployment ${DEPLOYMENT_NAME}" {
     run gcloud compute routes list --filter="name:ha-natgw-${RAND}-route-1-us-east1-b" --project "${CLOUD_FOUNDATION_PROJECT_ID}"
-    echo "$output" >> ~/output.txt
     [[ "$output" =~ "ha-natgw-${RAND}-route-1-us-east1-b" ]]
-
     run gcloud compute routes list --filter="name:ha-natgw-${RAND}-route-2-us-east1-c" --project "${CLOUD_FOUNDATION_PROJECT_ID}"
-    echo "$output" >> ~/output.txt
     [[ "$output" =~ "ha-natgw-${RAND}-route-2-us-east1-c" ]]
-
     run gcloud compute routes list --filter="name:ha-natgw-${RAND}-route-3-us-east1-d" --project "${CLOUD_FOUNDATION_PROJECT_ID}"
-    echo "$output" >> ~/output.txt
     [[ "$output" =~ "ha-natgw-${RAND}-route-3-us-east1-d" ]]
 }
 
 @test "Verifying firewall rule created in deployment ${DEPLOYMENT_NAME}" {
     run gcloud compute firewall-rules list --filter="name:ha-natgw-${RAND}-fw" --project "${CLOUD_FOUNDATION_PROJECT_ID}"
-    echo "$output" >> ~/output.txt
     [[ "$output" =~ "ha-natgw-${RAND}-fw" ]]
 }
 
 @test "Deployment Delete" {
     run gcloud deployment-manager deployments delete "${DEPLOYMENT_NAME}" -q --project "${CLOUD_FOUNDATION_PROJECT_ID}"
-
     run gcloud compute instances list --filter="name:ha-natgw-${RAND}-gw-1-us-east1-b" --project "${CLOUD_FOUNDATION_PROJECT_ID}"
-    echo "$output" >> ~/output.txt
     [[ ! "$output" =~ "ha-natgw-${RAND}-gw-1-us-east1-b" ]]
-    
     run gcloud compute instances list --filter="name:ha-natgw-${RAND}-gw-2-us-east1-c" --project "${CLOUD_FOUNDATION_PROJECT_ID}"
-    echo "$output" >> ~/output.txt
     [[ ! "$output" =~ "ha-natgw-${RAND}-gw-2-us-east1-c" ]]
-    
     run gcloud compute instances list --filter="name:ha-natgw-${RAND}-gw-3-us-east1-d" --project "${CLOUD_FOUNDATION_PROJECT_ID}"
-    echo "$output" >> ~/output.txt
     [[ ! "$output" =~ "ha-natgw-${RAND}-gw-3-us-east1-d" ]]
-
-
     run gcloud compute addresses list --filter="name:ha-natgw-${RAND}-ip-1" --project "${CLOUD_FOUNDATION_PROJECT_ID}"
-    echo "$output" >> ~/output.txt
     [[ ! "$output" =~ "ha-natgw-${RAND}-ip-1" ]]
-
     run gcloud compute addresses list --filter="name:ha-natgw-${RAND}-ip-2" --project "${CLOUD_FOUNDATION_PROJECT_ID}"
-    echo "$output" >> ~/output.txt
     [[ ! "$output" =~ "ha-natgw-${RAND}-ip-2" ]]
-
     run gcloud compute addresses list --filter="name:ha-natgw-${RAND}-ip-3" --project "${CLOUD_FOUNDATION_PROJECT_ID}"
-    echo "$output" >> ~/output.txt
     [[ ! "$output" =~ "ha-natgw-${RAND}-ip-3" ]]
-
-
     run gcloud compute routes list --filter="name:ha-natgw-${RAND}-route-1-us-east1-b" --project "${CLOUD_FOUNDATION_PROJECT_ID}"
-    echo "$output" >> ~/output.txt
     [[ ! "$output" =~ "ha-natgw-${RAND}-route-1-us-east1-b" ]]
-
     run gcloud compute routes list --filter="name:ha-natgw-${RAND}-route-1-us-east1-c" --project "${CLOUD_FOUNDATION_PROJECT_ID}"
-    echo "$output" >> ~/output.txt
     [[ ! "$output" =~ "ha-natgw-${RAND}-route-2-us-east1-c" ]]
-
     run gcloud compute routes list --filter="name:ha-natgw-${RAND}-route-1-us-east1-d" --project "${CLOUD_FOUNDATION_PROJECT_ID}"
-    echo "$output" >> ~/output.txt
     [[ ! "$output" =~ "ha-natgw-${RAND}-route-3-us-east1-d" ]]
-
     run gcloud compute firewall-rules list --filter="name:ha-natgw-${RAND}-fw" --project "${CLOUD_FOUNDATION_PROJECT_ID}"
-    echo "$output" >> ~/output.txt
     [[ ! "$output" =~ "ha-natgw-${RAND}-fw" ]]
-
 }

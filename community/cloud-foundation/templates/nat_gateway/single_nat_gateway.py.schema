@@ -24,17 +24,17 @@ info:
   version: 1.0  
 
 imports:
-- path: single-nat-gateway.py
+  - path: single_nat_gateway.py
 
 required:
-- network
-- subnetwork
-- nat-ip-range
-- region
-- zone
-- startupScript
-- nat-gw-tag
-- nated-vm-tag
+  - network
+  - subnetwork
+  - nat-ip-range
+  - region
+  - zone
+  - startupScript
+  - nat-gw-tag
+  - nated-vm-tag
 
 properties:
   network:
@@ -48,12 +48,12 @@ properties:
     description: the ip range to allow to nat through the NAT GW
   networkProjectId:
     type: string
-    description: The project id where the network is in.
     default: ""
+    description: The project id where the network is in.
   region:
     type: string
-    description: The region where NAT gateway VMs will be reployed to
     default: "us-central1"
+    description: The region where NAT gateway VMs will be reployed to
     enum:
       - asia-east1
       - asia-northeast1
@@ -73,40 +73,78 @@ properties:
     description: NAT gateway GCE VM will be deployed to this zone of a region
   machineType:
     type: string  
-    description: The machine type for  NAT gateway VM.
-    default: "n1-standard-1" 
+    default: "n1-standard-1"
+    description: The machine type for  NAT gateway VM. 
   imageType:
     type: string
-    description: The image type for the NAT gateway VM.
     default: "projects/centos-cloud/global/images/family/centos-6"
+    description: The image type for the NAT gateway VM.
   startupScript:
     type: string
     description: Startup script that runs when NAT gataway VMs is started
   diskType:
     type: string
+    default: pd-standard
     description: The persistent disk type used as a boot disk for NAT gataway VMs
     enum:
       - pd-standard
       - pd-ssd
-    default: pd-standard
   diskSizeGb:
     type: number
-    description: The size of persistent disk used by  NAT gataway VMs
     default: 10
+    description: The size of persistent disk used by  NAT gataway VMs
     minimum: 10
     maximum: 65536  
   nat-gw-tag:
     type: string
-    description: Tags that are applied to NAT gateway VMs
     defaut: natgw
+    description: Tags that are applied to NAT gateway VMs
   nated-vm-tag:
     type: string
-    description: Tags that needs to be applied to GCE VMs so they can use these NAT gateways
     default: no-ip
+    description: Tags that needs to be applied to GCE VMs so they can use these NAT gateways
   routePriority:
     type: number
-    description: A priority the routes to  NAT gateway VMs are created with
     default: 800
+    description: A priority the routes to  NAT gateway VMs are created with
     minimum: 0
     maximum: 65535
-  
+
+outputs:
+  properties:
+    - natGatewayName:
+      type: string
+      description: The name of the NAT Gateway VM created
+    - natExternalIP:
+      type: string
+      description: The External IP addresse set to the NAT Gateway VM
+    - networkName:
+      type: string
+      description: The VPC Network on which the NAT is performed
+    - subnetworkName:
+      type: string
+      description: The subnet/IP range which is natted
+    - firewallRuleName:
+      type: string
+      description: The firewall rule name that allow traffic through the NAT Gateway VM
+    - routeName:
+      type: string
+      description: The route name that forward traffic through the NAT Gateway
+    - nat-gw-tag:
+      type: string
+      description: The tag used to pin the NAT Gateway VM
+    - nated-vm-tag:
+      type: string
+      description: The tag that is used for the internal VMs to be natted
+    - zone:
+      type: string
+      description: The zone in which the NAT Gateway are deployed for HA
+    - region:
+      type: string
+      description: The region in which the NAT Gateway are deployed   
+
+documentation:
+  - templates/nat_gateway/README.md
+
+examples:
+  - templates/nat_gateway/examples/nat_gateway.yaml 

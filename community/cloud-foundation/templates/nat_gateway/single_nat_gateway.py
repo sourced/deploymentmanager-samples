@@ -12,18 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Generates configuration for a single NAT gateway """
+""" Generates configuration for a single NAT gateway. """
 
 
-def GenerateConfig(context):
-  """Generates config."""
+def generate_config(context):
+  """ Generates deployment configuration. """
 
   prefix = context.env['name']
   zone = context.properties['zone']
 
   resources = []
   
-  #reserve a static External IP address to be used for the nat IP
+  """ Reserve a static External IP address to be used for the nat IP. """
   ip_name = prefix + '-ip'
   resources.append({
     'name': ip_name,
@@ -35,9 +35,8 @@ def GenerateConfig(context):
     }
   })  
 
-  # create an instance template that points to a reserved static IP address
+  """ Create an instance template that points to a reserved static IP address. """
   template_name = prefix + '-gw'
-  runtime_var_name = prefix + '/0'  
   resources.append({
     'name': template_name,
     'type': 'compute.v1.instance',
@@ -69,7 +68,6 @@ def GenerateConfig(context):
       'serviceAccounts': [{
         'email': 'default',
         'scopes': [
-          # The following scope allows an instance to create runtime variable resources.
           'https://www.googleapis.com/auth/cloudruntimeconfig'
         ]
       }], 
@@ -85,7 +83,7 @@ def GenerateConfig(context):
     }
   })
 
-  #create a route that will allow to use the NAT gateway VM as a next hop
+  """ Create a route that will allow to use the NAT gateway VM as a next hop. """
   route_name = prefix + '-route'
   resources.append({
     'name': route_name,
@@ -99,7 +97,7 @@ def GenerateConfig(context):
     }
   }) 
 
-  #create a firewall rule that will allow all traffic through the NAT gateway VM to internet
+  """ Create a firewall rule that will allow all traffic through the NAT gateway VM to internet. """
   network_name = context.properties['network'].split('/')[-1]
   subnetwork_name = context.properties['subnetwork'].split('/')[-1]
   firewall_name = prefix + '-fw'
@@ -130,49 +128,41 @@ def GenerateConfig(context):
     }
   }) 
 
-  # outputs
+  """ Outputs. """
   return {
-        'resources':
-            resources,
-        'outputs':
-            [
-              {
-                'name': 'natGatewayName',
-                'value': template_name
-              },{
-                'name': 'natExternalIP',
-                'value': '$(ref.' + ip_name + '.address)'
-              },{
-                'name': 'networkName',
-                'value': network_name
-              },
-              {
-                'name': 'subnetworkName',
-                'value': subnetwork_name
-              },
-              {
-                'name': 'firewallRuleName',
-                'value': firewall_name
-              },
-              {
-                'name': 'routeName',
-                'value': route_name
-              },
-              {
-                'name': 'nat-gw-tag',
-                'value': context.properties['nat-gw-tag']
-              },
-              {
-                'name': 'nated-vm-tag',
-                'value': context.properties['nated-vm-tag']
-              },
-              {
-                'name': 'zone',
-                'value': context.properties['zone']
-              },
-              {
-                'name': 'region',
-                'value': context.properties['region']
-              },
-            ]
+    'resources':
+        resources,
+    'outputs':[
+      {
+        'name': 'natGatewayName',
+        'value': template_name
+      },{
+        'name': 'natExternalIP',
+        'value': '$(ref.' + ip_name + '.address)'
+      },{
+        'name': 'networkName',
+        'value': network_name
+      },{
+        'name': 'subnetworkName',
+        'value': subnetwork_name
+      },{
+        'name': 'firewallRuleName',
+        'value': firewall_name
+      },{
+        'name': 'routeName',
+        'value': route_name
+      },{
+        'name': 'nat-gw-tag',
+        'value': context.properties['nat-gw-tag']
+      },{
+        'name': 'nated-vm-tag',
+        'value': context.properties['nated-vm-tag']
+      },{
+        'name': 'zone',
+        'value': context.properties['zone']
+      },{
+        'name': 'region',
+        'value': context.properties['region']
+      },
+    ]
   }

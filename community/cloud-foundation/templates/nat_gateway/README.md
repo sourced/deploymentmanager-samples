@@ -1,39 +1,91 @@
-# Highly available NAT Gateway for GCE 
+# NAT Gateway
 
-## Overview
-This example shows how to create a single NAT gateway in single zone of a GCP region. It can be used by GCE VM with internal only IP addresses to access internet resources. Traffic is routed through the NAT Gateway VM via a network route to the same instance tag.
+This template creates a NAT Gateway
 
-This deployment example deploys the following:
-- NAT Gateway VM
-- A VPC Network Route (for routing the traffic of all tagged internal VMs)
-- A Firewall rule to allow all traffic from private IP VMs to internet.
-  
 ## Prerequisites
-Make sure that **Google Cloud RuntimeConfig API** is enabled in Developers Console for your GCP project. Check [Enable and disable APIs](https://support.google.com/cloud/answer/6158841?hl=en) article for more information.
+
+- Install [gcloud](https://cloud.google.com/sdk)
+- Create a [GCP project, setup billing, enable requisite APIs](../project/README.md)
+- Grant the [compute.admin](https://cloud.google.com/compute/docs/access/iam) IAM
+role to the [Deployment Manager service account](https://cloud.google.com/deployment-manager/docs/access-control#access_control_for_deployment_manager)
 
 ## Deployment
-Use `config.yaml` to deploy this example template. Before deploying,
-edit the file and specify parameters like project id, network, subnetwork, NAT Gateway Tag, Natted VMs tag, zones to deploy the gateway VM. Review the full list of supported parameters in `single-nat-gateway.py.schema`. 
 
-When ready, deploy with the following command:
+### Resources
 
-    gcloud deployment-manager deployments create single-nat-example --config config.yaml
-
-## Testing
-Create a GCE instances without an external IP address, make sure it's tagged with a tag specified in *nated-vm-tag* parameter of your deployment, e.g.:
-
-    gcloud compute instances create internal-ip-only-vm --no-address --tags no-ip --zone us-west1-a
+- [compute.v1.addresses](https://cloud.google.com/compute/docs/reference/rest/v1/addresses)
+- [compute.v1.instances](https://cloud.google.com/compute/docs/reference/rest/v1/instances)
+- [compute.v1.firewalls](https://cloud.google.com/compute/docs/reference/rest/v1/firewalls)
+- [compute.v1.routes](https://cloud.google.com/compute/docs/reference/rest/v1/routes)
 
 
-SSH into the instance by hopping through one of the NAT gateway instances, first make sure that SSH agent is running and your private SSH key is added to the authentication agent.
+
+### Properties
+
+See `properties` section in the schema files
+
+-  [NAT Gateway](single_nat_gateway.py.schema)
+
+
+#### Usage
+
+
+1. Clone the [Deployment Manager samples repository](https://github.com/GoogleCloudPlatform/deploymentmanager-samples)
+
+```shell
+    git clone https://github.com/GoogleCloudPlatform/deploymentmanager-samples
+```
+
+2. Go to the [community/cloud-foundation](../../) directory
+
+```shell
+    cd community/cloud-foundation
+```
+
+3. Copy the example DM config to be used as a model for the deployment, in this
+   case [examples/nat_gateway.yaml](examples/nat_gateway.yaml)
+
+```shell
+    cp templates/nat_gateway/examples/nat_gateway.yaml \
+        my_nat_gateway.yaml
+```
+
+4. Change the values in the config file to match your specific GCP setup.
+   Refer to the properties in the schema files described above.
+
+```shell
+    vim my_nat_gateway.yaml  # <== change values to match your GCP setup
+```
+
+5. Create your deployment as described below, replacing <YOUR_DEPLOYMENT_NAME>
+   with your with your own deployment name
+
+```shell
+    gcloud deployment-manager deployments create <YOUR_DEPLOYMENT_NAME> \
+        --config my_nat_gateway.yaml
+```
+
+6. In case you need to delete your deployment:
+
+```shell
+    gcloud deployment-manager deployments delete <YOUR_DEPLOYMENT_NAME>
+```
+
+#### Create
 
 ```
-eval ssh-agent $SHELL
-ssh-add ~/.ssh/google_compute_engine
-gcloud compute ssh $(gcloud compute instances list --filter=name~ha-nat-example- --limit=1 --uri) --zone us-west1-d --ssh-flag="-A" -- ssh  internal-ip-only-vm
+gcloud deployment-manager deployments create <YOUR_DEPLOYMENT_NAME> \
+    --config my_nat_gateway.yaml
 ```
 
-Check that the VM can access external resources, note that IP address returned by curl will be one of the external IP addresses of our NAT gateways.
- 
-    while true; do curl http://ipinfo.io/ip; sleep 1; done
 
+#### Delete
+
+```
+gcloud deployment-manager deployments delete <YOUR_DEPLOYMENT_NAME>
+```
+
+
+## Examples
+
+- [NAT Gateway](examples/nat_gateway.yaml)

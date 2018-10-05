@@ -23,7 +23,7 @@ fi
 
 function create_config() {
     echo "Creating ${CONFIG}"
-    envsubst < templates/nat_gateway/tests/integration/nat-gateway.yaml > "${CONFIG}"
+    envsubst < templates/nat_gateway/tests/integration/nat_gateway.yaml > "${CONFIG}"
 }
 
 function delete_config() {
@@ -54,46 +54,32 @@ function teardown() {
 
 @test "Verifying resources were created in deployment ${DEPLOYMENT_NAME}" {
     run gcloud compute instances list --filter="name:simple-natgw-${RAND}-gw" --project "${CLOUD_FOUNDATION_PROJECT_ID}"
-    echo "$output" >> ~/output.txt
-    [[ "$output" =~ "simple-natgw-${RAND}-gw" ]]
+   [[ "$output" =~ "simple-natgw-${RAND}-gw" ]]
 }
 
 @test "Verifying external IP created in deployment ${DEPLOYMENT_NAME}" {
     run gcloud compute addresses list --filter="name:simple-natgw-${RAND}-ip" --project "${CLOUD_FOUNDATION_PROJECT_ID}"
-    echo "$output" >> ~/output.txt
     [[ "$output" =~ "simple-natgw-${RAND}-ip" ]]
 }
 
 @test "Verifying routes created in deployment ${DEPLOYMENT_NAME}" {
     run gcloud compute routes list --filter="name:simple-natgw-${RAND}-route" --project "${CLOUD_FOUNDATION_PROJECT_ID}"
-    echo "$output" >> ~/output.txt
     [[ "$output" =~ "simple-natgw-${RAND}-route" ]]
 }
 
 @test "Verifying firewall rule created in deployment ${DEPLOYMENT_NAME}" {
     run gcloud compute firewall-rules list --filter="name:simple-natgw-${RAND}-fw" --project "${CLOUD_FOUNDATION_PROJECT_ID}"
-    echo "$output" >> ~/output.txt
     [[ "$output" =~ "simple-natgw-${RAND}-fw" ]]
 }
 
 @test "Deployment Delete" {
     run gcloud deployment-manager deployments delete "${DEPLOYMENT_NAME}" -q --project "${CLOUD_FOUNDATION_PROJECT_ID}"
-    echo "$output" >> ~/output.txt
-
     run gcloud compute instances list --filter="name:simple-natgw-${RAND}-gw" --project "${CLOUD_FOUNDATION_PROJECT_ID}"
-    echo "$output" >> ~/output.txt
     [[ ! "$output" =~ "simple-natgw-${RAND}-gw" ]]
-
     run gcloud compute addresses list --filter="name:simple-natgw-${RAND}-ip" --project "${CLOUD_FOUNDATION_PROJECT_ID}"
-    echo "$output" >> ~/output.txt
     [[ ! "$output" =~ "simple-natgw-${RAND}-ip" ]]
-
     run gcloud compute routes list --filter="name:simple-natgw-${RAND}-route" --project "${CLOUD_FOUNDATION_PROJECT_ID}"
-    echo "$output" >> ~/output.txt
     [[ ! "$output" =~ "simple-natgw-${RAND}-route" ]]
-
     run gcloud compute firewall-rules list --filter="name:simple-natgw-${RAND}-fw" --project "${CLOUD_FOUNDATION_PROJECT_ID}"
-    echo "$output" >> ~/output.txt
     [[ ! "$output" =~ "simple-natgw-${RAND}-fw" ]]
-
 }

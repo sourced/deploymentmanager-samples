@@ -1,43 +1,93 @@
-# Highly available NAT Gateway for GCE 
+# HA NAT Gateway
 
-## Overview
-This example shows how to create a highly available NAT gateway in several zones of a GCP region. It can be used by GCE VMs with internal only IP addresses to access internet resources. Traffic is balanced between the NAT gateways using equal cost based routing with equal route priorities to the same instance tag.
-
-This deployment example deploys the following:
-- NAT Gateway VMs (one per zone)
-- A VPC Network Route for each NAT Gateway (for routing the traffic of all tagged internal VMs)
-- A Firewall rule to allow all traffic from private IP VMs to internet.
-
-**Figure 1.** *Diagram of Google Cloud resources*
-
-![architecture diagram](./diagram.png)
+This template creates an HA NAT Gateway based on the number of regions specified
 
 ## Prerequisites
-Make sure that **Google Cloud RuntimeConfig API** is enabled in Developers Console for your GCP project. Check [Enable and disable APIs](https://support.google.com/cloud/answer/6158841?hl=en) article for more information.
+
+- Install [gcloud](https://cloud.google.com/sdk)
+- Create a [GCP project, setup billing, enable requisite APIs](../project/README.md)
+- Grant the [compute.admin](https://cloud.google.com/compute/docs/access/iam) IAM
+role to the [Deployment Manager service account](https://cloud.google.com/deployment-manager/docs/access-control#access_control_for_deployment_manager)
 
 ## Deployment
-Use `config.yaml` to deploy this example template. Before deploying,
-edit the file and specify parameters like project id, network, zones to deploy the gateway VMs. Review the full list of supported parameters in `ha-nat-gateway.py.schema`. 
 
-When ready, deploy with the following command:
+### Resources
 
-    gcloud deployment-manager deployments create ha-nat-example --config config.yaml
-
-## Testing
-Create a GCE instances without an external IP address, make sure it's tagged with a tag specified in *nated-vm-tag* parameter of your deployment, e.g.:
-
-    gcloud compute instances create internal-ip-only-vm --no-address --tags no-ip --zone us-west1-a
+- [compute.v1.addresses](https://cloud.google.com/compute/docs/reference/rest/v1/addresses)
+- [compute.v1.instances](https://cloud.google.com/compute/docs/reference/rest/v1/instances)
+- [compute.v1.firewalls](https://cloud.google.com/compute/docs/reference/rest/v1/firewalls)
+- [compute.v1.routes](https://cloud.google.com/compute/docs/reference/rest/v1/routes)
+- [compute.v1.healthChecks](https://cloud.google.com/compute/docs/reference/rest/v1/healthChecks)
+- [compute.v1.instanceGroupManagers](https://cloud.google.com/compute/docs/reference/rest/v1/instanceGroupManagers)
 
 
-SSH into the instance by hopping through one of the NAT gateway instances, first make sure that SSH agent is running and your private SSH key is added to the authentication agent.
+
+### Properties
+
+See `properties` section in the schema files
+
+-  [HA NAT Gateway](ha_nat_gateway.py.schema)
+
+
+#### Usage
+
+
+1. Clone the [Deployment Manager samples repository](https://github.com/GoogleCloudPlatform/deploymentmanager-samples)
+
+```shell
+    git clone https://github.com/GoogleCloudPlatform/deploymentmanager-samples
+```
+
+2. Go to the [community/cloud-foundation](../../) directory
+
+```shell
+    cd community/cloud-foundation
+```
+
+3. Copy the example DM config to be used as a model for the deployment, in this
+   case [examples/ha_nat_gateway.yaml](examples/ha_nat_gateway.yaml)
+
+```shell
+    cp templates/ha_nat_gateway/examples/ha_nat_gateway.yaml \
+        my_ha_nat_gateway.yaml
+```
+
+4. Change the values in the config file to match your specific GCP setup.
+   Refer to the properties in the schema files described above.
+
+```shell
+    vim my_ha_nat_gateway.yaml  # <== change values to match your GCP setup
+```
+
+5. Create your deployment as described below, replacing <YOUR_DEPLOYMENT_NAME>
+   with your with your own deployment name
+
+```shell
+    gcloud deployment-manager deployments create <YOUR_DEPLOYMENT_NAME> \
+        --config my_ha_nat_gateway.yaml
+```
+
+6. In case you need to delete your deployment:
+
+```shell
+    gcloud deployment-manager deployments delete <YOUR_DEPLOYMENT_NAME>
+```
+
+#### Create
 
 ```
-eval ssh-agent $SHELL
-ssh-add ~/.ssh/google_compute_engine
-gcloud compute ssh $(gcloud compute instances list --filter=name~ha-nat-example- --limit=1 --uri) --zone us-west1-d --ssh-flag="-A" -- ssh  internal-ip-only-vm
+gcloud deployment-manager deployments create <YOUR_DEPLOYMENT_NAME> \
+    --config my_ha_nat_gateway.yaml
 ```
 
-Check that the VM can access external resources, note that IP address returned by curl will be one of the external IP addresses of our NAT gateways.
- 
-    while true; do curl http://ipinfo.io/ip; sleep 1; done
 
+#### Delete
+
+```
+gcloud deployment-manager deployments delete <YOUR_DEPLOYMENT_NAME>
+```
+
+
+## Examples
+
+- [HA NAT Gateway] (examples/ha_nat_gateway.yaml )
