@@ -1,12 +1,11 @@
-# Cloud Foundation Toolkit
+# Cloud Foundation Toolkit - User Guide
 
-User Guide
 <!-- TOC -->
 
 - [Overview](#overview)
 - [CFT Configs](#cft-configs)
-    - [Mandatory Directive](#mandatory-directive)
-    - [Optional Directives](#optional-directives)
+    - [Extra YAML Directives](#extra-yaml-directives)
+        - [name](#name)
         - [project](#project)
         - [description](#description)
     - [Extra Features](#extra-features)
@@ -19,6 +18,8 @@ User Guide
 - [Templates](#templates)
 - [Toolkit Installation and Configuration](#toolkit-installation-and-configuration)
     - [Installing Prerequisites](#installing-prerequisites)
+        - [Python 2.7 + pip](#python-27--pip)
+        - [Google Cloud SDK](#google-cloud-sdk)
     - [Getting the CFT Code](#getting-the-cft-code)
     - [Installing the CFT](#installing-the-cft)
     - [Uninstalling the CFT](#uninstalling-the-cft)
@@ -36,9 +37,9 @@ User Guide
 ## Overview
 
 The GCP Deployment Manager service does not support cross-deployment
-references, and the `gcloud` utility does not support concurrent deployment of
-multiple inter-dependent configs. The Cloud Foundation toolkit (henceforth,
-CFT) expands the capabilities of Deployment Manager and gcloud to support
+references, and the gcloud utility does not support concurrent deployment of
+multiple inter-dependent configs. The `Cloud Foundation toolkit` (henceforth,
+`CFT`) expands the capabilities of Deployment Manager and gcloud to support
 the following scenarios:
 
 - Creation, update, and deletion of multiple deployments in a single operation
@@ -50,35 +51,32 @@ the following scenarios:
 - Cross-deployment (including cross-project) referencing of deployment outputs,
   which obviates the need for hard-coding many parameters in the configs
 
-For example, if config file `A` contained all network resources, config file `B`
-contained all instances, and config `C` contained firewall rules, router, and
-VPN, in `gcloud` you would need to *manually* define the config deployment order
-according to the resource dependencies. The VPN would depend on the cloud
+For example, if config file `A` contained all network resources, config file
+`B` contained all instances, and config `C` contained firewall rules, router,
+and VPN, in gcloud you would need to *manually* define the config deployment
+order according to the resource dependencies. The VPN would depend on the cloud
 router, both of them would depend on the network, etc. The `CFT` computes the
 dependencies *automatically*, which eliminates the need for manual deployment
 ordering.
 
 `Note:` This User Guide assumes that you are familiar with the Google Cloud SDK
 operations related to resource deployment and management. For additional
-information, refer to the [SDK documentation](https://cloud.google.com/sdk/docs/).
+information, refer to the
+[SDK documentation](https://cloud.google.com/sdk/docs/).
 
 The CFT includes:
 
 - A command-line interface (henceforth, CLI) that deploys resources defined in
   single or multiple CFT-compliant config files
 - A comprehensive set of production-ready resource templates that follow
-  Google's best practices, which can be used with the CFT or the `gcloud`
+  Google's best practices, which can be used with the CFT or the gcloud
   utility (the latter a part of the Google Cloud SDK).
-
-`Note:` The CFT does not support gcloud-standard config files. For details on
-config enhancements required to ensure CFT compliance, see the
-[CFT Configs](#cft-configs) section below.
 
 ## CFT Configs
 
-To use the CFT CLI, you need to first create the config files for the desired
-deployments. These configs are YAML structures, very similar, and compatible
-with `gcloud` config files. The difference is that they contain extra YAML
+To use the CFT, you need to first create the config files for the desired
+deployments. These configs are YAML structures very similar to, and compatible
+with, the `gcloud` config files. The difference is that they contain extra YAML
 directives and features to support the expanded capabilities of the CFT
 (multi-config deployment and cross-deployment references).
 
@@ -86,54 +84,52 @@ directives and features to support the expanded capabilities of the CFT
 
 #### name
 
-This optional directive is used to specify the name of the deployment.
+This directive is used to specify the name of the deployment; for example:
 
 ```yaml
-name: my-networks
+name: my-network
 ```
 
-If not specified, the name of the deployment will be inferred from the config
+If not specified, the name of the deployment is inferred from the config
 file name. For example, if the path to the config file is
-`path/to/configs/my-network.yaml`, and this config doesn't specify the `name`
-directive, the deployment name will be set to `my-network`. This is meant as
-workaround for maintaining compatibility between `cft` and `gcloud` configs,
-**though, it is strongly recommended that the name directive is specified**.
+`path/to/configs/my-network.yaml`, and the config does not specify the `name`
+directive, the deployment name is set to `my-network`. This is meant as a
+workaround for maintaining compatibility between the `CTT` and `gcloud` configs.
+However, **it is strongly recommended that the `name` directive is specified**.
 
 #### project
 
-This directive defines the project in which the resource is deployed.
-For example:
+This directive defines the project in which the resource is deployed; for
+example:
 
 ```yaml
 project: my-project
 ```
 
-While this directive is optional, **its use in your configs is also highly
-recommended**. In addition to the project directtive in the config file,
-the project in which the deployment will be created can be
-specified by other means: Via the command line; via the
-`CLOUD_FOUNDATION_TOOLKIT_PROJECT_ID` environment variable, and via the
-"default project" configured with the GCP SDK. This is the order of precedence:
+While this directive is optional, **its use in your configs is highly
+recommended**. In addition to the project directive in the config file,
+the project for a deployment to be created in can be specified by other means.  
+The order of precedence is as follows:
 
-1. The `--project` command line option. When a project is specified via this
-   option, all configs in the run will use this project. This is a way of
-   quickly overriding the project speficied in a config file, and it's not
-   meant to be used indiscriminately
-2. The `project` directive in the config file
-3. The `CLOUD_FOUNDATION_TOOLKIT_PROJECT_ID` environment variable
-4. The "default project" configured with the GCP SDK
+1. The `--project` command-line option. If a project is specified via this
+   option, all configs in the run use that project. This is a way of
+   quickly overriding the project specified in a config file, which should be
+   used with caution.
+2. The `project` directive in the config file.
+3. The `CLOUD_FOUNDATION_TOOLKIT_PROJECT_ID` environment variable.
+4. The "default project" configured with the GCP SDK.
 
-`Note:` When deployments utilize cross-project resources, the project
+`Note:` When deployments utilize cross-project resources, the `project`
 directive becomes mandatory in at least one of the deployments.
 
 #### description
 
 This directive is the deployment description, which allows you
-to add some documentation to your configs. For example:
+to add some documentation to your configs; for example:
 
-  ```yaml
-  description: My firewall deployment for {{environment}} environment
-  ```
+```yaml
+description: My firewall deployment for {{environment}} environment
+```
 
 ### Extra Features
 
@@ -162,11 +158,11 @@ wherein:
 - `resource` is the DM name of the referenced resource
 - `output` is the name of the output parameter to be referenced
 
-The above construct works very similarly to Deployment Managers
-`$(ref.<resource>.<property>)`. However, instead of only defining references to
-resource properties *within* a deployment, it allows for
-*inter-deployment/inter-project* references using deployment outputs. The value
-of output of a dependent deployment is only looked up during the current
+The above construct works very similarly to Deployment Manager's
+`$(ref.<resource>.<property>)`. However, it allows defining not only references
+to resource properties not only *within* a deployment, but also
+*inter-deployment/inter-project* references, using deployment outputs. The
+value of output of a dependent deployment is only looked up during the current
 deployment's execution, which allows you to create config files without knowing
 in advance the actual values of the outputs in the dependent deployments, or
 even having to create these deployments.
@@ -179,7 +175,7 @@ network: $(out.my-network-prod.my-network-prod.name)
 
 #### Jinja Templating
 
-All configs submitted to the CFT CLI are rendered by the [Jinja Template
+All configs submitted via the CFT CLI are rendered by the [Jinja Template
 Engine](http://jinja.pocoo.org/). This supports compact code by using the DRY
 pattern. For example, by using variable substitution and `for loops`:
 
@@ -202,7 +198,8 @@ resources:
 ```
 
 An alternative to using Jinja in your configs is to write wrapper DM Python
-templates and reference these templates in your configs.
+templates and reference these templates in your configs (see the
+[Templates](#templates) section).
 
 ### Samples
 
@@ -330,7 +327,7 @@ is expected to offer the most seamless user experience.
 
 #### Python 2.7 + pip
 
-Follow your OS package manager instructions. For example, for Ubuntu
+Follow your OS package manager instructions. For example, for Ubuntu:
 
 ```shell
 sudo apt-get install python2.7
@@ -339,12 +336,12 @@ sudo apt-get install python-pip
 
 #### Google Cloud SDK
 
-  1. Install the [Google Cloud SDK](https://cloud.google.com/sdk/docs/quickstarts).
-  2. Ensure that the `gcloud` command is in the user's PATH:
+1. Install the [Google Cloud SDK](https://cloud.google.com/sdk/docs/quickstarts).
+2. Ensure that the `gcloud` command is in the user's PATH:
 
-  ```shell
-  which gcloud
-  ```
+```shell
+which gcloud
+```
 
 ### Getting the CFT Code
 
@@ -441,8 +438,8 @@ optional arguments:
 
 ### Actions
 
-The `cft` command parses the submitted config files and computes the
-dependencies between them. Based on the computed dependency graph, the script
+The `CFT` parses the submitted config files and computes the dependencies
+between them. Based on the computed dependency graph, the script
 determines the sequence of deployments to be executed. It then proceeds to
 execute the action in the computed order.
 
@@ -493,10 +490,10 @@ NAME                TYPE                 STATE      ERRORS  INTENT
 my-instance-prod-2  compute.v1.instance  COMPLETED  []
 ```
 
-In this example, the network config would have no dependencies, and the
-firewall and instance configs would depend on the network. Therefore, the
-network config would be deployed first (Stage 1), and the firewall and instance
-would be deployed next (Stage 2).
+In this example, the network config has no dependencies, and the firewall and
+instance configs depend on the network. Therefore, the network config is
+deployed first (Stage 1), and the firewall and instance are deployed next
+(Stage 2).
 
 `Note:` The order in which the configs are provided in the `cft create` command
 does not affect the deployment creation order. That order is defined
@@ -558,9 +555,9 @@ NAME                TYPE                 STATE      ERRORS  INTENT
 my-instance-prod-2  compute.v1.instance  COMPLETED  []
 ```
 
-The network config would have no dependencies, and the firewall and instance
-configs would depend on the network. Therefore, the network config would be
-updated first (Stage 1), and the firewall and instance would be updated next
+In this example, the network config has no dependencies, and the firewall and
+instance configs depend on the network. Therefore, the network config is
+updated first (Stage 1), and the firewall and instance are updated next
 (Stage 2).
 
 The following conditions will result in the actin failure, with an error
@@ -589,10 +586,10 @@ Update(u), Skip (s), or Abort(a) Deployment?
 Having reviewed the displayed information, enter one of the following
 responses:
 
-- **u<pdate>** - confirm the deployment change as shown in the preview
-- **s<kip>** - cancel the update (no change) and continues to the next config
+- **u<pdate>** - confirms the deployment change as shown in the preview
+- **s<kip>** - cancels the update (no change) and continues to the next config
   in the sequence
-- **a<bort>** - cancel the update (no change) and abort the script execution
+- **a<bort>** - cancels the update (no change) and aborts the script execution
 
 #### The "apply" Action
 
@@ -660,10 +657,10 @@ Update(u), Skip (s), or Abort(a) Deployment?
 Having reviewed the displayed information, enter one of the following
 responses:
 
-- **u<pdate>** - confirm the deployment change as shown in the preview
-- **s<kip>** - cancel the update (no change) and continues to the next config
+- **u<pdate>** - confirms the deployment change as shown in the preview
+- **s<kip>** - cancels the update (no change) and continues to the next config
   in the sequence
-- **a<bort>** - cancel the update (no change) and abort the script execution
+- **a<bort>** - cancels the update (no change) and abort the script execution
 
 #### The "delete" Action
 
@@ -673,12 +670,15 @@ To delete the previously created/updated multiple deployments, in the CLI, type:
 cft delete [configs] [create-options]
 ```
 
-If you submit the [sample configs described above](#samples), the following
-response appears in the CLI terminal:
+If you submit the [sample configs described above](#samples)
 
 ```shell
 cft delete instance.yaml firewall.yaml network.yaml
+```
 
+the following response appears in the CLI terminal:
+
+```shell
 ---------- Stage 1 ----------
 Waiting for delete my-instance-prod-2 (fingerprint 3IWMMfbjsUWjtWgvs6Evdw==) [operation-1538159406282-576f2a504f510-2dceed8f-b222b564]...done.
 ---------- Stage 2 ----------
@@ -690,7 +690,7 @@ Waiting for delete my-network-prod (fingerprint EhMN6C5IeADJYRo40CmuAg==) [opera
 
 The order of execution for `delete` is reversed (compared to `create` or
 `update`). This prevents DM from attempting to delete, for example, a network
-resource while an instance resource (dependent on the network) still existed.
+resource while an instance resource (dependent on the network) still exists.
 
 `Note:` The CFT silently ignores deletion of deployments that do not exits.
 This covers those cases where the deletion of a specific deployment had
