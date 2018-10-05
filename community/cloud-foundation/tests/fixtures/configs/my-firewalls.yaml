@@ -1,5 +1,5 @@
-name: my-firewall-prod
-description: My firewall deployment for prod environment
+name: my-firewalls
+description: My firewalls deployment
 
 imports:
   - path: templates/firewall/firewall.py
@@ -7,7 +7,7 @@ resources:
   - type: templates/firewall/firewall.py
     name: my-firewall-prod
     properties:
-      network: $(out.my-network-prod.my-network-prod.name)
+      network: $(out.my-networks.my-network-prod.name)
       rules:
         - name: allow-proxy-from-inside-prod
           allowed:
@@ -34,7 +34,7 @@ resources:
   - type: templates/firewall/firewall.py
     name: my-firewall-dev
     properties:
-      network: $(out.my-network-prod.my-network-prod.name)
+      network: $(out.my-networks.my-network-prod.name)
       rules:
         - name: allow-proxy-from-inside-dev
           allowed:

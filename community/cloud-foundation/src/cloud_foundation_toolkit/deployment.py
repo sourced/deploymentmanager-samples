@@ -58,10 +58,13 @@ class Config(object):
     """
     yaml = CFTBaseYAML()
 
-    def __init__(self, item):
+    def __init__(self, item, project=None):
         """ Contructor """
 
         self.source = item
+        if project:
+            self._project = project
+
         if os.path.exists(item):
             with io.open(item) as _fd:
                 self.as_string = jinja2.Template(_fd.read()).render()
@@ -86,15 +89,29 @@ class Config(object):
 
     @property
     def deployment(self):
-        return self.as_dict['name']
+        return self.as_dict.get(
+            'name',
+            os.path.basename(self.source).split('.')[0]
+        )
 
     @property
     def project(self):
-        return self.as_dict.get(
-            'project',
-            os.environ.get('CLOUD_FOUNDATION_PROJECT_ID') or
-            dm_base.GetProject()
-        )
+        """ Sets the project for the config
+
+        This is a bit complicated but allows for quite a bit of
+        flexibility. The project can be defined in a few different
+        places, and this is the order on precedence:
+
+        1- Command line
+        2- Config file
+        3- CLOUD_FOUNDATION_PROJECT_ID environment variable
+        4- The GCP SDK configuration
+        """
+        if not hasattr(self, '_project'):
+            self._project = self.as_dict.get('project') or \
+                os.environ.get('CLOUD_FOUNDATION_PROJECT_ID') or \
+                dm_base.GetProject()
+        return self._project
 
     @property
     def dependencies(self):
@@ -150,11 +167,13 @@ class ConfigGraph(object):
            parallel.
 
     """
-    def __init__(self, configs):
+    def __init__(self, configs, project=None):
         """ Constructor """
 
         # Populate the config dict
-        self.configs = {c.id: c for c in (Config(x) for x in configs)}
+        self.configs = {
+            c.id: c for c in (Config(x, project=project) for x in configs)
+        }
 
     @property
     def graph(self):
@@ -281,6 +300,8 @@ class Deployment(DM_API):
             )
         )
         self.config['project'] = self._config.project
+        self.config['name'] = self._config.deployment
+
         self.tmp_file_path = None
 
         LOG.debug('==> %s', self.config)

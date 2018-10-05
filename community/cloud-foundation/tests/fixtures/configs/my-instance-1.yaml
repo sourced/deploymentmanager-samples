@@ -1,7 +1,6 @@
 # Example on how to use the instance template
 #
 # In this example, a Ubuntu 18.04 instance with Nginx is created.
-name: my-instance-prod-1
 description: My instance deployment for prod environment
 
 imports:
@@ -17,7 +16,7 @@ resources:
       diskSizeGb: 100
       machineType: f1-micro
       diskType: pd-ssd
-      network: $(out.my-network-prod.my-network-prod.name)
+      network: $(out.my-networks.my-network-prod.name)
       metadata:
         items:
           - key: startup-script

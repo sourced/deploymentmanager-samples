@@ -31,25 +31,29 @@ def build_common_args(parser):
         'config',
         type=str,
         nargs='+',
-        help=('The path to the config files or directory')
+        help='The path to the config files or directory'
     )
 
 
 def parse_args(args):
     """parse CLI options """
-#    parser = argparse.ArgumentParser('Cloud Foundation Toolkit')
     parser = argparse.ArgumentParser('cft')
 
     parser.add_argument(
         '--project',
-        type=str,
-        default='',
-        help='The GCP project name'
+        default=None,
+        help=(
+            'The ID of the GCP project in which ALL config files will be '
+            'executed. This option will override the "project" directive in '
+            'the config files, so be careful when using this'
+        )
     )
     parser.add_argument(
         '--dry-run',
         action='store_true',
-        help='Not implemented yet'
+        help=(
+            'Prints the order of execution of the configs. No changes are made'
+        )
     )
     parser.add_argument(
         '--verbosity',
@@ -120,7 +124,6 @@ def main():
     # logging
     LOG.setLevel(args.verbosity.upper())
     execute(args)
-#    globals()[args.action](args)
 
 
 if __name__ == '__main__':
