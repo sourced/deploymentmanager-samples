@@ -52,7 +52,6 @@ def get_config_files(config):
             tmp_list = [
                 f for f in files if '.yaml' in f or '.yml' in f or '.jinja' in f
             ]
-
             dir_config_list.extend(tmp_list)
 
             LOG.debug(
@@ -73,9 +72,11 @@ def execute(args):
     action = args.action
 
     if action == 'delete' or (hasattr(args, 'reverse') and args.reverse):
-        graph = reversed(ConfigGraph(get_config_files(args.config)))
+        graph = reversed(
+            ConfigGraph(get_config_files(args.config), project=args.project)
+        )
     else:
-        graph = ConfigGraph(get_config_files(args.config))
+        graph = ConfigGraph(get_config_files(args.config), project=args.project)
 
     arguments = {}
     for k, v in vars(args).items():

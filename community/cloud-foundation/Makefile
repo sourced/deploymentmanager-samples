@@ -18,8 +18,8 @@ help:
 .ONESHELL:
 .PHONY: cft-prerequisites cft-venv cft-clean-venv cft-test cft-test-venv template-prerequisites
 
-cft-prerequisites:
-	${PYTHON} -m pip install -r requirements/utility-prerequisites.txt
+prerequisites:
+	${PYTHON} -m pip install -r requirements/prerequisites.txt
 
 cft-venv:
 	${PYTHON} -m tox -e venv
@@ -37,7 +37,6 @@ template-prerequisites:
 	rm -rf bats && git clone https://github.com/sstephenson/bats.git && ./bats/install.sh ../venv && rm -rf bats
 
 build:
-	${PYTHON} -m pip install -r requirements/development.txt
 	${PYTHON} setup.py sdist bdist_wheel
 
 install:

@@ -20,9 +20,9 @@ from __future__ import print_function
 import argparse
 import sys
 
+from cloud_foundation_toolkit import __VERSION__ as CFT_VERSION
 from cloud_foundation_toolkit import LOG
 from cloud_foundation_toolkit.actions import execute
-
 
 def build_common_args(parser):
     """ Configures arguments to all actions/subparsers """
@@ -31,29 +31,39 @@ def build_common_args(parser):
         'config',
         type=str,
         nargs='+',
-        help=('The path to the config files or directory')
+        help='The path to the config files or directory'
     )
 
 
 def parse_args(args):
     """parse CLI options """
-#    parser = argparse.ArgumentParser('Cloud Foundation Toolkit')
     parser = argparse.ArgumentParser('cft')
 
     parser.add_argument(
+        '--version',
+        '-v',
+        action='version',
+        version=CFT_VERSION,
+        help='Print version information and exit'
+    )
+    parser.add_argument(
         '--project',
-        type=str,
-        default='',
-        help='The GCP project name'
+        default=None,
+        help=(
+            'The ID of the GCP project in which ALL config files will be '
+            'executed. This option will override the "project" directive in '
+            'the config files, so be careful when using this'
+        )
     )
     parser.add_argument(
         '--dry-run',
         action='store_true',
-        help='Not implemented yet'
+        help=(
+            'Prints the order of execution of the configs. No changes are made'
+        )
     )
     parser.add_argument(
         '--verbosity',
-        '-v',
         default='warning',
         help='The log level'
     )
@@ -120,7 +130,6 @@ def main():
     # logging
     LOG.setLevel(args.verbosity.upper())
     execute(args)
-#    globals()[args.action](args)
 
 
 if __name__ == '__main__':
