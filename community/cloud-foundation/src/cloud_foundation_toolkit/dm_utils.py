@@ -3,6 +3,7 @@ import io
 import re
 from six.moves.urllib.parse import urlparse
 
+from apitools.base.py import exceptions as apitools_exceptions
 from googlecloudsdk.api_lib.deployment_manager import dm_base
 from ruamel.yaml import YAML
 
@@ -31,12 +32,15 @@ API = DM_API()
 
 
 def get_deployment(project, deployment):
-    return API.client.deployments.Get(
-        API.messages.DeploymentmanagerDeploymentsGetRequest(
-            project=project,
-            deployment=deployment
+    try:
+        return API.client.deployments.Get(
+            API.messages.DeploymentmanagerDeploymentsGetRequest(
+                project=project,
+                deployment=deployment
+            )
         )
-    )
+    except apitools_exceptions.HttpNotFoundError as _:
+        return None
 
 
 def get_manifest(project, deployment):
