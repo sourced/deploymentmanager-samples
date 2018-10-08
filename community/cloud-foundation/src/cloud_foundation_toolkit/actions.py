@@ -15,6 +15,7 @@
 """ Deployment Actions """
 
 import glob
+import os.path
 import sys
 
 from apitools.base.py import exceptions as apitools_exceptions
@@ -34,38 +35,35 @@ ACTION_MAP = {
     'update': {'preview': 'preview'}
 }
 
+def check_file(config):
+    extensions = ['.yaml', '.yml', '.jinja']
+    for ext in extensions:
+        if ext == config[-len(ext):]:
+            return True
+    return False
 
 def get_config_files(config):
-    """ Build a list of config files """
+    """ Build a list of config files
+    List could have files directory or yaml strings
 
-    config_list = config
-    dir_config_list = []
+    Args(list): List of configs. Each item can be a file, a directory,
+        or a yaml string
 
-    # Can be multiple files or directories
-    for config_args in config:
+    Returns: A list of config files or strings
+    """
 
-        # Try to search as a directory
-        files = glob.glob(config_args + '/*')
+    config_files = []
 
-        if files:
-            # Support only *.yaml, *.yml and *.jinja files
-            tmp_list = [
-                f for f in files if '.yaml' in f or '.yml' in f or '.jinja' in f
-            ]
-            dir_config_list.extend(tmp_list)
-
-            LOG.debug(
-                'Found config config files %s in directory %s',
-                tmp_list,
-                config_args
+    for conf in config:
+        if os.path.isdir(conf):
+            config_files.extend(
+                [f for f in glob.glob(conf + '/*') if check_file(f)]
             )
+        else:
+            config_files.append(conf)
 
-    if dir_config_list:
-        config_list = dir_config_list
-
-    LOG.debug('Config files %s', config_list)
-
-    return config_list
+    LOG.debug('Config files %s', config_files)
+    return config_files
 
 
 def execute(args):
