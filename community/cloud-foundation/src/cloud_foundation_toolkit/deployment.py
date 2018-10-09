@@ -183,9 +183,10 @@ class ConfigGraph(object):
             return self._graph
         self._graph = nx.DiGraph()
         for _, config in self.configs.items():
-            self._graph.add_node(config)
+            node = Node(config.project, config.deployment)
+            self._graph.add_node(node)
             for dependency in config.dependencies:
-                self.graph.add_edge(self.configs[dependency], config)
+                self.graph.add_edge(dependency, node)
 
             if not nx.is_directed_acyclic_graph(self._graph):
                 raise SystemExit('Dependency is graph is cyclic')
@@ -209,15 +210,37 @@ class ConfigGraph(object):
         self._levels = []
 
         while remaining_nodes:
-            level = []
+            level_nodes, level_configs = [], []
+
+            # Find the nodes in the level
             for node in remaining_nodes:
                 if not nx.ancestors(graph, node):
-                    level.append(node)
-            self._levels.append(level)
+                    level_nodes.append(node)
 
-            for node in level:
+            # Find and load configs in the level
+            # If a node is not in a provided config, it must be a
+            # dependency, so we make sure it exists in DM, without
+            # attempting to load an unexisting config
+            for node in level_nodes:
                 remaining_nodes.remove(node)
                 graph.remove_node(node)
+
+                if node in self.configs:
+                    level_configs.append(self.configs[node])
+                else:
+                    deployment = get_deployment(
+                        node.project,
+                        node.deployment
+                    )
+                    if not deployment:
+                        raise SystemExit(
+                            'Dependency failed. The node {} was neither '
+                            'specified in a config, nor it exists in GCP '
+                            'Deployment Manager'.format(node)
+                        )
+
+            if level_configs:
+                self._levels.append(level_configs)
 
         return self._levels
 
@@ -412,7 +435,6 @@ class Deployment(DM_API):
 
         os.remove(self.tmp_file_path)
 
-
     def get(self):
         """ Returns a Deployment() message(obj) from the DM API.
 
@@ -427,15 +449,10 @@ class Deployment(DM_API):
         Returns: A Deployment object from the SDK or None
         """
 
-        try:
-            self.current = self.client.deployments.Get(
-                self.messages.DeploymentmanagerDeploymentsGetRequest(
-                    project=self.config['project'],
-                    deployment=self.config['name']
-                )
-            )
-        except apitools_exceptions.HttpNotFoundError as _:
-            self.current = None
+        self.current = get_deployment(
+            project=self.config['project'],
+            deployment=self.config['name']
+        )
         return self.current
 
     def delete(self, delete_policy=None):
