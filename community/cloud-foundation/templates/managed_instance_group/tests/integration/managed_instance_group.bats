@@ -156,3 +156,4 @@ function teardown() {
         --project "${CLOUD_FOUNDATION_PROJECT_ID}"
     [[ "$status" -eq 0 ]]
 }
+

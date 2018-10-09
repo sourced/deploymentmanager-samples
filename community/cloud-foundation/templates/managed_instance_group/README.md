@@ -72,25 +72,6 @@ See the `properties` section in the schema file(s):
     gcloud deployment-manager deployments delete <YOUR_DEPLOYMENT_NAME>
 ```
 
-**Note:** If managed instance group template is configured to create a new
-instance template resource (i.e. it's not referencing existing one with
-`instanceTemplate.url` property), additional `instance_template.py` template
-needs to be imported into your config file:
-
-```yaml
-    - path: templates/instance_template/instance_template.py
-      name: instance_template.py
-```
-
-**Note:** If managed instance group template is configured to create an
-autoscaler (i.e. `autoscaler` config section is populated), an additional
-`autoscaler.py` template needs to be imported into your config file:
-
-```yaml
-    - path: templates/autoscaler/autoscaler.py
-      name: autoscaler.py
-```
-
 ## Examples
 
 - [Managed Instance Group](examples/managed_instance_group.yaml)

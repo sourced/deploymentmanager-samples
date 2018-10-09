@@ -18,6 +18,12 @@ info:
   description: |
     Creates a managed instance group with or without an autoscaler.
 
+imports:
+  - path: ../autoscaler/autoscaler.py
+    name: autoscaler.py
+  - path: ../instance_template/instance_template.py
+    name: instance_template.py
+
 required:
   - targetSize
   - instanceTemplate

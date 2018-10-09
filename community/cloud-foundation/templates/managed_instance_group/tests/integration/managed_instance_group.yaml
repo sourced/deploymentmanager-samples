@@ -3,10 +3,6 @@
 imports:
   - path: templates/managed_instance_group/managed_instance_group.py
     name: managed_instance_group.py
-  - path: templates/autoscaler/autoscaler.py
-    name: autoscaler.py
-  - path: templates/instance_template/instance_template.py
-    name: instance_template.py
 
 resources:
   - name: ${ZONAL_MIG_RES_NAME}
