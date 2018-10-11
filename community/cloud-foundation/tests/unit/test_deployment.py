@@ -24,8 +24,8 @@ def args():
     return Args()
 
 def test_config(configs):
-    c = Config(configs.files['network.yaml'].path)
-    assert c.as_string == configs.files['network.yaml'].jinja
+    c = Config(configs.files['my-networks.yaml'].path)
+    assert c.as_string == configs.files['my-networks.yaml'].jinja
 
 
 def test_config_list(configs):
@@ -38,17 +38,17 @@ def test_config_list(configs):
 
 
 def test_deployment_object(configs):
-    config = Config(configs.files['network.yaml'].path)
+    config = Config(configs.files['my-networks.yaml'].path)
     deployment = Deployment(config)
-    assert deployment.config['name'] == 'my-network-prod'
+    assert deployment.config['name'] == 'my-networks'
 
 
 def test_deployment_get(configs):
-    config = Config(configs.files['network.yaml'].path)
+    config = Config(configs.files['my-networks.yaml'].path)
     deployment = Deployment(config)
     with mock.patch.object(deployment.client.deployments, 'Get') as m:
         m.return_value = Message(
-            name='my-network-prod',
+            name='my-networks',
             fingerprint='abcdefgh'
         )
         d = deployment.get()
@@ -57,17 +57,17 @@ def test_deployment_get(configs):
 
 
 def test_deployment_get_doesnt_exist(configs):
-    config = Config(configs.files['network.yaml'].path)
+    config = Config(configs.files['my-networks.yaml'].path)
     deployment = Deployment(config)
-    with mock.patch.object(deployment.client.deployments, 'Get') as m:
-        m.side_effect = HttpNotFoundError('a', 'b', 'c')
+    with mock.patch('cloud_foundation_toolkit.deployment.get_deployment') as m:
+        m.return_value = None
         d = deployment.get()
         assert d is None
         assert deployment.current == d
 
 
 def test_deployment_create(configs):
-    config = Config(configs.files['network.yaml'].path)
+    config = Config(configs.files['my-networks.yaml'].path)
     patches = {
         'client': mock.DEFAULT,
         'wait': mock.DEFAULT,
@@ -88,4 +88,3 @@ def test_deployment_create(configs):
 
         d = deployment.create()
         assert deployment.current == d
-
