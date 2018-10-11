@@ -104,8 +104,8 @@ function teardown() {
         --zone "${ZONE}" --project "${CLOUD_FOUNDATION_PROJECT_ID}"
     [[ "$status" -eq 0 ]]
     [[ "$output" =~ "baseInstanceName: ${BASE_INSTANCE_NAME}" ]]
-    [[ "$output" =~ "instanceGroup/${ZONAL_MIG_RES_NAME}" ]]
-    [[ "$output" =~ "instanceTemplate/${INSTANCE_TEMPLATE_NAME}" ]]
+    [[ "$output" =~ "instanceGroups/${ZONAL_MIG_NAME}" ]]
+    [[ "$output" =~ "instanceTemplates/${INSTANCE_TEMPLATE_NAME}" ]]
     [[ "$output" =~ "name: ${PORT_NAME}" ]]
     [[ "$output" =~ "port: ${PORT}" ]]
 }
