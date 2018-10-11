@@ -189,7 +189,7 @@ class ConfigGraph(object):
                 self.graph.add_edge(dependency, node)
 
             if not nx.is_directed_acyclic_graph(self._graph):
-                raise SystemExit('Dependency is graph is cyclic')
+                raise SystemExit('Cyclic dependency in the graph')
         return self._graph
 
     @property
@@ -234,8 +234,9 @@ class ConfigGraph(object):
                     )
                     if not deployment:
                         raise SystemExit(
-                            'Dependency failed. The node {} was neither '
-                            'specified in a config, nor it exists in GCP '
+                            'Unresolved dependency. Resource {}, on which'
+                            'other resources depended, neither was specified'
+                            'in the submitted congigs nor existed in'
                             'Deployment Manager'.format(node)
                         )
 

@@ -208,8 +208,10 @@ and features. These will be used as examples in the action-specific sections of
 this User Guide:
 
 - [network.yaml](#network.yaml) - two networks that have no dependencies
-- [firewall.yaml](#firewall.yaml) - two firewall rules, which depend on the corresponding networks
-- [instance.yaml](#instance.yaml) - one VM instance, which depends on the network
+- [firewall.yaml](#firewall.yaml) - two firewall rules, which depend on the
+  corresponding networks
+- [instance.yaml](#instance.yaml) - one VM instance, which depends on the
+  network
 
 #### network.yaml
 
@@ -408,8 +410,13 @@ The above syntactic structure includes the following elements:
   - **delete** - deletes deployments defined in the specified config files,
     in the reverse dependency order
 - `[config]` - The path(s) to the config files to be affected by the specified
-  action (files with extensions `.yaml`, `.yaml`, or `.jinja`). It can be:
-  - A space-separated list of paths to the config files/directories
+  action (files with extensions `.yaml`, `.yml`, or `.jinja`). It can be:
+  - A space-separated list of paths to the config files and/or directories,
+    optionally with wildcards; for example:
+    - ../deployments/config_1.yaml ../tests/test*.yaml ../dev/config*.yml
+    - ../deployments/ ../tests/ - this will submit all files with extensions
+      `.yaml`, `.yml`, or `.jinja` found in the ../deployments/ and ../tests/
+      directories
   - A space-separated list of yaml-serialized strings, each representing a
     config; useful when another tool is generating configs on the fly\
     For example: `name: my-networks\nproject: my-project\nimports:\n  - path: templates/network/network.py\n    name: network.py\resources:\n  - type: templates/network/network.py\n    name: my-network-prod`
@@ -506,6 +513,8 @@ The following conditions will result in the action failure,
 with an error message displayed:
 
 - One or more of the specified deployments already exist
+- One or more resources in the submitted config files depend on resources that
+  neither exist nor being created by the current `create` action
 - One or more of the submitted config files are invalid
 - One or more of the submitted config files contain circular dependencies
   (i.e., deployment A depends on deployment B, and B depends on A)
@@ -566,6 +575,8 @@ The following conditions will result in the actin failure, with an error
 message displayed:
 
 - One or more of the specified deployments do not exist
+- One or more resources in the submitted config files depend on resources that
+  do not exist
 - One or more of the submitted config files are invalid
 - One or more of the submitted config files contain circular dependencies
   (i.e., deployment A depends on deployment B, and B depends on A)
@@ -588,10 +599,11 @@ Update(u), Skip (s), or Abort(a) Deployment?
 Having reviewed the displayed information, enter one of the following
 responses:
 
-- **u<pdate>** - confirms the deployment change as shown in the preview
-- **s<kip>** - cancels the update (no change) and continues to the next config
-  in the sequence
-- **a<bort>** - cancels the update (no change) and aborts the script execution
+- **u (update)** - confirms the deployment change as shown in the preview
+- **s (skip)** - cancels the update (no change) and continues to the next
+  config in the sequence
+- **a (abort)** - cancels the update (no change) and aborts the script
+  execution
 
 #### The "apply" Action
 
@@ -637,6 +649,8 @@ my-instance-prod-2  compute.v1.instance  COMPLETED  []
 The following conditions will result in the action failure, with an error
 message displayed:
 
+- One or more resources in the submitted config files depend on resources that
+  neither exist nor being created by the current `apply` action
 - One or more of the submitted config files are invalid
 - One or more of the submitted config files contain circular dependencies
   (i.e., deployment A depends on deployment B, and B depends on A)
@@ -659,10 +673,16 @@ Update(u), Skip (s), or Abort(a) Deployment?
 Having reviewed the displayed information, enter one of the following
 responses:
 
-- **u<pdate>** - confirms the deployment change as shown in the preview
-- **s<kip>** - cancels the update (no change) and continues to the next config
-  in the sequence
-- **a<bort>** - cancels the update (no change) and abort the script execution
+- **u (update)** - confirms the deployment change as shown in the preview
+- **s (skip)** - cancels the update (no change) and continues to the next
+  config in the sequence
+- **a (abort)** - cancels the update (no change) and aborts the script
+  execution
+
+`Note:` If the `apply` action is creating (rather than updating) a set of
+resources, and if you choose to skip the creation of a deployment on which
+subsequent deployments depends (e.g., **skip** network in Stage 1 and
+**update** firewall in Stage 2), the operation will fail with an error message.
 
 #### The "delete" Action
 
