@@ -21,6 +21,7 @@ class Args(object):
     def __init__(self, **kwargs):
         self.preview = False
         self.dry_run = False
+        self.project = False
         [setattr(self, k, v) for k, v in kwargs.items()]
 
 
@@ -95,8 +96,26 @@ def test_action(configs):
 
 
 def test_get_config_files(configs):
+    # Test only directory
     r = actions.get_config_files([configs.directory])
     files = [v.path for k, v in configs.files.items()]
     files.sort()
     r.sort()
     assert files == r
+
+    # Test only files
+    files = [v.path for k, v in configs.files.items()]
+    r = actions.get_config_files(files)
+    files.sort()
+    r.sort()
+    assert files == r
+
+    # Test files and directories
+    confs = [configs.directory] + ['some_file.yaml']
+    r = actions.get_config_files(confs)
+    files = [v.path for k, v in configs.files.items()] + ['some_file.yaml']
+    files.sort()
+    r.sort()
+    assert files == r
+
+
