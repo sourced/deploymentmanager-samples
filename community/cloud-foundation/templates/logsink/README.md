@@ -1,6 +1,6 @@
 # Logsink
 
-This template creates a logsink (logging sink).
+This template creates a logsink (logging sink). The logsink destination can exist prior to creating the logsink or can be created by the logsink template. If the resources are created by the logsink, the logsink uniqueWriter service account will be granted the appropriate permissions to the destination resource.
 
 ## Prerequisites
 
@@ -11,6 +11,9 @@ This template creates a logsink (logging sink).
     - [PubSub topic](https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.topics)
     - [BigQuery dataset](https://cloud.google.com/bigquery/docs/reference/rest/v2/datasets)
 - Grant the [logging.configWriter or logging.admin](https://cloud.google.com/logging/docs/access-control) IAM role to the project service account
+- Grant the [`pubsub.admin`](https://cloud.google.com/pubsub/docs/access-control) IAM role to the project service account if creating a pubsub logging sink destination
+- Grant the [`storage.admin`](https://cloud.google.com/storage/docs/access-control/iam-roles) IAM role to the project service account if creating a bucket logging sink destination
+- Grant the [`bigquery.admin`](https://cloud.google.com/bigquery/docs/access-control) IAM role to the project service account if creating bq logging sink destination
 
 ## Deployment
 

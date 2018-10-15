@@ -1,38 +1,65 @@
 # Example of the logsink template usage.
 #
-# In this example, log sinks are created with the various log destinations:
+# The following log sinks can be created:
+#   - organization sink
+#   - billing account sink
+#   - project sink
+#   - folder sink
+#
+# A log sink can be created with the following log destinations:
 #   - a Cloud Storage bucket
 #   - a PubSub topic
 #   - a BigQuery dataset
+#
+# In this example, log sinks are created with various log
+# destinations:
+#   - organization sink with a PubSub topic destination
+#   - billing account sink with a BigQuery dataset destination
+#   - project sink with a Cloud Storage bucket destination
+#   - folder sink with a Cloud Storage bucket destination
+#
+# Replace the following with appropirate values
+# <FIXME:OrgId>: The organization ID to create the logsink for.
+# <FIXME:pubsub_topic_name>: The pubsub topic name.
+# <FIXME:billing_account>: The billing account to create the logsink for.
+# <FIXME:dataset_name>: The BQ dataset name.
+# <FIXME:folder_id>: The folder ID to create the losink for.
+# <FIXME:bucket_name>: The GCS bucket name.
 
 imports:
   - path: templates/logsink/logsink.py
     name: logsink.py
 
 resources:
-  - name: test-logsink-storage
+  # Organization sink with a PubSub topic destination
+  - name: test-org-logsink-pubsub
     type: logsink.py
     properties:
-      destinationName: test-bucket
-      destinationType: storage
-      uniqueWriterIdentity: true
-
-  - name: test-logsink-pubsub
-    type: logsink.py
-    properties:
+      orgId: <FIXME:OrgId>
       # When using a PubSub topic, the value must be the topic ID. The ID must
       # contain only letters (a-z, A-Z), numbers (0-9), or underscores (_).
       # The maximum length is 1,024 characters.
-      destinationName: test-topic
+      destinationName: <FIXME:pubsub_topic_name>
       destinationType: pubsub
       uniqueWriterIdentity: true
 
-  - name: test-logsink-bq
+  # Billing account sink with a BigQuery dataset destination
+  - name: test-billing-logsink-bq
     type: logsink.py
     properties:
+      billingAccountId: <FIXME:billing_account>
       # When using a BQ dataset, the value must be the dataset ID. The ID must
       # contain only letters (a-z, A-Z), numbers (0-9), or underscores (_).
       # The maximum length is 1,024 characters.
-      destinationName: test_dataset
+      destinationName: <FIXME:dataset_name>
       destinationType: bigquery
+      uniqueWriterIdentity: true
+
+  # Project sink with a Cloud Storage bucket destination
+  - name: test-project-logsink-storage
+    type: logsink.py
+    properties:
+      projectId: <FIXME:project_id>
+      destinationName: <FIXME:bucket_name>
+      destinationType: storage
       uniqueWriterIdentity: true

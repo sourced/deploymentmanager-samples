@@ -33,9 +33,23 @@ function delete_config() {
     rm -f "${CONFIG}"
 }
 
+function get_test_folder_id() {
+        # Get the test folder ID and make it available
+        TEST_ORG_FOLDER_NAME=$(gcloud alpha resource-manager folders list \
+            --project "${CLOUD_FOUNDATION_PROJECT_ID}" \
+            --organization "${CLOUD_FOUNDATION_ORGANIZATION_ID}" | \
+            grep "test-org-folder-${RAND}")
+
+        export TEST_ORG_FOLDER_NAME=`echo ${TEST_ORG_FOLDER_NAME} | cut -d ' ' -f 3`
+}
+
 function setup() {
     # Global setup; this is executed once per test file.
     if [ ${BATS_TEST_NUMBER} -eq 1 ]; then
+        gcloud alpha resource-manager folders create \
+            --display-name="test-org-folder-${RAND}" \
+            --organization="${CLOUD_FOUNDATION_ORGANIZATION_ID}"
+        get_test_folder_id
         create_config
         gcloud pubsub topics create test-topic-${RAND}
         gsutil mb -l us-east1 gs://test-bucket-${RAND}/
@@ -43,11 +57,14 @@ function setup() {
     fi
 
   # Per-test setup as per documentation.
+  get_test_folder_id
 }
 
 function teardown() {
     Global teardown; this is executed once per test file
     if [[ "$BATS_TEST_NUMBER" -eq "${#BATS_TEST_NAMES[@]}" ]]; then
+        get_test_folder_id
+        gcloud alpha resource-manager folders delete "${TEST_ORG_FOLDER_NAME}"
         gsutil rm -r gs://test-bucket-${RAND}/
         gcloud pubsub topics delete test-topic-${RAND}
         bq rm -rf test_dataset_${RAND}
@@ -63,11 +80,112 @@ function teardown() {
         --project "${CLOUD_FOUNDATION_PROJECT_ID}"
 }
 
-@test "Verifying that sinks were created each with the requested destination in deployment ${DEPLOYMENT_NAME}" {
+@test "Verifying project sinks were created each with the requested destination in deployment ${DEPLOYMENT_NAME}" {
     run gcloud logging sinks list --project "${CLOUD_FOUNDATION_PROJECT_ID}"
-    [[ "$output" =~ "test-logsink-bq-${RAND}" ]]
-    [[ "$output" =~ "test-logsink-pubsub-${RAND}" ]]
-    [[ "$output" =~ "test-logsink-storage-${RAND}" ]]
+    [[ "$output" =~ "test-logsink-project-bq-${RAND}" ]]
+    [[ "$output" =~ "test-logsink-project-pubsub-${RAND}" ]]
+    [[ "$output" =~ "test-logsink-project-storage-${RAND}" ]]
+}
+
+@test "Verifying organization sinks were created each with a different as the destination in deployment ${DEPLOYMENT_NAME}" {
+    run gcloud logging sinks list --organization "${CLOUD_FOUNDATION_ORGANIZATION_ID}"
+    [[ "$output" =~ "test-logsink-org-bq-${RAND}" ]]
+    [[ "$output" =~ "test-logsink-org-pubsub-${RAND}" ]]
+    [[ "$output" =~ "test-logsink-org-storage-${RAND}" ]]
+}
+
+@test "Verifying billing account sinks were created each with a different as the destination in deployment ${DEPLOYMENT_NAME}" {
+    run gcloud logging sinks list --billing-account "${CLOUD_FOUNDATION_BILLING_ACCOUNT_ID}"
+    [[ "$output" =~ "test-logsink-billing-bq-${RAND}" ]]
+    [[ "$output" =~ "test-logsink-billing-pubsub-${RAND}" ]]
+    [[ "$output" =~ "test-logsink-billing-storage-${RAND}" ]]
+}
+
+@test "Verifying folder sinks were created each with a different as the destination in deployment ${DEPLOYMENT_NAME}" {
+    run gcloud logging sinks list --folder "${TEST_ORG_FOLDER_NAME}"
+    [[ "$output" =~ "test-logsink-folder-bq-${RAND}" ]]
+    [[ "$output" =~ "test-logsink-folder-pubsub-${RAND}" ]]
+    [[ "$output" =~ "test-logsink-folder-storage-${RAND}" ]]
+}
+
+@test "Verifying project sinks and the destination resource were created in deployment ${DEPLOYMENT_NAME}" {
+    run gcloud logging sinks list --project "${CLOUD_FOUNDATION_PROJECT_ID}"
+    #[[ "$output" =~ "test-logsink-project-bq-${RAND}" ]]
+    [[ "$output" =~ "test-logsink-project-pubsub-create-${RAND}" ]]
+    [[ "$output" =~ "test-logsink-project-storage-create-${RAND}" ]]
+
+    run gcloud beta pubsub topics get-iam-policy "test-logsink-project-pubsub-topic-dest-${RAND}"
+    [[ "$output" =~ "@gcp-sa-logging.iam.gserviceaccount.com" ]]
+    [[ "$output" =~ "user:${CLOUD_FOUNDATION_USER_ACCOUNT}" ]]
+    [[ "$output" =~ "role: roles/pubsub.admin" ]]
+
+    run gsutil iam get "gs://test-logsink-project-storage-dest-${RAND}"
+    [[ "$output" =~ "@gcp-sa-logging.iam.gserviceaccount.com" ]]
+    [[ "$output" =~ "roles/storage.admin" ]]
+    [[ "$output" =~ "user:${CLOUD_FOUNDATION_USER_ACCOUNT}" ]]
+    [[ "$output" =~ "roles/storage.objectViewer" ]]
+
+    #TODO: Add test for BQ
+}
+
+@test "Verifying org sinks and the destination resource were created in deployment ${DEPLOYMENT_NAME}" {
+    run gcloud logging sinks list --organization "${CLOUD_FOUNDATION_ORGANIZATION_ID}"
+    #[[ "$output" =~ "test-logsink-org-bq-${RAND}" ]]
+    [[ "$output" =~ "test-logsink-org-pubsub-create-${RAND}" ]]
+    [[ "$output" =~ "test-logsink-org-storage-create-${RAND}" ]]
+
+    run gcloud beta pubsub topics get-iam-policy "test-logsink-org-pubsub-topic-dest-${RAND}"
+    [[ "$output" =~ "@gcp-sa-logging.iam.gserviceaccount.com" ]]
+    [[ "$output" =~ "user:${CLOUD_FOUNDATION_USER_ACCOUNT}" ]]
+    [[ "$output" =~ "role: roles/pubsub.admin" ]]
+
+    run gsutil iam get "gs://test-logsink-org-storage-dest-${RAND}"
+    [[ "$output" =~ "@gcp-sa-logging.iam.gserviceaccount.com" ]]
+    [[ "$output" =~ "roles/storage.admin" ]]
+    [[ "$output" =~ "user:${CLOUD_FOUNDATION_USER_ACCOUNT}" ]]
+    [[ "$output" =~ "roles/storage.objectViewer" ]]
+
+    #TODO: Add test for BQ
+}
+
+@test "Verifying billing sinks and the destination resource were created in deployment ${DEPLOYMENT_NAME}" {
+    run gcloud logging sinks list --billing-account "${CLOUD_FOUNDATION_BILLING_ACCOUNT_ID}"
+    #[[ "$output" =~ "test-logsink-billing-bq-${RAND}" ]]
+    [[ "$output" =~ "test-logsink-billing-pubsub-create-${RAND}" ]]
+    [[ "$output" =~ "test-logsink-billing-storage-create-${RAND}" ]]
+
+    run gcloud beta pubsub topics get-iam-policy "test-logsink-billing-pubsub-topic-dest-${RAND}"
+    [[ "$output" =~ "@gcp-sa-logging.iam.gserviceaccount.com" ]]
+    [[ "$output" =~ "user:${CLOUD_FOUNDATION_USER_ACCOUNT}" ]]
+    [[ "$output" =~ "role: roles/pubsub.admin" ]]
+
+    run gsutil iam get "gs://test-logsink-billing-storage-dest-${RAND}"
+    [[ "$output" =~ "@gcp-sa-logging.iam.gserviceaccount.com" ]]
+    [[ "$output" =~ "roles/storage.admin" ]]
+    [[ "$output" =~ "user:${CLOUD_FOUNDATION_USER_ACCOUNT}" ]]
+    [[ "$output" =~ "roles/storage.objectViewer" ]]
+
+    #TODO: Add test for BQ
+}
+
+@test "Verifying folder sinks and the destination resource were created in deployment ${DEPLOYMENT_NAME}" {
+    run gcloud logging sinks list --folder "${TEST_ORG_FOLDER_NAME}"
+    #[[ "$output" =~ "test-logsink-folder-bq-${RAND}" ]]
+    [[ "$output" =~ "test-logsink-folder-pubsub-create-${RAND}" ]]
+    [[ "$output" =~ "test-logsink-folder-storage-create-${RAND}" ]]
+
+    run gcloud beta pubsub topics get-iam-policy "test-logsink-folder-pubsub-topic-dest-${RAND}"
+    [[ "$output" =~ "@gcp-sa-logging.iam.gserviceaccount.com" ]]
+    [[ "$output" =~ "user:${CLOUD_FOUNDATION_USER_ACCOUNT}" ]]
+    [[ "$output" =~ "role: roles/pubsub.admin" ]]
+
+    run gsutil iam get "gs://test-logsink-folder-storage-dest-${RAND}"
+    [[ "$output" =~ "@gcp-sa-logging.iam.gserviceaccount.com" ]]
+    [[ "$output" =~ "roles/storage.admin" ]]
+    [[ "$output" =~ "user:${CLOUD_FOUNDATION_USER_ACCOUNT}" ]]
+    [[ "$output" =~ "roles/storage.objectViewer" ]]
+
+    #TODO: Add test for BQ
 }
 
 @test "Deleting deployment" {
@@ -75,7 +193,24 @@ function teardown() {
         --project "${CLOUD_FOUNDATION_PROJECT_ID}"
 
     run gcloud logging sinks list --project "${CLOUD_FOUNDATION_PROJECT_ID}"
-    [[ ! "$output" =~ "test-logsink-bq-${RAND}" ]]
-    [[ ! "$output" =~ "test-logsink-pubsub-${RAND}" ]]
-    [[ ! "$output" =~ "test-logsink-storage-${RAND}" ]]
+    #[[ ! "$output" =~ "test-logsink-project-bq-${RAND}" ]]
+    [[ ! "$output" =~ "test-logsink-project-pubsub-${RAND}" ]]
+    [[ ! "$output" =~ "test-logsink-project-storage-${RAND}" ]]
+
+    run gcloud logging sinks list --organization "${CLOUD_FOUNDATION_ORGANIZATION_ID}"
+    #[[ ! "$output" =~ "test-logsink-org-bq-${RAND}" ]]
+    [[ ! "$output" =~ "test-logsink-org-pubsub-${RAND}" ]]
+    [[ ! "$output" =~ "test-logsink-org-storage-${RAND}" ]]
+
+    # TODO: Bug where billing accounts are not deleted during deployment delete.
+    #       Re-enable this check once its fixed.
+    #run gcloud logging sinks list --billing-account "${CLOUD_FOUNDATION_BILLING_ACCOUNT_ID}"
+    #[[ ! "$output" =~ "test-logsink-billing-bq-${RAND}" ]]
+    #[[ ! "$output" =~ "test-logsink-billing-pubsub-${RAND}" ]]
+    #[[ ! "$output" =~ "test-logsink-billing-storage-${RAND}" ]]
+
+    run gcloud logging sinks list --folder "${TEST_ORG_FOLDER_NAME}"
+    #[[ ! "$output" =~ "test-logsink-folder-bq-${RAND}" ]]
+    [[ ! "$output" =~ "test-logsink-folder-pubsub-${RAND}" ]]
+    [[ ! "$output" =~ "test-logsink-folder-storage-${RAND}" ]]
 }
