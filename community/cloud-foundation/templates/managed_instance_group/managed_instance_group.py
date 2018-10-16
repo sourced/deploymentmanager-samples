@@ -111,7 +111,9 @@ def get_autoscaler(properties, igm):
 def get_igm_outputs(name, igm_properties):
     """ Creates Instance Group Manaher (IGM) resource outputs. """
 
-    igm_outputs = [
+    location_prop = 'region' if 'region' in igm_properties else 'zone'
+
+    return [
         {
             'name': 'selfLink',
             'value': '$(ref.{}.selfLink)'.format(name)
@@ -123,23 +125,19 @@ def get_igm_outputs(name, igm_properties):
         {
             'name': 'instanceGroupSelfLink',
             'value': '$(ref.{}.instanceGroup)'.format(name)
-        }
-    ]
-
-    location_prop = 'region' if 'region' in igm_properties else 'zone'
-    igm_outputs.append(
+        },
         {
             'name': location_prop,
             'value': igm_properties[location_prop]
         }
-    )
-
-    return igm_outputs
+    ]
 
 
 def dereference_name(reference):
     """ Extracts resource name from Deployment Manager reference string. """
 
+    # Extracting a name from `$(ref.NAME.property)` value results a string
+    # which starts with `yaml%`. Remove the prefix.
     return reference.split('.')[1].replace('yaml%', '')
 
 
@@ -183,8 +181,13 @@ def create_health_checks_assignment(healthchecks, igm_resource, project):
             dependencies.append(hc_resource_name)
 
     if dependencies:
+        # instanceGroupManager must have a dependsOn metadata for all the
+        # healthchecks it's going to use, so when the time comes, it's deleted
+        # first
         igm_resource['metadata'] = copy.deepcopy(metadata)
 
+    # setAutoHealingPolicies depends both on the health checks and IGM
+    # resource
     dependencies.append(igm_name)
 
     for location in ['region', 'zone']:
