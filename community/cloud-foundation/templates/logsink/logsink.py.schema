@@ -125,4 +125,7 @@ documentation:
   - templates/logsink/README.md
 
 examples:
-  - templates/logsink/examples/logsink.yaml
+  - templates/logsink/examples/org_logsink_pubsub_destination.yaml
+  - templates/logsink/examples/billingaccount_logsink_bucket_destination.yaml
+  - templates/logsink/examples/folder_logsink_pubsub_destination.yaml
+  - templates/logsink/examples/project_logsink_bucket_destination.yaml

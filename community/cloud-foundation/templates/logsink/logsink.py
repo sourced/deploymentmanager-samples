@@ -11,11 +11,11 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""This template creates a logsink (logging sink)."""
+""" This template creates a logsink (logging sink). """
 
 
 def create_pubsub(context, logsink_name):
-    """ Create the pubsub destination """
+    """ Create the pubsub destination. """
 
     dest_properties = {}
     if 'pubsubProperties' in context.properties:
@@ -29,17 +29,19 @@ def create_pubsub(context, logsink_name):
         )
 
         dest_prop['accessControl'] = access_control
-        dest_properties = {
-            'name': context.properties['destinationName'],
-            'type': 'pubsub.py',
-            'properties': dest_prop
-        }
+        dest_properties = [
+            {
+                'name': context.properties['destinationName'],
+                'type': 'pubsub.py',
+                'properties': dest_prop
+            }
+        ]
 
-    return [dest_properties]
+    return dest_properties
 
 
 def create_bq_dataset(context, logsink_name):
-    """ Create the BQ dataset destination """
+    """ Create the BQ dataset destination. """
 
     dest_properties = {}
     if 'bqProperties' in context.properties:
@@ -54,17 +56,19 @@ def create_bq_dataset(context, logsink_name):
         )
 
         dest_prop['access'] = access
-        dest_properties = {
-            'name': context.properties['destinationName'],
-            'type': 'bigquery_dataset.py',
-            'properties': dest_prop
-        }
+        dest_properties = [
+            {
+                'name': context.properties['destinationName'],
+                'type': 'bigquery_dataset.py',
+                'properties': dest_prop
+            }
+        ]
 
-    return [dest_properties]
+    return dest_properties
 
 
 def create_storage(context, logsink_name):
-    """ Create the bucket destination """
+    """ Create the bucket destination. """
 
     dest_properties = {}
     if 'storageProperties' in context.properties:

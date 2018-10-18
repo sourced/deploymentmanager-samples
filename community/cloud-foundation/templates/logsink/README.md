@@ -20,6 +20,9 @@ This template creates a logsink (logging sink). The logsink destination can exis
 ### Resources
 
 - [logging.v2.sink](https://cloud.google.com/logging/docs/reference/v2/rest/v2/projects.sinks)
+- [pubsub.v1.topic](https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.topics)
+- [storage.v1.bucket](https://cloud.google.com/storage/docs/creating-buckets)
+- [bigquery.v2.dataset](https://cloud.google.com/bigquery/docs/reference/rest/v2/datasets)
 
 ### Properties
 
@@ -68,4 +71,7 @@ See `properties` section in the schema file(s):
 
 ## Examples
 
-- [Logging entries exported to PubSub, Storage, and BigQuery](examples/logsink.yaml)
+- [Organization logging entries exported to PubSub](examples/org_logsink_pubsub_destination.yaml)
+- [Billing account logging entries exported to Storage](examples/billingaccount_logsink_bucket_destination.yaml)
+- [Folder logging entries exported to PubSub](examples/folder_logsink_pubsub_destination.yaml)
+- [Project logging entries exported to Storage](examples/project_logsink_bucket_destination.yaml)
