@@ -1,16 +1,21 @@
-# Example of the Cloud Router template usage.
+# Example of the Interconnect Attachment template usage.
 #
-# Replace `test-network` with your network's name.
 
 imports:
-  - path: templates/cloud_router/cloud_router.py
-    name: cloud_router.py
+  - path: templates/interconnect_attachment/interconnect_attachment.py
+    name: interconnect_attachment.py
 
 resources:
-  - name: test-cloud-router
-    type: cloud_router.py
+  - name: test-dedicated-interconnect
+    type: interconnect_attachment.py
     properties:
-      name: cloud-router
-      network: test-network
-      region: us-east1
-      asn: 65001
+      name: my-dedicated-interconnect-attachment
+      router: router-1
+      interconnect: interconnect-1
+
+  - name: test-partner-interconnect
+    type: interconnect_attachment.py
+    properties:
+      name: my-partner-interconnect-attachment
+      router: router-1
+      edge-availability-domain: any

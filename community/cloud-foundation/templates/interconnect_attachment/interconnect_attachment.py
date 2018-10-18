@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-""" This template creates a Cloud Router. """
+""" This template creates a Interconnect Attachment. """
 
 
 def generate_config(context):
