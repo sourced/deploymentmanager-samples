@@ -8,6 +8,30 @@ This template creates a managed zone in the Cloud DNS (Domain Name System).
 - Create a [GCP project, set up billing, enable requisite APIs](../project/README.md)
 - Grant the [dns.admin](https://cloud.google.com/dns/access-control) IAM role to the Deployment Manager service account
 
+Private IP Pre-reqs
+API and IAM requirements
+
+    You must have enabled the Service Networking API for your project.
+
+    Enabling APIs requires the servicemanagement.services.bind IAM permission.
+
+    Establishing private services access requires the following IAM permissions, which are included in the Network Administrator role:
+        compute.networks.list
+        compute.globalAddresses.list
+        compute.globalAddresses.create
+        servicenetworking.services.addPeering
+
+    After private services access is established for your network, you do not need extra IAM permissions to configure an instance to use private IP.
+
+The activation policy specifies when the instance is activated; it is applicable only when the instance state is RUNNABLE. Valid values:
+ALWAYS: The instance is on, and remains so even in the absence of connection requests.
+NEVER: The instance is off; it is not activated, even if a connection request arrives.
+ON_DEMAND: First Generation instances only. The instance responds to incoming requests, and turns itself off when not in use. Instances with PER_USE pricing turn off after 15 minutes of inactivity. Instances with PER_PACKAGE pricing turn off after 12 hours of inactivity.
+
+
+https://cloud.google.com/sql/docs/mysql/flags#list-flags
+https://cloud.google.com/sql/docs/postgres/flags#list-flags-postgres
+
 ## Deployment
 
 ### Resources

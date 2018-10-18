@@ -33,7 +33,7 @@ def generate_config(context):
                     'day': '',
                     'hour': ''
                 },
-                'activationPolicy': '',
+                'activationPolicy': props.get('activationPolicy', 'ALWAYS'),
                 'ipConfiguration': {
                     'ipv4Enabled': '',
                     'requireSsl': '',
@@ -52,9 +52,11 @@ def generate_config(context):
 
     instance_settings['storageAutoResize'] = props.get('storageAutoResize', True)
     instance_settings['storageAutoResizeLimit'] = props.get('storageAutoResizeLimit', 0)
-    instance_settings['activationPolicy'] = props.get('activationPolicy')
     instance_settings['dataDiskSizeGb'] = props.get('dataDiskSizeGb')
     instance_settings['dataDiskType'] = props.get('dataDiskType')
+    instance_settings['pricingPlan'] = props.get('pricingPlan')
+    instance_settings['replicationType'] = props.get('replicationType')
+    instance_settings['userLabels'] = props.get('labels')
     instance_maintenance_window['day'] = maintenance_window.get('day', 1)
     instance_maintenance_window['hour'] = maintenance_window.get('hour', 5)
     instance_ip_config['ipv4Enabled'] = ip_config.get('ipv4Enabled', True)
@@ -82,7 +84,8 @@ def generate_config(context):
 
     if 'locationPreference' in props:
         instance_settings['locationPreference'] = {
-            'zone': props['locationPreference']['zone']
+            'zone': props['locationPreference']['zone'],
+            'followGaeApplication': props['locationPreference']['followGaeApplication']
         }
 
     if 'readReplicas' in props:
@@ -102,13 +105,16 @@ def generate_config(context):
                 replica_ip_config = replica_settings['ipConfiguration']
                 
                 replica_resource['name'] = replica_name
+                replica_properties['name'] = replica_name
                 replica_properties['masterInstanceName'] = instance_name
                 replica_properties['region'] = replica_region
                 replica_settings['storageAutoResize'] = props.get('storageAutoResize', True)
                 replica_settings['storageAutoResizeLimit'] = props.get('storageAutoResizeLimit', 0)
-                replica_settings['activationPolicy'] = props.get('activationPolicy')
                 replica_settings['dataDiskSizeGb'] = props.get('dataDiskSizeGb')
                 replica_settings['dataDiskType'] = props.get('dataDiskType')
+                replica_settings['pricingPlan'] = props.get('pricingPlan')
+                replica_settings['replicationType'] = props.get('replicationType')
+                replica_settings['userLabels'] = props.get('labels')
                 replica_maintenance_window['day'] = maintenance_window.get('day', 1)
                 replica_maintenance_window['hour'] = maintenance_window.get('hour', 5)
                 replica_ip_config['ipv4Enabled'] = ip_config.get('ipv4Enabled', True)
@@ -117,7 +123,8 @@ def generate_config(context):
 
                 if 'locationPreference' in replica:
                     replica_settings['locationPreference'] = {
-                        'zone': replica['locationPreference']['zone']
+                        'zone': replica['locationPreference']['zone'],
+                        'followGaeApplication': props['locationPreference']['followGaeApplication']
                     }
                 resources.append(replica_resource)
                 dependencies.append(replica_resource['name'])
@@ -131,21 +138,22 @@ def generate_config(context):
             'properties': {
                 'instance': instance_name,
                 'project': project_id,
-                'name': db_name
+                'name': db_name,
+                'charset': database.get('charset', 'utf8')
             },
             'metadata': {
                 'dependsOn': list(dependencies)
             }
         }
+        if 'collation' in database:
+            resource['collation'] = database['collation']
         dependencies.append(resource['name'])
         resources.append(resource)
 
     users = context.properties.get('users', [])
     for user in users:
         user_name = user['name']
-        host = user.get('host', None)
-        if host is None or host == '' or host == '%':
-            raise ValueError('You must define a restrictive host for database user access')
+        host = user.get('host')
         resource = {
             'name': USER_NAME_PATTERN.format(instance_name, user_name, host),
             'type': 'sqladmin.v1beta4.user',

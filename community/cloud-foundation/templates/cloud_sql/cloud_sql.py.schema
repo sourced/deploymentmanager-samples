@@ -1,0 +1,206 @@
+# Copyright 2018 Google Inc. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+info:
+  title: Cloud SQL
+  author: Sourced Group Inc.
+  description: |
+    Creates a Cloud SQL Resouce.
+
+    For more information on this resource:
+    https://cloud.google.com/sql/docs/
+
+imports:
+  - path: cloud_sql.py
+
+required:
+  - region
+  - databaseVersion
+  - tier
+  - dataDiskSizeGb
+  - 
+  - 
+
+properties:
+  region: 
+    type: string
+    description: The region the master instance will be created within.
+  databaseVersion: 
+    type: string
+    description: The type and version of database to create.
+    enum:
+      - MYSQL_5_7
+      - MYSQL_5_6
+      - MYSQL_5_6
+      - MYSQL_5_5
+      - POSTGRES_9_6
+  tier:
+    type: string
+    description: Determines memory, virtual cores, and other resources available to your Cloud SQL instance.
+    enum:
+      - db-f1-micro
+      - db-g1-small
+      - db-n1-standard-1
+      - db-n1-standard-2
+      - db-n1-standard-4
+      - db-n1-standard-8
+      - db-n1-standard-16
+      - db-n1-standard-32
+      - db-n1-standard-64
+      - db-n1-highmem-2
+      - db-n1-highmem-4
+      - db-n1-highmem-8
+      - db-n1-highmem-16
+      - db-n1-highmem-32
+      - db-n1-highmem-64
+      - D0
+      - D1
+      - D2
+      - D4
+      - D8
+      - D16
+      - D32
+  dataDiskSizeGb: 
+    type: integer
+    description: The size of data disk in GB. The data disk size minimum is 10GB. Not used for First Generation instances.
+  dataDiskType: 
+    type: string
+    default: PD_SSD
+    description: The type of data disk, HDD or SSD. Not used for First Generation instances.
+    enum: 
+      - PD_HDD
+      - PD_SSD
+  activationPolicy:
+    type: string
+    default: ALWAYS
+    description: |
+      The activation policy specifies when the instance is activated.
+      Only applicable when the instance state is RUNNABLE.
+      ALWAYS - The instance is on.
+        It remains so even in the absence of connection requests.
+      NEVER - The instance is off.
+        It is not activated, even if a connection request arrives.
+      ON_DEMAND - The instance responds to incoming requests, 
+        and turns itself off when not in use.
+        Instances with PER_USE pricing turn off after 15 minutes of inactivity.
+        Instances with PER_PACKAGE pricing turn off after 12 hours of inactivity.
+        First Generation instances only.
+    enum:
+      - ALWAYS
+      - NEVER
+      - ON_DEMAND
+  locationPreference:
+    type: object
+    description: |
+      This specifies where a Cloud SQL instance should preferably be located
+      either in a specific Compute Engine zone, or co-located
+      with an App Engine application.
+      Note that if the preferred location is not available, the instance will
+      be located as close as possible within the region.
+      Only one location may be specified.
+      App Engine co-location is only applicable to First Generation instances.
+    properties:
+      zone:
+        type: string
+        description: The preferred Compute Engine zone.
+      followGaeApplication:
+        type: string
+        description: |
+          The AppEngine application to follow.
+          It must be in the same region as the Cloud SQL instance.
+  backupConfiguration:
+    type: object
+    description: The daily backup configuration for the instance.
+    properties:
+      binaryLogEnabled:
+        type: boolean
+        default: True
+        description: |
+          Whether binary log is enabled.
+          If backup configuration is disabled, binary log must be disabled as well.
+      enabled:
+        type: boolean
+        default: True
+        description: Whether this configuration is enabled.
+      startTime:
+        type: string
+        description: |
+          Start time for the daily backup configuration.
+          In UTC timezone in the 24 hour format - HH:MM.
+  readReplicas:
+    type: array
+    description: |
+      Array of read replicas to create for the associated master instance.
+    items:
+      type: object
+      description: |
+        A read replica of the master instance.
+        It inherits all the properties of the master instance.
+        It can reside in a different region or zone than the master.
+      properties:
+        region:
+          type: string
+          description: |
+            The region the read replica
+            instance will be created within.
+        locationPreference:
+          type: object
+          description: |
+            Behaves the same as the master instance location preference
+            for the read replicas.
+          properties:
+            zone:
+              type: string
+              description: The preferred Compute Engine zone for the read replica.
+            followGaeApplication:
+              type: string
+              description: |
+                The AppEngine application to follow.
+                It must be in the same region as the Cloud SQL instance.
+  databases:
+    type: array
+    description: |
+      An array of SQL databases to create within the
+      master and read replica instances.
+    items:
+      type: object
+      description: Represents a SQL database on the Cloud SQL instance
+      properties:
+        name:
+          type: string
+          description: The name of the database.
+        charset:
+          type: string
+          default: utf8
+          description: The character set to use for the database.
+        collation:
+          type: string
+          description: The collation to use for the database.
+  users:
+    type: array
+    description: |
+      An array of Cloud SQL users to create within the
+      master and read replica instances.
+    items:
+      type: object
+      description: A single Cloud SQL user.
+      properties:
+        name:
+          type: string
+          description: The name of the user in the Cloud SQL instance.
+        host:
+          type: string
+          description: |
+            The host name from which the user can connect.
+            The host name cannot be updated after insertion.
