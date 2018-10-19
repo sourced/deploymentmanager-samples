@@ -20,4 +20,4 @@ resources:
       name: my-partner-interconnect-attachment
       router: router-1
       region: us-central1
-      edge-availability-domain: any
+      edgeAvailabilityDomain: any

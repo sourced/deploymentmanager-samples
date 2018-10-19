@@ -17,43 +17,30 @@
 
 def generate_config(context):
     """ Entry point for the deployment resources. """
-
-    if context.properties['interconnect']:
-        resources = [
+    resources = []
+    attach = {
+        'name': context.env['name'],
+        'type': 'compute.v1.interconnectAttachments',
+        'properties':
             {
-                'name': context.env['name'],
-                'type': 'compute.v1.interconnectAttachments',
-                'properties':
-                    {
-                        'name':
-                            context.properties.get('name', context.env['name']),
-                        'router':
-                            context.properties['router'],
-                        'region':
-                            context.properties['region'],
-                        'interconnect':
-                            context.properties['interconnect'],
-                    }
+                'name':
+                    context.properties.get('name', context.env['name']),
+                'router':
+                    context.properties['router'],
+                'region':
+                    context.properties['region']
             }
-        ]
+    }
 
-    if context.properties['edge-availibility-domain']:
-        resources = [
-            {
-                'name': context.env['name'],
-                'type': 'compute.v1.interconnectAttachments',
-                'properties':
-                    {
-                        'name':
-                            context.properties.get('name', context.env['name']),
-                        'router':
-                            context.properties['router'],
-                        'region':
-                            context.properties['region'],
-                        'edge-availibility-domain':
-                            context.properties['edge-availibility-domain'],
-                    }
-            }
-        ]
+    optional_props = [
+        'interconnect',
+        'edgeAvailabilityDomain'
+    ]
+
+    for prop in optional_props:
+        if prop in context.properties:
+            attach['properties'][prop] = context.properties[prop]
+
+    resources.append(attach)
 
     return {'resources': resources}
