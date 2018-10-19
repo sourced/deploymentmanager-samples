@@ -17,7 +17,13 @@ def generate_config(context):
     ip_config = props.get('ipConfiguration', {})
 
     resources = []
-    instance_template = {
+
+    instance_resource = copy.deepcopy(instance_template)
+    instance_settings = instance_resource['properties']['settings']
+    instance_maintenance_window = instance_settings['maintenanceWindow']
+    instance_ip_config = instance_settings['ipConfiguration']
+
+    instance_resource = {
         'name': instance_name,
         'type': 'sqladmin.v1beta4.instance',
         'properties': {
@@ -27,42 +33,26 @@ def generate_config(context):
             'region': region,
             'settings': {
                 'tier': props['tier'],
-                'storageAutoResize': '',
-                'storageAutoResizeLimit': '',
+                'storageAutoResize': props.get('storageAutoResize', True),
+                'storageAutoResizeLimit': props.get('storageAutoResizeLimit', 0),
+                'dataDiskSizeGb': props.get('dataDiskSizeGb'),
+                'dataDiskType': props.get('dataDiskType'),
+                'pricingPlan': props.get('pricingPlan'),
+                'replicationType': props.get('replicationType'),
+                'userLabels': props.get('labels'),
                 'maintenanceWindow': {
-                    'day': '',
-                    'hour': ''
+                    'day': maintenance_window.get('day', 1),
+                    'hour': maintenance_window.get('hour', 5)
                 },
                 'activationPolicy': props.get('activationPolicy', 'ALWAYS'),
                 'ipConfiguration': {
-                    'ipv4Enabled': '',
-                    'requireSsl': '',
-                    'authorizedNetworks': []
-                },
-                'dataDiskSizeGb': '',
-                'dataDiskType': '',
+                    'ipv4Enabled': ip_config.get('ipv4Enabled', True),
+                    'requireSsl': ip_config.get('requireSsl', True),
+                    'authorizedNetworks': ip_config.get('authorizedNetworks')
+                }
             }
         }
     }
-
-    instance_resource = copy.deepcopy(instance_template)
-    instance_settings = instance_resource['properties']['settings']
-    instance_maintenance_window = instance_settings['maintenanceWindow']
-    instance_ip_config = instance_settings['ipConfiguration']
-
-    instance_settings['storageAutoResize'] = props.get('storageAutoResize', True)
-    instance_settings['storageAutoResizeLimit'] = props.get('storageAutoResizeLimit', 0)
-    instance_settings['dataDiskSizeGb'] = props.get('dataDiskSizeGb')
-    instance_settings['dataDiskType'] = props.get('dataDiskType')
-    instance_settings['pricingPlan'] = props.get('pricingPlan')
-    instance_settings['replicationType'] = props.get('replicationType')
-    instance_settings['userLabels'] = props.get('labels')
-    instance_maintenance_window['day'] = maintenance_window.get('day', 1)
-    instance_maintenance_window['hour'] = maintenance_window.get('hour', 5)
-    instance_ip_config['ipv4Enabled'] = ip_config.get('ipv4Enabled', True)
-    instance_ip_config['requireSsl'] = ip_config.get('requireSsl', True)
-    instance_ip_config['authorizedNetworks'] = ip_config.get('authorizedNetworks')
-
     resources.append(instance_resource)
     dependencies = [instance_name]
 
