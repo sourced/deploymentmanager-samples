@@ -12,51 +12,48 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-""" This template creates a Interconnect Attachment. """
+""" This template creates an Interconnect Attachment. """
 
 
 def generate_config(context):
     """ Entry point for the deployment resources. """
 
-    resources = [
-        {
-            'name': context.env['name'],
-            'type': 'compute.v1.router',
-            'properties':
-                {
-                    'name':
-                        context.properties.get('name', context.env['name']),
-                    'bgp': {
-                        'asn': context.properties['asn']
-                    },
-                    'network':
-                        generate_network_url(
-                            context,
-                            context.properties['network']
-                        ),
-                    'region':
-                        context.properties['region']
-                }
-        }
-    ]
+    if context.properties['interconnect']:
+        resources = [
+            {
+                'name': context.env['name'],
+                'type': 'compute.v1.interconnectAttachments',
+                'properties':
+                    {
+                        'name':
+                            context.properties.get('name', context.env['name']),
+                        'router':
+                            context.properties['router'],
+                        'region':
+                            context.properties['region'],
+                        'interconnect':
+                            context.properties['interconnect'],
+                    }
+            }
+        ]
 
-    return {
-        'resources':
-            resources,
-        'outputs':
-            [
-                {
-                    'name': 'routerUrl',
-                    'value': '$(ref.' + context.env['name'] + '.selfLink)'
-                }
-            ]
-    }
+    if context.properties['edge-availibility-domain']:
+        resources = [
+            {
+                'name': context.env['name'],
+                'type': 'compute.v1.interconnectAttachments',
+                'properties':
+                    {
+                        'name':
+                            context.properties.get('name', context.env['name']),
+                        'router':
+                            context.properties['router'],
+                        'region':
+                            context.properties['region'],
+                        'edge-availibility-domain':
+                            context.properties['edge-availibility-domain'],
+                    }
+            }
+        ]
 
-
-def generate_network_url(context, network):
-    """Format the resource name as a resource URI."""
-
-    return 'projects/{}/global/networks/{}'.format(
-        context.env['project'],
-        network
-    )
+    return {'resources': resources}

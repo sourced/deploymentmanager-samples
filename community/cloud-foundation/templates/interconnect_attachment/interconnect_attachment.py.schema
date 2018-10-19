@@ -13,48 +13,41 @@
 # limitations under the License.
 
 info:
-  title: Vlan Attachment
+  title: Interconnect Attachment
   author: Sourced Group Inc.
   description: |
-    Creates a Vlan Attachment.
+    Creates an Interconnect Attachment.
 
     For more information on this resource:
-    https://cloud.google.com/interconnect/docs/how-to/dedicated/creating-vlan-attachments
+    https://cloud.google.com/interconnect/docs/how-to/dedicated/creating-vlan-attachments (Dedicated)
+    https://cloud.google.com/interconnect/docs/how-to/partner/creating-vlan-attachments (Partner)
 
 imports:
-  - path: vlan_attachment.py
+  - path: interconnect_attachment.py
 
 required:
-  - network
+  - router
   - region
-  - asn
 
 properties:
   name:
     type: string
-    description: The name of the resource.
-  network:
+    description: The name of the Interconnect Attachment.
+  router:
     type: string
-    description: The URI of the network to which the router belongs.
+    description: The URL of the cloud router that the attachment is being attached to.
   region:
     type: string
-    description: The URI of the region where the router resides.
-  asn:
-    type: integer
-    description: |
-      The local BGP Autonomous System Number (ASN). Must be an RFC6996 private ASN,
-      either 16-bit or 32-bit. The value will be fixed for this router.
-      All VPN tunnels that link to this router will have the same
-      local ASN.
-
-outputs:
-  properties:
-    - routerUrl:
-        type: string
-        description: The URL (SelfLink) of the router resource.
+    description: The URL of the region where the router resides.
+  interconnect:
+    type: string
+    description: URL of the underlying Interconnect object that this attachment's traffic will traverse through.
+  edge-availability-domain:
+    type: string
+    description: Desired availability domain for the attachment. Only available for type PARTNER, at creation time
 
 documentation:
-  - templates/cloud_router/README.md
+  - templates/interconnect_attachment/README.md
 
 examples:
-  - templates/cloud_router/examples/cloud_router.yaml
+  - templates/interconnect_attachment/examples/interconnect_attachment.yaml

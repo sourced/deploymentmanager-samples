@@ -1,18 +1,17 @@
-# Test of the Cloud Router template usage.
+# Test of the Interconnect Attachment template usage.
 #
 # Variables:
 #   RAND: a random string used by the testing suite.
 #
 
 imports:
-  - path: templates/cloud_router/cloud_router.py
-    name: cloud_router.py
+  - path: templates/interconnect_attachment/interconnect_attachment.py
+    name: interconnect_attachment.py
 
 resources:
-  - name: cloud-router-${RAND}
-    type: cloud_router.py
+  - name: interconnect-attachment-${RAND}
+    type: interconnect_attachment.py
     properties:
-      name: cloud-router-${RAND}
-      network: network-${RAND}
+      name: interconnect-attachment-${RAND}
+      router: my-router-1
       region: us-east1
-      asn: 65001

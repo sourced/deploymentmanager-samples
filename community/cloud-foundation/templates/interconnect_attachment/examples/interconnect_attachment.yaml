@@ -11,6 +11,7 @@ resources:
     properties:
       name: my-dedicated-interconnect-attachment
       router: router-1
+      region: us-central1
       interconnect: interconnect-1
 
   - name: test-partner-interconnect
@@ -18,4 +19,5 @@ resources:
     properties:
       name: my-partner-interconnect-attachment
       router: router-1
+      region: us-central1
       edge-availability-domain: any

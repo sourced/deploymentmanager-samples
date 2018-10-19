@@ -7,13 +7,15 @@ This template creates an Interconnect Attachment.
 - Install [gcloud](https://cloud.google.com/sdk)
 - Create a [GCP project, set up billing, enable requisite APIs](../project/README.md)
 - Create a [network](../network/README.md)
+- Create a [interconnect] (../interconnect/README.md)
+- Create a [cloud_router] (../cloud_router/README.md)
 - Grant the [compute.networkAdmin](https://cloud.google.com/compute/docs/access/iam) IAM role to the project service account
 
 ## Deployment
 
 ### Resources
 
-- [compute.v1.router](https://cloud.google.com/compute/docs/reference/rest/v1/routers)
+- [compute.v1.interconnectAttachments](https://cloud.google.com/compute/docs/reference/rest/v1/interconnectAttachments)
 
 ### Properties
 
@@ -34,7 +36,7 @@ See the `properties` section in the schema file(s):
     cd community/cloud-foundation
 ```
 
-3. Copy the example DM config to be used as a model for the deployment; in this case, [examples/vlan_attachment.yaml](examples/vlan_attachment.yaml):
+3. Copy the example DM config to be used as a model for the deployment; in this case, [examples/interconnect_attachment.yaml](examples/interconnect_attachment.yaml):
 
 ```
     cp templates/interconnect_attachment/examples/interconnect_attachment.yaml my_interconnect_attachment.yaml
