@@ -29,12 +29,21 @@ def generate_config(context):
                     context.properties['router'],
                 'region':
                     context.properties['region']
+                'type':
+                    context.properties['type']
             }
     }
 
     optional_props = [
+        'adminEnabled',
+        'bandwidth',
+        'candidateSubnets',
+        'description',
+        'edgeAvailabilityDomain',
         'interconnect',
-        'edgeAvailabilityDomain'
+        'partnerAsn',
+        'partnerMetadata',
+        'vlanTag8021q',
     ]
 
     for prop in optional_props:
@@ -43,4 +52,15 @@ def generate_config(context):
 
     resources.append(attach)
 
-    return {'resources': resources}
+    return {
+        'resources':
+            resources,
+        'outputs':
+            [
+                {
+                    'name': 'name',
+                    'value': name
+                },
+
+            ]
+    }

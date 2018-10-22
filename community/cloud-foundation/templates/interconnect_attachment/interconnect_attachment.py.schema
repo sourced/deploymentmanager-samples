@@ -28,6 +28,7 @@ imports:
 required:
   - router
   - region
+  - type
 
 properties:
   name:
@@ -39,12 +40,23 @@ properties:
   region:
     type: string
     description: The URL of the region where the router resides.
+  type:
+    type: string
+    description: The type of Interconnect
+    enum:
+      - DEDICATED
+      - PARTNER
+      - PARTNER_PROVIDER
   interconnect:
     type: string
     description: URL of the underlying Interconnect object that this attachment's traffic will traverse through.
   edgeAvailabilityDomain:
     type: string
     description: Desired availability domain for the attachment. Only available for type PARTNER, at creation time
+    enum:
+      - AVAILABILITY_DOMAIN_1
+      - AVAILABILITY_DOMAIN_2
+      - AVAILABILITY_DOMAIN_ANY
 
 documentation:
   - templates/interconnect_attachment/README.md
