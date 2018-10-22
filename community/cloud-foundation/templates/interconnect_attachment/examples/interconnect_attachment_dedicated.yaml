@@ -7,7 +7,6 @@
 # <FIXME:router>: replace with the url of the cloud router.
 # <FIXME:region>: replace with the region that the cloud router is in.
 # <FIXME:interconnect>: DEDICATED Circuits only replace with the url of the interconnect
-# <FIXME:edgeAvailabilityDomain>: PARTNER Inertonnects only replace with the edge availibility domain 
 # Refer to https://cloud.google.com/compute/docs/reference/rest/v1/interconnectAttachments 
 # for more details
 
