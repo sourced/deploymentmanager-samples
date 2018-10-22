@@ -13,12 +13,12 @@
 # limitations under the License.
 
 info:
-  title: Stackdriver Metric Descriptors
+  title: Stackdriver Metric Descriptor
   author: Sourced Group Inc.
   description: |
-    Schema for creating a Stackdriver Metric Descriptor.
-    For more information on this resource
-    https://cloud.google.com/monitoring/api/ref_v3/rest/v3/projects.metricDescriptors
+    Supports creation of a Stackdriver Metric Descriptor.
+    For more information on this resource, see
+    https://cloud.google.com/monitoring/api/ref_v3/rest/v3/projects.metricDescriptors.
 
 imports:
   - path: stackdriver_metric_descriptor.py
@@ -33,31 +33,32 @@ required:
 properties:
   name:
     type: string
-    description: The resource name of the metric Descriptor.
+    description: The resource name of the Metric Descriptor.
   type:
     type: string
     description: |
-      The metric type including the DNS name prefix. The type is not
+      The metric type, including the DNS name prefix. The type is not
       URL-encoded. All user-defined metric types have the DNS name
-      custom.googleapis.com or external.googleapis.com. Metric types should
+      custom.googleapis.com or external.googleapis.com. Metric types must
       use a natural hierarchical grouping.
-      For Example:
+      For example:
       "custom.googleapis.com/invoice/paid/amount"
       "external.googleapis.com/prometheus/up"
       "appengine.googleapis.com/http/server/response_latencies"
-      For a list of metric types refer to the following url
-      - https://cloud.google.com/monitoring/api/metrics
+      For a list of metric types, see:
+      https://cloud.google.com/monitoring/api/metrics
   labels:
     type: array
     description: |
       The set of labels that can be used to describe a specific instance of
       this metric type. For example, the
       appengine.googleapis.com/http/server/response_latencies metric type has a
-      label for the HTTP response code, response_code, so you can look at
-      latencies for successful responses or just for responses that failed.
+      label for the HTTP response code, response_code. This enables you to look
+      at latencies for successful responses, or just for those responses that
+      had failed.
     items:
       type: object
-      description: A description of the label.
+      description: The label description.
       properties:
         key:
           type: string
@@ -75,10 +76,10 @@ properties:
   metricKind:
     type: string
     description: |
-      Whether the metric records instantaneous values, changes to a value, etc.
-      Some combinations of metricKind and valueType might not be supported.
-      Refer here for more info
-      https://cloud.google.com/monitoring/api/ref_v3/rest/v3/projects.metricDescriptors#MetricKind
+      Defines whether the metric records instantaneous values, changes to a
+      value, etc. Some combinations of metricKind and valueType might not be
+      supported. For detail, see:
+      https://cloud.google.com/monitoring/api/ref_v3/rest/v3/projects.metricDescriptors#MetricKind.
     enum:
       - METRIC_KIND_UNSPECIFIED
       - GAUGE
@@ -87,8 +88,9 @@ properties:
   valueType:
     type: string
     description: |
-      Whether the measurement is an integer, a floating-point number, etc.
-      Some combinations of metricKind and valueType might not be supported.
+      Defines whether the measurement is an integer, a floating-point number,
+      etc. Some combinations of metricKind and valueType might not be
+      supported.
     enum:
       - VALUE_TYPE_UNSPECIFIED
       - BOOL
@@ -100,11 +102,11 @@ properties:
   unit:
     type: string
     description: |
-      The unit in which the metric value is reported. It is only applicable if
-      the valueType is INT64, DOUBLE, or DISTRIBUTION.
+      The unit in which the metric value is reported. Applicable if valueType
+      is INT64, DOUBLE, or DISTRIBUTION.
       The supported units are a subset of The Unified Code for Units of
       Measure standard. 
-      Refer following for more details
+      For details, see:
       http://unitsofmeasure.org/ucum.html
       https://cloud.google.com/monitoring/api/ref_v3/rest/v3/projects.metricDescriptors#MetricDescriptor
   description:
@@ -113,10 +115,10 @@ properties:
   displayName:
     type: string
     description: |
-      A concise name for the metric, which can be displayed in user interfaces.
-      Use sentence case without an ending period, for example "Request count".
-      This field is optional but it is recommended to be set for any metrics
-      associated with user-visible concepts, such as Quota.
+      The metric name that can be displayed in user interfaces. Use sentence
+      case without the ending period; for example, "Request count".
+      Optional but recommended to be set for any metrics associated with
+      user-visible concepts, such as Quota.
   metadata:
     type: object
     description: |
@@ -125,8 +127,8 @@ properties:
       launchStage:
         type: string
         description: |
-          The launch stage as defined by Google Cloud Platform Launch Stages.
-          http://cloud.google.com/terms/launch-stages
+          The launch stage as defined by Google Cloud Platform Launch Stages:
+          http://cloud.google.com/terms/launch-stages.
         enum:
           - LAUNCH_STAGE_UNSPECIFIED
           - EARLY_ACCESS
@@ -137,32 +139,32 @@ properties:
       samplePeriod:
         type: string
         description: |
-          The sampling period of metric data points. For metrics which are
+          The sampling period for the metric data points. For metrics that are
           written periodically, consecutive data points are stored at this time
           interval, excluding data loss due to errors. Metrics with a higher
           granularity have a smaller sampling period.
-          Refer here for more info on duration format
-          https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#google.protobuf.Duration
+          See here for more information:
+          https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#google.protobuf.Duration.
       ingestDelay:
         type: string
         description: |
           The delay of data points caused by ingestion. Data points older than
           this age are guaranteed to be ingested and available to be read,
           excluding data loss due to errors.
-          Refer here for more info on duration format
-          https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#google.protobuf.Duration
+          See here for more information:
+          https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#google.protobuf.Duration.
 
 outputs:
   properties:
     - name:
         type: string
-        description: The name of the metric descriptor.
+        description: The name of the Metric Descriptor.
     - type:
         type: string
-        description: The metric type as defined in the descriptor
+        description: The metric type as defined in the descriptor.
     - labels:
         type: array
-        description: List of defined labels
+        description: List of the defined labels.
         items:
           type: string
     - metricKind:
@@ -170,16 +172,16 @@ outputs:
         description: The metric kind as defined.
     - valueType:
         type: string
-        description: The measurement type (int, string etc.)
+        description: The measurement type (int, string, etc.).
     - unit:
         type: string
         description: The unit in which the metric value is reported.
     - description:
         type: string
-        description: The description of the metric.
+        description: The metric description.
     - displayName:
         type: string
-        description: The display name of the metric
+        description: The display name of the metric.
     - metadata:
         type: object
         description: Metadata associated with the metric.

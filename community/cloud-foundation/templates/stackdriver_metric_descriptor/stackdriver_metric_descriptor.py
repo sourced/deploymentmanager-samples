@@ -39,7 +39,7 @@ def generate_config(context):
         if prop in properties:
             metric_descriptor['properties'][prop] = properties[prop]
 
-    # Optional properties
+    # Optional properties:
     optional_properties = ['labels', 'description', 'metadata']
 
     for prop in optional_properties:
@@ -48,7 +48,7 @@ def generate_config(context):
 
     resources.append(metric_descriptor)
 
-    # Output variables
+    # Output variables:
     output_props = [
         'name',
         'type',

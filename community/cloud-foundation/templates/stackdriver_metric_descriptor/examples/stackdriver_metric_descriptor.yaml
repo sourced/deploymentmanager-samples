@@ -1,7 +1,7 @@
-# Example of the Stackdriver metric descriptor template usage.
+# Example of the Stackdriver Metric Descriptor template usage.
 #
-# NOTE: For supported metric types, kind, valueType, unit refer to below url
-# https://cloud.google.com/monitoring/api/metrics
+# NOTE: For supported metric types, kind, valueType, and unit, see
+# https://cloud.google.com/monitoring/api/metrics.
 
 imports:
   - path: templates/stackdriver_metric_descriptor/stackdriver_metric_descriptor.py

@@ -7,8 +7,8 @@ This template creates a Stackdriver Metric Descriptor.
 - Install [gcloud](https://cloud.google.com/sdk)
 - Create a [GCP project, set up billing, enable requisite APIs](../project/README.md)
 - Create a [Stackdriver Workspace](https://cloud.google.com/monitoring/workspaces/)
-- Login to [Stackdriver Workspace](https://cloud.google.com/monitoring/workspaces/)
-  where this metric needs to deployed
+- Log in to the [Stackdriver Workspace](https://cloud.google.com/monitoring/workspaces/)
+  where the metric has to be deployed
 - Grant the [monitoring.admin](https://cloud.google.com/monitoring/access-control)
   IAM role to the Deployment Manager service account
 
@@ -17,16 +17,16 @@ This template creates a Stackdriver Metric Descriptor.
 ### Resources
 
 - [projects.metricDescriptors](https://cloud.google.com/monitoring/api/ref_v3/rest/v3/projects.metricDescriptors)
-- [GCP metrics list](https://cloud.google.com/monitoring/api/metrics_gcp)
-- [AWS metrics list](https://cloud.google.com/monitoring/api/metrics_aws)
-- [Stackdriver Agent metrics list](https://cloud.google.com/monitoring/api/metrics_agent)
-- [External metrics list](https://cloud.google.com/monitoring/api/metrics_other)
+- [GCP metric list](https://cloud.google.com/monitoring/api/metrics_gcp)
+- [AWS metric list](https://cloud.google.com/monitoring/api/metrics_aws)
+- [Stackdriver Agent metric list](https://cloud.google.com/monitoring/api/metrics_agent)
+- [External metric list](https://cloud.google.com/monitoring/api/metrics_other)
 
 ### Properties
 
 See the `properties` section in the schema file(s):
 
-- [Stackdriver Metric Descriptor schema](stackdriver_metric_descriptor.py.schema)
+- [Stackdriver Metric Descriptor](stackdriver_metric_descriptor.py.schema)
 
 ### Usage
 

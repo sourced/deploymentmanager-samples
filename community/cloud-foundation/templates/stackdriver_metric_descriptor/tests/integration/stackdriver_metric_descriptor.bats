@@ -22,7 +22,7 @@ if [[ -e "${RANDOM_FILE}" ]]; then
     # Must be a match of regex '[a-z](?:[-a-z0-9]{0,61}[a-z0-9])?'
     DEPLOYMENT_NAME=`echo $DEPLOYMENT_NAME | cut -c 1-61`
     CONFIG=".${DEPLOYMENT_NAME}.yaml"
-    # Test specific variables
+    # Test specific variables.
     export METRIC_NAME="test-metric-${RAND}"
     export METRIC_TYPE="custom.googleapis.com/agent/log_entry_retry_count"
     export METRIC_KIND="CUMULATIVE"
@@ -80,11 +80,13 @@ function teardown() {
 }
 
 ########## NOTE ###########
-# As of gcloud sdk version 221.0.0, beta 2018.07.16 the only way to list a 
-# metric descriptor is to make an api call to project.metricDescriptors 
-# resource type. Hence no test assertions were written .
 #
-# The following logging commands doesn't list a custom metricDescriptor
+# From Google Cloud SDK version 221.0.0, beta 2018.07.16, the only way to
+# list a metric descriptor is to make an API call to the
+# project.metricDescriptors resource type. Hence, no test assertions were
+# written.
+#
+# The following logging commands do not list custom metricDescriptors:
 #   `gcloud logging metrics list`
 #   `gcloud beta logging metrics list`
 #

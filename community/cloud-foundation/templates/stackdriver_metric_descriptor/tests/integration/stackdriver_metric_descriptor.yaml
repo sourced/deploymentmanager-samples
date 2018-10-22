@@ -1,12 +1,12 @@
-# Test of the Stackdriver Metric Descriptor Template
+# Test of the Stackdriver Metric Descriptor template.
 
 ########## NOTE ###########################
-# These tests need to be run in the stackdriver workspace
+# These tests need to be run in the Stackdriver workspace.
 #
 # To list the current context:
 #  gcloud config list
 #
-# To switch context use the following commands:
+# To switch context:
 #  gcloud config set project <stackdriver_workspace_project>
 #
 ###########################################
