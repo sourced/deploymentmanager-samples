@@ -36,7 +36,8 @@ properties:
     description: The name of the Interconnect Attachment.
   router:
     type: string
-    description: The URL of the cloud router that the attachment is being attached to.
+    description: The URL of the cloud router that the attachment is being 
+                 attached to.
   region:
     type: string
     description: The URL of the region where the router resides.
@@ -49,10 +50,12 @@ properties:
       - PARTNER_PROVIDER
   interconnect:
     type: string
-    description: URL of the underlying Interconnect object that this attachment's traffic will traverse through.
+    description: URL of the underlying Interconnect object that this 
+                 attachment's traffic will traverse through.
   edgeAvailabilityDomain:
     type: string
-    description: Desired availability domain for the attachment. Only available for type PARTNER, at creation time
+    description: Desired availability domain for the attachment. Only 
+                 available for type PARTNER, at creation time
     enum:
       - AVAILABILITY_DOMAIN_1
       - AVAILABILITY_DOMAIN_2
