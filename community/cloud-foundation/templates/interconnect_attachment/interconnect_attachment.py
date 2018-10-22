@@ -28,7 +28,7 @@ def generate_config(context):
                 'router':
                     context.properties['router'],
                 'region':
-                    context.properties['region']
+                    context.properties['region'],
                 'type':
                     context.properties['type']
             }
