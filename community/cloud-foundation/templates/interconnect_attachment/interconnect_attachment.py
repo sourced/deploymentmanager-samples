@@ -61,6 +61,9 @@ def generate_config(context):
                     'name': 'name',
                     'value': name
                 },
-
+                {
+                    'name': 'attachmentSelfLink',
+                    'value': '$(ref.{}.selfLink)'.format(name)
+                }
             ]
     }
