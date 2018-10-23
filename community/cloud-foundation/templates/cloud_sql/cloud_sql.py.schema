@@ -29,8 +29,8 @@ required:
   - databaseVersion
   - tier
   - dataDiskSizeGb
-  - 
-  - 
+  - dataDiskType
+  - pricingPlan
 
 properties:
   region: 
@@ -38,10 +38,14 @@ properties:
     description: The region the master instance will be created within.
   databaseVersion: 
     type: string
-    description: The type and version of database to create.
+    description: |
+      The database engine type and version.
+      The databaseVersion field can not be changed after instance creation.
+      MySQL Second Generation instances MYSQL_5_7 | MYSQL_5_6.
+      First Generation instances MYSQL_5_6 | MYSQL_5_5.
+      PostgreSQL instances POSTGRES_9_6.
     enum:
       - MYSQL_5_7
-      - MYSQL_5_6
       - MYSQL_5_6
       - MYSQL_5_5
       - POSTGRES_9_6
@@ -81,6 +85,26 @@ properties:
     enum: 
       - PD_HDD
       - PD_SSD
+  replicationType:
+    type: string
+    description: |
+      The type of replication this instance uses.
+      This property is only applicable to First Generation instances.
+    enum:
+      - ASYNCHRONOUS
+      - SYNCHRONOUS
+  pricingPlan:
+    type: string
+    description: |
+      The pricing plan for this instance.
+      Packages - Charged a daily rate for a set of resources.
+      Further information - https://cloud.google.com/sql/pricing#packages
+      Per use - charged per minute of use, depending on instance tier.
+      Further information - https://cloud.google.com/sql/pricing#per_use
+      Only PER_USE is supported for Second Generation instances
+    enum:
+      - PER_USE
+      - PACKAGE
   activationPolicy:
     type: string
     default: ALWAYS
@@ -119,6 +143,25 @@ properties:
         description: |
           The AppEngine application to follow.
           It must be in the same region as the Cloud SQL instance.
+  ipConfiguration:
+    type: object
+    description: The IP Management Configuration of the instance.
+    properties:
+      ipv4Enabled:
+        type: boolean
+        default: True
+        description: Whether the instance should be assigned an IP address or not.
+      requireSsl:
+        type: boolean
+        description: Whether SSL connections over IP should be enforced or not.
+      authorizedNetworks:
+        type: array
+        description: |
+          The list of external networks that are allowed
+          to connect to the instance using the IP. In CIDR notation.
+        items:
+          type: string
+          description: An IP range in CIDR notation.
   backupConfiguration:
     type: object
     description: The daily backup configuration for the instance.
@@ -154,6 +197,11 @@ properties:
           description: |
             The region the read replica
             instance will be created within.
+        count:
+          type: integer
+          default: 1
+          description: |
+            The number of read replicas to create in the prefered location.
         locationPreference:
           type: object
           description: |

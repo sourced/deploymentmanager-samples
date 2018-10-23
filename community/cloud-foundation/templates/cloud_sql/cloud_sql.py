@@ -6,6 +6,17 @@ import copy
 USER_NAME_PATTERN = '{}-user-{}-{}'
 DATABASE_NAME_PATTERN = '{}-database-{}'
 
+def set_if_exists(resource, properties, prop):
+    """
+    If prop exists in properties, set the resource's property to it.
+    Input:  [dict] resource: a dictionary representing a resource object
+            [dict] properties: a dictionary of the user supplied values
+            [string] prop: the value to check if exists within properties
+
+    """
+    if prop in properties:
+        resource[prop] = properties[prop]
+
 def generate_config(context):
     """Create Cloud SQL Instance."""
     props = context.properties
@@ -17,12 +28,6 @@ def generate_config(context):
     ip_config = props.get('ipConfiguration', {})
 
     resources = []
-
-    instance_resource = copy.deepcopy(instance_template)
-    instance_settings = instance_resource['properties']['settings']
-    instance_maintenance_window = instance_settings['maintenanceWindow']
-    instance_ip_config = instance_settings['ipConfiguration']
-
     instance_resource = {
         'name': instance_name,
         'type': 'sqladmin.v1beta4.instance',
@@ -38,21 +43,27 @@ def generate_config(context):
                 'dataDiskSizeGb': props.get('dataDiskSizeGb'),
                 'dataDiskType': props.get('dataDiskType'),
                 'pricingPlan': props.get('pricingPlan'),
-                'replicationType': props.get('replicationType'),
-                'userLabels': props.get('labels'),
                 'maintenanceWindow': {
                     'day': maintenance_window.get('day', 1),
                     'hour': maintenance_window.get('hour', 5)
                 },
                 'activationPolicy': props.get('activationPolicy', 'ALWAYS'),
                 'ipConfiguration': {
-                    'ipv4Enabled': ip_config.get('ipv4Enabled', True),
-                    'requireSsl': ip_config.get('requireSsl', True),
-                    'authorizedNetworks': ip_config.get('authorizedNetworks')
+                    'ipv4Enabled': ip_config.get('ipv4Enabled', True)
                 }
             }
         }
     }
+
+    instance_settings = instance_resource['properties']['settings']
+    instance_maintenance_window = instance_settings['maintenanceWindow']
+    instance_ip_config = instance_settings['ipConfiguration']
+    
+    set_if_exists(instance_settings, props, 'replicationType')
+    set_if_exists(instance_settings, props, 'labels')
+    set_if_exists(instance_ip_config, ip_config, 'requireSsl')
+    set_if_exists(instance_ip_config, ip_config, 'authorizedNetworks')
+
     resources.append(instance_resource)
     dependencies = [instance_name]
 
@@ -74,10 +85,10 @@ def generate_config(context):
 
     if 'locationPreference' in props:
         instance_settings['locationPreference'] = {
-            'zone': props['locationPreference']['zone'],
-            'followGaeApplication': props['locationPreference']['followGaeApplication']
+            'zone': props['locationPreference']['zone']
         }
-
+        set_if_exists(instance_settings['locationPreference'], props, 'followGaeApplication')
+        
     if 'readReplicas' in props:
         read_replicas = props.get('readReplicas')
         for replica in read_replicas:
@@ -85,7 +96,7 @@ def generate_config(context):
             replica_region = replica.get('region')
             for i in range(0, replica_count):
                 replica_name = instance_name + '-replica-' + str(i)
-                replica_resource = copy.deepcopy(instance_template)
+                replica_resource = copy.deepcopy(instance_resource)
                 replica_resource['metadata'] = {
                     'dependsOn': list(dependencies)
                 }
@@ -103,19 +114,18 @@ def generate_config(context):
                 replica_settings['dataDiskSizeGb'] = props.get('dataDiskSizeGb')
                 replica_settings['dataDiskType'] = props.get('dataDiskType')
                 replica_settings['pricingPlan'] = props.get('pricingPlan')
-                replica_settings['replicationType'] = props.get('replicationType')
-                replica_settings['userLabels'] = props.get('labels')
                 replica_maintenance_window['day'] = maintenance_window.get('day', 1)
                 replica_maintenance_window['hour'] = maintenance_window.get('hour', 5)
                 replica_ip_config['ipv4Enabled'] = ip_config.get('ipv4Enabled', True)
-                replica_ip_config['requireSsl'] = ip_config.get('requireSsl', True)
-                replica_ip_config['authorizedNetworks'] = ip_config.get('authorizedNetworks')
 
                 if 'locationPreference' in replica:
                     replica_settings['locationPreference'] = {
-                        'zone': replica['locationPreference']['zone'],
-                        'followGaeApplication': props['locationPreference']['followGaeApplication']
+                        'zone': replica['locationPreference']['zone']
                     }
+                    set_if_exists(replica_settings, props['locationPreference'], 'followGaeApplication')
+                set_if_exists(replica_settings, props, 'labels')
+                set_if_exists(replica_ip_config, ip_config, 'requireSsl')
+                set_if_exists(replica_ip_config, ip_config, 'authorizedNetworks')
                 resources.append(replica_resource)
                 dependencies.append(replica_resource['name'])
 
@@ -135,8 +145,7 @@ def generate_config(context):
                 'dependsOn': list(dependencies)
             }
         }
-        if 'collation' in database:
-            resource['collation'] = database['collation']
+        set_if_exists(resource, database, 'collation')
         dependencies.append(resource['name'])
         resources.append(resource)
 

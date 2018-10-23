@@ -2,13 +2,11 @@
 #
 
 imports:
-#- path: templates/healthcheck/healthcheck.py
-- path: ../../cloud_sql.py
+- path: templates/cloud_sql/cloud_sql.py
   name: cloud_sql.py
 
-
 resources:
-- name: cloudsql-replica-test
+- name: ${RESOURCE_NAME_PREFIX}-instance-test
   type: cloud_sql.py
   properties:
     region: us-central1
@@ -17,6 +15,31 @@ resources:
     dataDiskSizeGb: 10
     dataDiskType: PD_HDD
     activationPolicy: ALWAYS
+    pricingPlan: PER_USE
+    locationPreference:
+      zone: us-central1-b
+    backupConfiguration:
+      startTime: '02:00'
+    readReplicas:
+    - region: us-central1
+      locationPreference:
+        zone: us-central1-a
+    databases:
+    - name: db1
+    - name: db2
+    users:
+    - name: user1
+      host: 10.1.1.1
+- name: ${RESOURCE_NAME_PREFIX}-replica-test
+  type: cloud_sql.py
+  properties:
+    region: us-central1
+    databaseVersion: MYSQL_5_7
+    tier: db-n1-standard-1
+    dataDiskSizeGb: 10
+    dataDiskType: PD_HDD
+    activationPolicy: ALWAYS
+    pricingPlan: PER_USE
     locationPreference:
       zone: us-central1-b
     backupConfiguration:

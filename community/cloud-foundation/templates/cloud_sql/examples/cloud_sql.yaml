@@ -1,0 +1,53 @@
+# Example of the cloud sql template usage.
+#
+
+imports:
+- path: templates/cloud_sql/cloud_sql.py
+  name: cloud_sql.py
+
+resources:
+- name: my-cloud-sql-instance
+  type: cloud_sql.py
+  properties:
+      region: us-central1
+      databaseVersion: MYSQL_5_7
+      tier: db-n1-standard-1
+      dataDiskSizeGb: 10
+      dataDiskType: PD_HDD
+      backupConfiguration:
+        startTime: '02:00'
+      readReplicas:
+      - region: us-central1
+        locationPreference:
+          zone: us-central1-a
+      locationPreference:
+        zone: us-central1-c
+      databases:
+      - name: db1
+      - name: db2
+      users:
+      - name: user1
+        host: 10.1.1.1
+- name: my-cloud-sql-instance-read-replicas
+  type: cloud_sql.py
+  properties:
+      region: us-central1
+      databaseVersion: MYSQL_5_7
+      tier: db-n1-standard-1
+      dataDiskSizeGb: 10
+      dataDiskType: PD_HDD
+      backupConfiguration:
+        startTime: '02:00'
+      readReplicas:
+      - region: us-central1
+        count: 2
+        locationPreference:
+          zone: us-central1-a
+      locationPreference:
+        zone: us-central1-c
+      databases:
+      - name: db1
+      - name: db2
+      users:
+      - name: user1
+        host: 10.1.1.1
