@@ -76,4 +76,5 @@ documentation:
   - templates/interconnect_attachment/README.md
 
 examples:
-  - templates/interconnect_attachment/examples/interconnect_attachment.yaml
+  - templates/interconnect_attachment/examples/interconnect_attachment_dedicated.yaml
+  - templates/interconnect_attachment/examples/interconnect_attachment_partner.yaml
