@@ -1,171 +1,254 @@
-#!/usr/bin/env python
-"""Gcloud deploy manager template script to create a Cloud SQL Instance"""
+# Copyright 2018 Google Inc. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+""" This template creates a Cloud SQL Instance with databases and users. """
 
+# TODO: add deletion name reservation note to README
+
+import collections
+import random
+import string
 import copy
 
-USER_NAME_PATTERN = '{}-user-{}-{}'
-DATABASE_NAME_PATTERN = '{}-database-{}'
+DMBundle = collections.namedtuple('DMBundle', 'resource outputs')
 
-def set_if_exists(resource, properties, prop):
-    """
-    If prop exists in properties, set the resource's property to it.
-    Input:  [dict] resource: a dictionary representing a resource object
-            [dict] properties: a dictionary of the user supplied values
-            [string] prop: the value to check if exists within properties
+SUFFIX_LENGTH = 5
+CHAR_CHOICE = string.digits + string.ascii_lowercase
 
-    """
-    if prop in properties:
-        resource[prop] = properties[prop]
+def get_random_string(length):
+    """ Creates random characters string of specified length. """
 
-def generate_config(context):
-    """Create Cloud SQL Instance."""
-    props = context.properties
-    region = props['region']
-    project_id = context.env['project']
-    instance_name = context.env['name']
+    return ''.join([random.choice(CHAR_CHOICE) for _ in range(length)])
 
-    maintenance_window = props.get('maintenanceWindow', {})
-    ip_config = props.get('ipConfiguration', {})
 
-    resources = []
-    instance_resource = {
-        'name': instance_name,
-        'type': 'sqladmin.v1beta4.instance',
-        'properties': {
-            'name': instance_name,
-            'project': project_id,
-            'databaseVersion': props['databaseVersion'],
-            'region': region,
-            'settings': {
-                'tier': props['tier'],
-                'storageAutoResize': props.get('storageAutoResize', True),
-                'storageAutoResizeLimit': props.get('storageAutoResizeLimit', 0),
-                'dataDiskSizeGb': props.get('dataDiskSizeGb'),
-                'dataDiskType': props.get('dataDiskType'),
-                'pricingPlan': props.get('pricingPlan'),
-                'maintenanceWindow': {
-                    'day': maintenance_window.get('day', 1),
-                    'hour': maintenance_window.get('hour', 5)
-                },
-                'activationPolicy': props.get('activationPolicy', 'ALWAYS'),
-                'ipConfiguration': {
-                    'ipv4Enabled': ip_config.get('ipv4Enabled', True)
-                }
-            }
-        }
+def set_optional_property(receiver, source, property_name):
+    """ If set, copies the given property value from one object to another. """
+
+    if property_name in source:
+        receiver[property_name] = source[property_name]
+
+
+def get_instance(res_name, project_id, properties):
+    """ Creates Cloud SQL instance. """
+
+    name = res_name
+    instance_properties = {
+        'region': properties['region'],
+        'project': project_id,
+        'name': name
     }
 
-    instance_settings = instance_resource['properties']['settings']
-    instance_maintenance_window = instance_settings['maintenanceWindow']
-    instance_ip_config = instance_settings['ipConfiguration']
-    
-    set_if_exists(instance_settings, props, 'replicationType')
-    set_if_exists(instance_settings, props, 'labels')
-    set_if_exists(instance_ip_config, ip_config, 'requireSsl')
-    set_if_exists(instance_ip_config, ip_config, 'authorizedNetworks')
+    optional_properties = [
+        'databaseVersion',
+        'failoverReplica',
+        'tier',
+        'instanceType',
+        'ipAddresses',
+        'ipv6Address',
+        'masterInstanceName',
+        'maxDiskSize',
+        'onPremisesConfiguration',
+        'replicaConfiguration',
+        'settings',
+        'serverCaCert',
+        'serviceAccountEmailAddress'
+    ]
 
-    resources.append(instance_resource)
-    dependencies = [instance_name]
+    for prop in optional_properties:
+        set_optional_property(instance_properties, properties, prop)
 
-    # Add a failover replica to the master instance if supplied
-    if 'createFailoverReplica' in props:
-        failover_replica_name = instance_name + '-fo'
-        instance_resource['properties']['failoverReplica'] = {
-            'name': failover_replica_name
+    instance = {
+        'name': name,
+        'type': 'sqladmin.v1beta4.instance',
+        'properties': instance_properties
+    }
+
+    if 'dependsOn' in properties:
+        instance['metadata'] = {
+            'dependsOn': properties['dependsOn']
         }
 
-    # Add a backup configuration
-    if 'backupConfiguration' in props:
-        backup_config = props['backupConfiguration']
-        instance_settings['backupConfiguration'] = {
-            'enabled': backup_config.get('enabled', True),
-            'binaryLogEnabled': backup_config.get('binaryLogEnabled', True),
-            'startTime': backup_config.get('startTime')
+    outputs = [
+        {
+            'name': 'name',
+            'value': '$(ref.{}.name)'.format(name)
+        },
+        {
+            'name': 'selfLink',
+            'value': '$(ref.{}.selfLink)'.format(name)
+        },
+        {
+            'name': 'gceZone',
+            'value': '$(ref.{}.gceZone)'.format(name)
+        },
+        {
+            'name': 'connectionName',
+            'value': '$(ref.{}.connectionName)'.format(name)
+        },
+    ]
+
+    return DMBundle(instance, outputs)
+
+def get_database(instance_name, project_id, properties):
+    """ Creates Cloud SQL database. """
+
+    name = properties['name']
+    res_name = name
+
+    db_properties = {
+        'name': name,
+        'project': project_id,
+        'instance': instance_name
+    }
+
+    optional_properties = [
+        'charset',
+        'collation',
+        'instance',
+    ]
+
+    for prop in optional_properties:
+        set_optional_property(db_properties, properties, prop)
+
+    database = {
+        'name': res_name,
+        'type': 'sqladmin.v1beta4.database',
+        'properties': db_properties
+    }
+
+    outputs = [
+        {
+            'name': 'name',
+            'value': '$(ref.{}.name)'.format(res_name)
+        },
+        {
+            'name': 'selfLink',
+            'value': '$(ref.{}.selfLink)'.format(res_name)
         }
+    ]
 
-    if 'locationPreference' in props:
-        instance_settings['locationPreference'] = {
-            'zone': props['locationPreference']['zone']
+    return DMBundle(database, outputs)
+
+def get_databases(instance_name, project_id, properties):
+    """ Creates Cloud SQL databases for given instance. """
+
+    dbs = properties.get('databases')
+    if dbs:
+        return [get_database(instance_name, project_id, db) for db in dbs]
+
+    return []
+
+def get_user(instance_name, project_id, properties):
+    """ Creates Cloud SQL user. """
+
+    name = properties['name']
+    res_name = 'cloud-sql-{}'.format(name)
+    user_properties = {
+        'name': name,
+        'project': project_id,
+        'instance': instance_name,
+    }
+
+    for prop in ['host', 'password']:
+        set_optional_property(user_properties, properties, prop)
+
+    user = {
+        'name': res_name,
+        'type': 'sqladmin.v1beta4.user',
+        'properties': user_properties
+    }
+
+    outputs = [
+        {
+            'name': 'name',
+            'value': name
         }
-        set_if_exists(instance_settings['locationPreference'], props, 'followGaeApplication')
-        
-    if 'readReplicas' in props:
-        read_replicas = props.get('readReplicas')
-        for replica in read_replicas:
-            replica_count = replica.get('count', 1)
-            replica_region = replica.get('region')
-            for i in range(0, replica_count):
-                replica_name = instance_name + '-replica-' + str(i)
-                replica_resource = copy.deepcopy(instance_resource)
-                replica_resource['metadata'] = {
-                    'dependsOn': list(dependencies)
-                }
-                replica_properties = replica_resource['properties']
-                replica_settings = replica_resource['properties']['settings']
-                replica_maintenance_window = replica_settings['maintenanceWindow']
-                replica_ip_config = replica_settings['ipConfiguration']
-                
-                replica_resource['name'] = replica_name
-                replica_properties['name'] = replica_name
-                replica_properties['masterInstanceName'] = instance_name
-                replica_properties['region'] = replica_region
-                replica_settings['storageAutoResize'] = props.get('storageAutoResize', True)
-                replica_settings['storageAutoResizeLimit'] = props.get('storageAutoResizeLimit', 0)
-                replica_settings['dataDiskSizeGb'] = props.get('dataDiskSizeGb')
-                replica_settings['dataDiskType'] = props.get('dataDiskType')
-                replica_settings['pricingPlan'] = props.get('pricingPlan')
-                replica_maintenance_window['day'] = maintenance_window.get('day', 1)
-                replica_maintenance_window['hour'] = maintenance_window.get('hour', 5)
-                replica_ip_config['ipv4Enabled'] = ip_config.get('ipv4Enabled', True)
+    ]
 
-                if 'locationPreference' in replica:
-                    replica_settings['locationPreference'] = {
-                        'zone': replica['locationPreference']['zone']
-                    }
-                    set_if_exists(replica_settings, props['locationPreference'], 'followGaeApplication')
-                set_if_exists(replica_settings, props, 'labels')
-                set_if_exists(replica_ip_config, ip_config, 'requireSsl')
-                set_if_exists(replica_ip_config, ip_config, 'authorizedNetworks')
-                resources.append(replica_resource)
-                dependencies.append(replica_resource['name'])
+    return DMBundle(user, outputs)
 
-    databases = context.properties.get('databases', [])
-    for database in databases:
-        db_name = database['name']
-        resource = {
-            'name': DATABASE_NAME_PATTERN.format(instance_name, db_name),
-            'type': 'sqladmin.v1beta4.database',
-            'properties': {
-                'instance': instance_name,
-                'project': project_id,
-                'name': db_name,
-                'charset': database.get('charset', 'utf8')
-            },
-            'metadata': {
-                'dependsOn': list(dependencies)
+def get_users(instance_name, project_id, properties):
+    """ Creates Cloud SQL users for given instance. """
+
+    users = properties.get('users')
+    if users:
+        return [get_user(instance_name, project_id, user) for user in users]
+
+    return []
+
+def create_sequentially(resources):
+    """
+    Sets up resources metadata in a way so they are created sequentially.
+    """
+
+    if resources and len(resources) > 1:
+        previous = resources[0]
+        for current in resources[1:]:
+            previous_name = previous['name']
+            current['metadata'] = {'dependsOn': [previous_name]}
+            previous = current
+
+def consolidate_outputs(bundles, prefix):
+    """
+    Consolidates values of multiple outputs into one array value of a new
+    output.
+    """
+
+    res = {}
+    outputs = [output for bundle in bundles for output in bundle.outputs]
+    for output in outputs:
+        output_name = output['name']
+        new_name = prefix + output_name[0].upper() + output_name[1:] + 's'
+        if not new_name in res:
+            res[new_name] = {
+                'name': new_name,
+                'value': []
             }
-        }
-        set_if_exists(resource, database, 'collation')
-        dependencies.append(resource['name'])
-        resources.append(resource)
+        res[new_name]['value'].append(output['value'])
 
-    users = context.properties.get('users', [])
-    for user in users:
-        user_name = user['name']
-        host = user.get('host')
-        resource = {
-            'name': USER_NAME_PATTERN.format(instance_name, user_name, host),
-            'type': 'sqladmin.v1beta4.user',
-            'properties': {
-                'name': user_name,
-                'host': host,
-                'instance': instance_name
-            },
-            'metadata': {
-                'dependsOn': list(dependencies)
-            }
-        }
-        dependencies.append(resource['name'])
-        resources.append(resource)
+    return [value for _, value in res.items()]
 
-    return {'resources': resources}
+def get_resource_names_output(resources):
+    names = [resource['name'] for resource in resources]
+
+    return {
+        'name': 'resources',
+        'value': names
+    }
+
+
+def generate_config(context):
+    """ Creates Cloud SQL instance, databases and user. """
+
+    properties = context.properties
+    res_name = properties.get('name', context.env['name'])
+    # TODO: remove random name component from instance_name
+    #res_name = res_name + '-' + get_random_string(SUFFIX_LENGTH)
+    project_id = properties.get('project', context.env['project'])
+
+    instance = get_instance(res_name, project_id, properties)
+    instance_name = instance.outputs[0]['value'] # 'name' output
+
+    users = get_users(instance_name, project_id, properties)
+    dbs = get_databases(instance_name, project_id, properties)
+
+    children = [user.resource for user in users] + [db.resource for db in dbs]
+    create_sequentially(children)
+
+    user_outputs = consolidate_outputs(users, 'user')
+    db_outputs = consolidate_outputs(dbs, 'database')
+
+    resources = [instance.resource] + children
+    outputs = [get_resource_names_output(resources)] + instance.outputs + db_outputs + user_outputs
+
+    return {'resources': resources, 'outputs': outputs}

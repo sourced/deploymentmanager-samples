@@ -2,52 +2,39 @@
 #
 
 imports:
-- path: templates/cloud_sql/cloud_sql.py
-  name: cloud_sql.py
+  - path: ../cloud_sql.py #templates/cloud_sql/cloud_sql.py
+    name: cloud_sql.py
 
 resources:
-- name: my-cloud-sql-instance
-  type: cloud_sql.py
-  properties:
+  - name: my-cloud-sql-instance-xyz4
+    type: cloud_sql.py
+    properties:
       region: us-central1
-      databaseVersion: MYSQL_5_7
-      tier: db-n1-standard-1
-      dataDiskSizeGb: 10
-      dataDiskType: PD_HDD
-      backupConfiguration:
-        startTime: '02:00'
-      readReplicas:
-      - region: us-central1
+      settings:
+        tier: db-n1-standard-1
+        backupConfiguration:
+          startTime: '02:00'
+          enabled: true
+          binaryLogEnabled: true
+        locationPreference:
+          zone: us-central1-c
+      users:
+        - name: user-3
+          host: 10.1.1.1
+        - name: user2
+          host: 10.1.1.2
+      #databases:
+        #- name: db1
+        #- name: db2
+
+  - name: my-cloud-sql-instance-read-replica-4
+    type: cloud_sql.py
+    properties:
+      region: us-central1
+      instanceType: READ_REPLICA_INSTANCE
+      settings:
+        tier: db-n1-standard-1
         locationPreference:
           zone: us-central1-a
-      locationPreference:
-        zone: us-central1-c
-      databases:
-      - name: db1
-      - name: db2
-      users:
-      - name: user1
-        host: 10.1.1.1
-- name: my-cloud-sql-instance-read-replicas
-  type: cloud_sql.py
-  properties:
-      region: us-central1
-      databaseVersion: MYSQL_5_7
-      tier: db-n1-standard-1
-      dataDiskSizeGb: 10
-      dataDiskType: PD_HDD
-      backupConfiguration:
-        startTime: '02:00'
-      readReplicas:
-      - region: us-central1
-        count: 2
-        locationPreference:
-          zone: us-central1-a
-      locationPreference:
-        zone: us-central1-c
-      databases:
-      - name: db1
-      - name: db2
-      users:
-      - name: user1
-        host: 10.1.1.1
+      masterInstanceName: $(ref.my-cloud-sql-instance-xyz4.name)
+      dependsOn: $(ref.my-cloud-sql-instance-xyz4.resources)

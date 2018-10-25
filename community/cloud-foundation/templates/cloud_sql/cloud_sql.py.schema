@@ -16,27 +16,18 @@ info:
   title: Cloud SQL
   author: Sourced Group Inc.
   description: |
-    Creates a Cloud SQL Resouce.
-
-    For more information on this resource:
-    https://cloud.google.com/sql/docs/
+    Creates a Cloud SQL instance with database and user resources.
+    For more information on this resource: https://cloud.google.com/sql/docs/
 
 imports:
   - path: cloud_sql.py
 
 required:
   - region
-  - databaseVersion
-  - tier
-  - dataDiskSizeGb
-  - dataDiskType
-  - pricingPlan
+  - settings
 
 properties:
-  region: 
-    type: string
-    description: The region the master instance will be created within.
-  databaseVersion: 
+  databaseVersion:
     type: string
     description: |
       The database engine type and version.
@@ -49,181 +40,404 @@ properties:
       - MYSQL_5_6
       - MYSQL_5_5
       - POSTGRES_9_6
-  tier:
-    type: string
-    description: Determines memory, virtual cores, and other resources available to your Cloud SQL instance.
-    enum:
-      - db-f1-micro
-      - db-g1-small
-      - db-n1-standard-1
-      - db-n1-standard-2
-      - db-n1-standard-4
-      - db-n1-standard-8
-      - db-n1-standard-16
-      - db-n1-standard-32
-      - db-n1-standard-64
-      - db-n1-highmem-2
-      - db-n1-highmem-4
-      - db-n1-highmem-8
-      - db-n1-highmem-16
-      - db-n1-highmem-32
-      - db-n1-highmem-64
-      - D0
-      - D1
-      - D2
-      - D4
-      - D8
-      - D16
-      - D32
-  dataDiskSizeGb: 
-    type: integer
-    description: The size of data disk in GB. The data disk size minimum is 10GB. Not used for First Generation instances.
-  dataDiskType: 
-    type: string
-    default: PD_SSD
-    description: The type of data disk, HDD or SSD. Not used for First Generation instances.
-    enum: 
-      - PD_HDD
-      - PD_SSD
-  replicationType:
-    type: string
-    description: |
-      The type of replication this instance uses.
-      This property is only applicable to First Generation instances.
-    enum:
-      - ASYNCHRONOUS
-      - SYNCHRONOUS
-  pricingPlan:
-    type: string
-    description: |
-      The pricing plan for this instance.
-      Packages - Charged a daily rate for a set of resources.
-      Further information - https://cloud.google.com/sql/pricing#packages
-      Per use - charged per minute of use, depending on instance tier.
-      Further information - https://cloud.google.com/sql/pricing#per_use
-      Only PER_USE is supported for Second Generation instances
-    enum:
-      - PER_USE
-      - PACKAGE
-  activationPolicy:
-    type: string
-    default: ALWAYS
-    description: |
-      The activation policy specifies when the instance is activated.
-      Only applicable when the instance state is RUNNABLE.
-      ALWAYS - The instance is on.
-        It remains so even in the absence of connection requests.
-      NEVER - The instance is off.
-        It is not activated, even if a connection request arrives.
-      ON_DEMAND - The instance responds to incoming requests, 
-        and turns itself off when not in use.
-        Instances with PER_USE pricing turn off after 15 minutes of inactivity.
-        Instances with PER_PACKAGE pricing turn off after 12 hours of inactivity.
-        First Generation instances only.
-    enum:
-      - ALWAYS
-      - NEVER
-      - ON_DEMAND
-  locationPreference:
+  failoverReplica:
     type: object
     description: |
-      This specifies where a Cloud SQL instance should preferably be located
-      either in a specific Compute Engine zone, or co-located
-      with an App Engine application.
-      Note that if the preferred location is not available, the instance will
-      be located as close as possible within the region.
-      Only one location may be specified.
-      App Engine co-location is only applicable to First Generation instances.
+      The name and status of the failover replica. This property is applicable
+      only to Second Generation instances.
     properties:
-      zone:
-        type: string
-        description: The preferred Compute Engine zone.
-      followGaeApplication:
+      name:
         type: string
         description: |
-          The AppEngine application to follow.
-          It must be in the same region as the Cloud SQL instance.
-  ipConfiguration:
+          The name of the failover replica. If specified at instance creation,
+          a failover replica is created for the instance. The name doesn't
+          include the project ID. This property is applicable only to Second
+          Generation instances.
+  instanceType:
+    type: string
+    description: |
+      The instance type. This can be one of the following.
+      CLOUD_SQL_INSTANCE: A Cloud SQL instance that is not replicating from a
+      master.
+      ON_PREMISES_INSTANCE: An instance running on the customer's premises.
+      READ_REPLICA_INSTANCE: A Cloud SQL instance configured as a read-replica.
+    enum:
+      - CLOUD_SQL_INSTANCE
+      - ON_PREMISES_INSTANCE
+      - READ_REPLICA_INSTANCE
+  masterInstanceName:
+    type: string
+    description: |
+      The name of the instance which will act as master in the replication
+      setup.
+  maxDiskSize:
+    type: number
+    description: The maximum disk size of the instance in bytes.
+  name:
+    type: string
+    description: |
+      Name of the Cloud SQL instance. This does not include the project ID.
+  onPremisesConfiguration:
     type: object
-    description: The IP Management Configuration of the instance.
+    description: |
+      Configuration specific to on-premises instances.
     properties:
-      ipv4Enabled:
+      hostPort:
+        type: string
+        description: |
+          The host and port of the on-premises instance in host:port format.
+  project:
+    type: string
+    description: |
+      The project ID of the project containing the Cloud SQL instance. The
+      Google apps domain is prefixed if applicable.
+  replicaConfiguration:
+    type: object
+    description: |
+      Configuration specific to failover replicas and read replicas.
+    properties:
+      failoverTarget:
         type: boolean
-        default: True
-        description: Whether the instance should be assigned an IP address or not.
-      requireSsl:
-        type: boolean
-        description: Whether SSL connections over IP should be enforced or not.
-      authorizedNetworks:
+        description: |
+          Specifies if the replica is the failover target. If the field is set
+          to true the replica will be designated as a failover replica. In case
+          the master instance fails, the replica instance will be promoted as
+          the new master instance.
+          Only one replica can be specified as failover target, and the replica
+          has to be in different zone with the master instance.
+      mysqlReplicaConfiguration:
+        type: object
+        description: |
+          MySQL specific configuration when replicating from a MySQL
+          on-premises master. Replication configuration information such as the
+          username, password, certificates, and keys are not stored in the
+          instance metadata. The configuration information is used only to set
+          up the replication connection and is stored by MySQL in a file named
+          master.info in the data directory.
+        properties:
+          caCertificate:
+            type: string
+            description: |
+              PEM representation of the trusted CA's x509 certificate.
+          clientCertificate:
+            type: string
+            description: |
+              PEM representation of the slave's x509 certificate.
+          clientKey:
+            type: string
+            description: |
+              PEM representation of the slave's private key. The corresponsing
+              public key is encoded in the client's certificate.
+          connectRetryInterval:
+            type: number
+            description: |
+              Seconds to wait between connect retries. MySQL's default is 60
+              seconds.
+          dumpFilePath:
+            type: string
+            description: |
+              Path to a SQL dump file in Google Cloud Storage from which the
+              slave instance is to be created. The URI is in the form
+              gs://bucketName/fileName. Compressed gzip files (.gz) are also
+              supported. Dumps should have the binlog co-ordinates from which
+              replication should begin. This can be accomplished by setting
+              --master-data to 1 when using mysqldump.
+          masterHeartbeatPeriod:
+            type: number
+            description: |
+              Interval in milliseconds between replication heartbeats.
+          password:
+            type: string
+            description: |
+              The password for the replication connection.
+          sslCipher:
+            type: string
+            description: |
+              A list of permissible ciphers to use for SSL encryption.
+          username:
+            type: string
+            description: |
+              The username for the replication connection.
+          verifyServerCertificate:
+            type: boolean
+            description: |
+              Whether or not to check the master's Common Name value in the
+              certificate that it sends during the SSL handshake.
+  serverCaCert:
+    type: object
+    description: SSL configuration.
+  serviceAccountEmailAddress:
+    type: object
+    description: |
+      The service account email address assigned to the instance. This property
+      is applicable only to Second Generation instances.
+  settings:
+    type: object
+    description: The user settings.
+    required:
+      - tier
+    properties:
+      activationPolicy:
+        type: string
+        description: |
+          The activation policy specifies when the instance is activated; it is
+          applicable only when the instance state is RUNNABLE. Valid values:
+            ALWAYS: The instance is on, and remains so even in the absence of
+            connection requests.
+            NEVER: The instance is off; it is not activated, even if a
+            connection request arrives.
+            ON_DEMAND: First Generation instances only. The instance responds
+            to incoming requests, and turns itself off when not in use.
+            Instances with PER_USE pricing turn off after 15 minutes of
+            inactivity. Instances with PER_PACKAGE pricing turn off after 12
+            hours of inactivity.
+        enum:
+          - ALWAYS
+          - NEVER
+          - ON_DEMAND
+      authorizedGaeApplications:
         type: array
         description: |
-          The list of external networks that are allowed
-          to connect to the instance using the IP. In CIDR notation.
+          The App Engine app IDs that can access this instance. First
+          Generation instances only.
         items:
           type: string
-          description: An IP range in CIDR notation.
-  backupConfiguration:
-    type: object
-    description: The daily backup configuration for the instance.
-    properties:
-      binaryLogEnabled:
-        type: boolean
-        default: True
-        description: |
-          Whether binary log is enabled.
-          If backup configuration is disabled, binary log must be disabled as well.
-      enabled:
-        type: boolean
-        default: True
-        description: Whether this configuration is enabled.
-      startTime:
+      availabilityType:
         type: string
         description: |
-          Start time for the daily backup configuration.
-          In UTC timezone in the 24 hour format - HH:MM.
-  readReplicas:
-    type: array
-    description: |
-      Array of read replicas to create for the associated master instance.
-    items:
-      type: object
-      description: |
-        A read replica of the master instance.
-        It inherits all the properties of the master instance.
-        It can reside in a different region or zone than the master.
-      properties:
-        region:
-          type: string
-          description: |
-            The region the read replica
-            instance will be created within.
-        count:
-          type: integer
-          default: 1
-          description: |
-            The number of read replicas to create in the prefered location.
-        locationPreference:
+          Availability type (PostgreSQL instances only). Potential values:
+          ZONAL: The instance serves data from only one zone. Outages in that
+          zone affect data accessibility.
+          REGIONAL: The instance can serve data from more than one zone in a
+          region (it is highly available).
+        enum:
+          - ZONAL
+          - REGIONAL
+      backupConfiguration:
+        type: object
+        description: The daily backup configuration for the instance.
+        properties:
+          binaryLogEnabled:
+            type: boolean
+            description: |
+              Whether binary log is enabled. If backup configuration is
+              disabled, binary log must be disabled as well.
+          enabled:
+            type: boolean
+            description: Whether this configuration is enabled.
+          replicationLogArchivingEnabled:
+            type: boolean
+            description: Reserved for future use.
+          startTime:
+            type: string
+            description: |
+              Start time for the daily backup configuration in UTC timezone in
+              the 24 hour format - HH:MM.
+      crashSafeReplicationEnabled:
+        type: boolean
+        description: |
+          Configuration specific to read replica instances. Indicates whether
+          database flags for crash-safe replication are enabled. This property
+          is only applicable to First Generation instances.
+      dataDiskSizeGb:
+        type: number
+        description: |
+          The size of data disk, in GB. The data disk size minimum is 10GB. Not
+          used for First Generation instances.
+      dataDiskType:
+        type: string
+        default: PD_SSD
+        description: |
+          The type of data disk. Not used for First Generation instances.
+        enum:
+          - PD_SSD
+          - PD_HDD
+      databaseFlags:
+        type: array
+        description: |
+          The database flags passed to the instance at startup.
+        items:
           type: object
-          description: |
-            Behaves the same as the master instance location preference
-            for the read replicas.
           properties:
-            zone:
-              type: string
-              description: The preferred Compute Engine zone for the read replica.
-            followGaeApplication:
+            name:
               type: string
               description: |
-                The AppEngine application to follow.
-                It must be in the same region as the Cloud SQL instance.
+                The name of the flag. These flags are passed at instance
+                startup, so include both server options and system variables
+                for MySQL. Flags should be specified with underscores, not
+                hyphens. For more information, see Configuring Database Flags
+                in the Cloud SQL documentation.
+            value:
+              type: string
+              description: |
+                The value of the flag. Booleans should be set to on for true
+                and off for false. This field must be omitted if the flag
+                doesn't take a value.
+      databaseReplicationEnabled:
+        type: boolean
+        description: |
+          Configuration specific to read replica instances. Indicates whether
+          replication is enabled or not.	writable
+      ipConfiguration:
+        type: object
+        description: |
+          The settings for IP Management. This allows to enable or disable the
+          instance IP and manage which external networks can connect to the
+          instance. The IPv4 address cannot be disabled for Second Generation
+          instances.
+        propreties:
+          authorizedNetworks:
+            type: array
+            description: |
+              The list of external networks that are allowed to connect to the
+              instance using the IP. In CIDR notation, also known as 'slash'
+              notation (e.g. 192.168.100.0/24).	writable
+            items:
+              type: object
+              properties:
+                expirationTime:
+                  type: string
+                  description: |
+                    The time when this access control entry expires in RFC 3339
+                    format, for example 2012-11-15T16:19:00.094Z.
+                name:
+                  type: string
+                  description: |
+                    An optional label to identify this entry.
+                value:
+                  type: string
+                  description: |
+                    The whitelisted value for the access control list. For
+                    example, to grant access to a client from an external IP
+                    (IPv4 or IPv6) address or subnet, use that address or
+                    subnet here.
+          ipv4Enabled:
+            type: boolean
+            description: |
+              Whether the instance should be assigned an IP address or not.
+          privateNetwork:
+            type: string
+            description: |
+              The resource link for the VPC network from which the Cloud SQL
+              instance is accessible for private IP. For example,
+              /projects/myProject/global/networks/default. This setting can be
+              updated, but it cannot be removed after it is set.
+          requireSsl:
+            type: boolean
+            description: |
+              Whether SSL connections over IP should be enforced or not.
+      locationPreference:
+        type: object
+        description: |
+          The location preference settings. This allows the instance to be
+          located as near as possible to either an App Engine app or Compute
+          Engine zone for better performance. App Engine co-location is only
+          applicable to First Generation instances.
+        properties:
+          followGaeApplication:
+            type: string
+            description: |
+              The App Engine application to follow, it must be in the same
+              region as the Cloud SQL instance.
+          zone:
+            type: string
+            description: |
+              The preferred Compute Engine zone (e.g. us-central1-a,
+              us-central1-b, etc.).
+      maintenanceWindow:
+        type: object
+        description: |
+          The maintenance window for this instance. This specifies when the
+          instance can be restarted for maintenance purposes. Not used for
+          First Generation instances.
+        properties:
+          day:
+            type: number
+            description: Day of week (1-7), starting on Monday.
+          hour:
+            type: integer
+            description: Hour of day - 0 to 23.
+          updateTrack:
+            type: string
+            description: |
+              Maintenance timing setting: canary (Earlier) or stable (Later).
+      pricingPlan:
+        type: string
+        description: |
+          The pricing plan for this instance. This can be either PER_USE or
+          PACKAGE. Only PER_USE is supported for Second Generation instances.
+      replicationType:
+        type: string
+        description: |
+          The type of replication this instance uses. This can be either
+          ASYNCHRONOUS or SYNCHRONOUS.
+      settingsVersion:
+        type: number
+        description: |
+          The version of instance settings. This is a required field for update
+          method to make sure concurrent updates are handled properly. During
+          update, use the most recent settingsVersion value for this instance
+          and do not try to update this value.
+      storageAutoResize:
+        type: boolean
+        default: true
+        description: |
+          Configuration to increase storage size automatically.
+          Not used for First Generation instances.
+      storageAutoResizeLimit:
+        type: number
+        default: 0
+        description: |
+          The maximum size to which storage capacity can be automatically
+          increased. The default value is 0, which specifies that there is no
+          limit. Not used for First Generation instances.
+      tier:
+        type: string
+        description: |
+          The tier (or machine type) for this instance, for example
+          db-n1-standard-1 (MySQL instances) or db-custom-1-3840 (PostgreSQL
+          instances). For MySQL instances, this property determines whether the
+          instance is First or Second Generation.
+        enum:
+          - db-f1-micro
+          - db-g1-small
+          - db-n1-standard-1
+          - db-n1-standard-2
+          - db-n1-standard-4
+          - db-n1-standard-8
+          - db-n1-standard-16
+          - db-n1-standard-32
+          - db-n1-standard-64
+          - db-n1-highmem-2
+          - db-n1-highmem-4
+          - db-n1-highmem-8
+          - db-n1-highmem-16
+          - db-n1-highmem-32
+          - db-n1-highmem-64
+          - D0
+          - D1
+          - D2
+          - D4
+          - D8
+          - D16
+          - D32
+      userLabels:
+        type: object
+        description: |
+          User-provided labels, represented as a dictionary where each label is
+          a single key value pair.
+  region:
+    type: string
+    description: |
+      The geographical region. Defaults to us-central or us-central1 depending
+      on the instance type (First Generation or Second Generation/PostgreSQL).
+      For a complete list of valid values, see Instance Locations. The region
+      cannot be changed after instance creation.
   databases:
     type: array
-    description: |
-      An array of SQL databases to create within the
-      master and read replica instances.
+    description: SQL Databases to create in the new instance.
     items:
       type: object
-      description: Represents a SQL database on the Cloud SQL instance
       properties:
         name:
           type: string
@@ -237,12 +451,9 @@ properties:
           description: The collation to use for the database.
   users:
     type: array
-    description: |
-      An array of Cloud SQL users to create within the
-      master and read replica instances.
+    description: Cloud SQL users to create in the new instance.
     items:
       type: object
-      description: A single Cloud SQL user.
       properties:
         name:
           type: string
@@ -252,3 +463,57 @@ properties:
           description: |
             The host name from which the user can connect.
             The host name cannot be updated after insertion.
+        password:
+          type: string
+          description: The password for the user.
+  dependsOn:
+    type: array
+    description: |
+      The list of the resources that must be created before this instance. As
+      usually Cloud SQL resources must be created sequentially, this property
+      can be used to postpone the creation of this resource.
+    items:
+      type: string
+      description: The resource name.
+
+outputs:
+  properties:
+    - name:
+        type: string
+        description: The name of the resource.
+    - selfLink:
+        type: string
+        description: |
+          The URL (SelfLink) of the Cloud SQL instance resource.
+    - connectionName:
+        type: string
+        description: |
+          Connection name of the Cloud SQL instance used in connection strings.
+    - gceZone:
+        type: string
+        description: |
+          The Compute Engine zone that the instance is currently serving from.
+          This value could be different from the zone that was specified when
+          the instance was created if the instance has failed over to its
+          secondary zone.
+    - ipAddresses:
+        type: array
+        description: |
+          The assigned IP addresses for the instance.
+          # databases, users
+    - userNames:
+        type: array
+        description: The names of the created users.
+    - databaseNames:
+        type: array
+        description: The names of the created databases.
+    - databaseSelfLinks:
+        type: array
+        description: |
+          The URLs (SelfLinks) of the Cloud SQL database resources.
+    - resources:
+        type: array
+        description: |
+          The names of the resources which this template creates. As Cloud SQL
+          usually requires resources to be created sequentially, these output
+          can be used as sunchronization context.
