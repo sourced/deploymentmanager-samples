@@ -6,7 +6,7 @@ imports:
     name: cloud_sql.py
 
 resources:
-  - name: my-cloud-sql-instance-xyz4
+  - name: cloud-sql-instance
     type: cloud_sql.py
     properties:
       region: us-central1
