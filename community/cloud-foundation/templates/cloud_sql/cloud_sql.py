@@ -13,17 +13,15 @@
 # limitations under the License.
 """ This template creates a Cloud SQL Instance with databases and users. """
 
-# TODO: add deletion name reservation note to README
-
 import collections
 import random
 import string
-import copy
 
 DMBundle = collections.namedtuple('DMBundle', 'resource outputs')
 
 SUFFIX_LENGTH = 5
 CHAR_CHOICE = string.digits + string.ascii_lowercase
+
 
 def get_random_string(length):
     """ Creates random characters string of specified length. """
@@ -51,17 +49,14 @@ def get_instance(res_name, project_id, properties):
     optional_properties = [
         'databaseVersion',
         'failoverReplica',
-        'tier',
         'instanceType',
-        'ipAddresses',
-        'ipv6Address',
         'masterInstanceName',
         'maxDiskSize',
         'onPremisesConfiguration',
         'replicaConfiguration',
-        'settings',
         'serverCaCert',
-        'serviceAccountEmailAddress'
+        'serviceAccountEmailAddress',
+        'settings',
     ]
 
     for prop in optional_properties:
@@ -74,9 +69,7 @@ def get_instance(res_name, project_id, properties):
     }
 
     if 'dependsOn' in properties:
-        instance['metadata'] = {
-            'dependsOn': properties['dependsOn']
-        }
+        instance['metadata'] = {'dependsOn': properties['dependsOn']}
 
     outputs = [
         {
@@ -98,6 +91,7 @@ def get_instance(res_name, project_id, properties):
     ]
 
     return DMBundle(instance, outputs)
+
 
 def get_database(instance_name, project_id, properties):
     """ Creates Cloud SQL database. """
@@ -139,6 +133,7 @@ def get_database(instance_name, project_id, properties):
 
     return DMBundle(database, outputs)
 
+
 def get_databases(instance_name, project_id, properties):
     """ Creates Cloud SQL databases for given instance. """
 
@@ -147,6 +142,7 @@ def get_databases(instance_name, project_id, properties):
         return [get_database(instance_name, project_id, db) for db in dbs]
 
     return []
+
 
 def get_user(instance_name, project_id, properties):
     """ Creates Cloud SQL user. """
@@ -168,14 +164,10 @@ def get_user(instance_name, project_id, properties):
         'properties': user_properties
     }
 
-    outputs = [
-        {
-            'name': 'name',
-            'value': name
-        }
-    ]
+    outputs = [{'name': 'name', 'value': name}]
 
     return DMBundle(user, outputs)
+
 
 def get_users(instance_name, project_id, properties):
     """ Creates Cloud SQL users for given instance. """
@@ -185,6 +177,7 @@ def get_users(instance_name, project_id, properties):
         return [get_user(instance_name, project_id, user) for user in users]
 
     return []
+
 
 def create_sequentially(resources):
     """
@@ -198,6 +191,7 @@ def create_sequentially(resources):
             current['metadata'] = {'dependsOn': [previous_name]}
             previous = current
 
+
 def consolidate_outputs(bundles, prefix):
     """
     Consolidates values of multiple outputs into one array value of a new
@@ -210,21 +204,20 @@ def consolidate_outputs(bundles, prefix):
         output_name = output['name']
         new_name = prefix + output_name[0].upper() + output_name[1:] + 's'
         if not new_name in res:
-            res[new_name] = {
-                'name': new_name,
-                'value': []
-            }
+            res[new_name] = {'name': new_name, 'value': []}
         res[new_name]['value'].append(output['value'])
 
     return [value for _, value in res.items()]
 
+
 def get_resource_names_output(resources):
+    """
+    Creates the output dict with all resource names that will be created.
+    """
+
     names = [resource['name'] for resource in resources]
 
-    return {
-        'name': 'resources',
-        'value': names
-    }
+    return {'name': 'resources', 'value': names}
 
 
 def generate_config(context):
@@ -232,12 +225,10 @@ def generate_config(context):
 
     properties = context.properties
     res_name = properties.get('name', context.env['name'])
-    # TODO: remove random name component from instance_name
-    #res_name = res_name + '-' + get_random_string(SUFFIX_LENGTH)
     project_id = properties.get('project', context.env['project'])
 
     instance = get_instance(res_name, project_id, properties)
-    instance_name = instance.outputs[0]['value'] # 'name' output
+    instance_name = instance.outputs[0]['value']  # 'name' output
 
     users = get_users(instance_name, project_id, properties)
     dbs = get_databases(instance_name, project_id, properties)
@@ -249,6 +240,7 @@ def generate_config(context):
     db_outputs = consolidate_outputs(dbs, 'database')
 
     resources = [instance.resource] + children
-    outputs = [get_resource_names_output(resources)] + instance.outputs + db_outputs + user_outputs
+    outputs = [get_resource_names_output(resources)] + instance.outputs + \
+              db_outputs + user_outputs
 
     return {'resources': resources, 'outputs': outputs}

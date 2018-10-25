@@ -1,8 +1,8 @@
-# Example of the cloud sql template usage.
+# Example of the Cloud SQL template usage.
 #
 
 imports:
-  - path: ../cloud_sql.py #templates/cloud_sql/cloud_sql.py
+  - path: templates/cloud_sql/cloud_sql.py
     name: cloud_sql.py
 
 resources:
@@ -19,22 +19,10 @@ resources:
         locationPreference:
           zone: us-central1-c
       users:
-        - name: user-3
+        - name: user-1
           host: 10.1.1.1
-        - name: user2
+        - name: user-2
           host: 10.1.1.2
-      #databases:
-        #- name: db1
-        #- name: db2
-
-  - name: my-cloud-sql-instance-read-replica-4
-    type: cloud_sql.py
-    properties:
-      region: us-central1
-      instanceType: READ_REPLICA_INSTANCE
-      settings:
-        tier: db-n1-standard-1
-        locationPreference:
-          zone: us-central1-a
-      masterInstanceName: $(ref.my-cloud-sql-instance-xyz4.name)
-      dependsOn: $(ref.my-cloud-sql-instance-xyz4.resources)
+      databases:
+        - name: db-1
+        - name: db-2

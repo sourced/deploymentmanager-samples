@@ -19,22 +19,39 @@ if [[ -e "${RANDOM_FILE}" ]]; then
     # Replace underscores in the deployment name with dashes.
     DEPLOYMENT_NAME=${DEPLOYMENT_NAME//_/-}
     CONFIG=".${DEPLOYMENT_NAME}.yaml"
-    export RESOURCE_NAME_PREFIX="cloudsqltest-${RAND}"
+    export MASTER_INSTANCE_NAME="cloud-sql-master-instance-${RAND}"
+    export FAILOVER_INSTANCE_NAME="cloud-sql-failover-instance-${RAND}"
+    export VERSION="MYSQL_5_6"
+    export MASTER_INSTANCE_TIER="db-n1-standard-1"
+    export MASTER_ZONE="us-central1-c"
+    export REPLICA_ZONE="us-central1-a"
+    export REGION="us-central1"
+    export REPLICA_INSTANCE_NAME="cloud-sql-replica-instance-${RAND}"
+    export REPLICA_INSTANCE_TIER="db-n1-standard-2"
+    export REPLICA_INSTANCE_TYPE="READ_REPLICA_INSTANCE"
+    export BACKUP_START_TIME="02:00"
+    export BACKUP_ENABLED="true"
+    export BACKUP_BL_ENABLED="true"
+    export USER1_NAME="user-1"
+    export USER1_HOST="10.1.1.1"
+    export USER2_NAME="user-2"
+    export USER2_HOST="10.1.1.2"
+    export DB1="db-1"
+    export DB2="db-2"
 fi
+
 ########## HELPER FUNCTIONS ##########
 
 function create_config() {
-    echo "Creating ${CONFIG}"
-    envsubst < "templates/cloud_sql/tests/integration/${TEST_NAME}.yaml" > "${CONFIG}"
+    envsubst < ${BATS_TEST_DIRNAME}/${TEST_NAME}.yaml > "${CONFIG}"
 }
 
 function delete_config() {
-    echo "Deleting ${CONFIG}"
     rm -f "${CONFIG}"
 }
 
 function setup() {
-    # Global setup; this is executed once per test file.
+    # Global setup; executed once per test file.
     if [ ${BATS_TEST_NUMBER} -eq 1 ]; then
         create_config
     fi
@@ -43,10 +60,10 @@ function setup() {
 }
 
 function teardown() {
-    # Global teardown; this is executed once per test file.
+    # Global teardown; executed once per test file.
     if [[ "$BATS_TEST_NUMBER" -eq "${#BATS_TEST_NAMES[@]}" ]]; then
+        rm -f "${RANDOM_FILE}"
         delete_config
-        rm -f ${RANDOM_FILE}
     fi
 
     # Per-test teardown steps.
@@ -54,25 +71,81 @@ function teardown() {
 
 
 @test "Creating deployment ${DEPLOYMENT_NAME} from ${CONFIG}" {
-    gcloud deployment-manager deployments create "${DEPLOYMENT_NAME}" \
-        --config "${CONFIG}" \
-        --project "${CLOUD_FOUNDATION_PROJECT_ID}"
+    run gcloud deployment-manager deployments create "${DEPLOYMENT_NAME}" \
+        --config "${CONFIG}" --project "${CLOUD_FOUNDATION_PROJECT_ID}"
+    [[ "$status" -eq 0 ]]
 }
 
-@test "" {
-    RESOURCE_NAME=${RESOURCE_NAME_PREFIX}-instance-test
-    run gcloud sql instances describe cloudsql-replica-test ${RESOURCE_NAME} \
+@test "Verifying both instances are there" {
+    run gcloud sql instances list \
         --project "${CLOUD_FOUNDATION_PROJECT_ID}"
     [[ "$status" -eq 0 ]]
-    [[ "$output" =~ "databaseVersion: MYSQL_5_7" ]]
-    [[ "$output" =~ "tier: db-n1-standard-1" ]]
-    [[ "$output" =~ "dataDiskSizeGb: '10'" ]]
-    [[ "$output" =~ "dataDiskType: PD_HDD" ]]
-    [[ "$output" =~ "activationPolicy: ALWAYS" ]]
+    [[ "$output" =~ "${MASTER_INSTANCE_NAME}" ]]
+    [[ "$output" =~ "${REPLICA_INSTANCE_NAME}" ]]
 }
 
-@test "Deployment Delete" {
-    run gcloud deployment-manager deployments delete "${DEPLOYMENT_NAME}" \
-        --project "${CLOUD_FOUNDATION_PROJECT_ID}" -q
+@test "Verifying master instance" {
+    run gcloud sql instances describe ${MASTER_INSTANCE_NAME} \
+        --project "${CLOUD_FOUNDATION_PROJECT_ID}"
+    [[ "$status" -eq 0 ]]
+    [[ "$output" =~ "${VERSION}" ]]
+    [[ "$output" =~ "${MASTER_INSTANCE_TIER}" ]]
+    [[ "$output" =~ "instanceType: CLOUD_SQL_INSTANCE" ]]
+    [[ "$output" =~ "region: ${REGION}" ]]
+    [[ "$output" =~ "${MASTER_ZONE}" ]]
+    [[ "$output" =~ "${FAILOVER_INSTANCE_NAME}" ]]
+}
+
+@test "Verifying master replicas list" {
+    run gcloud sql instances describe ${MASTER_INSTANCE_NAME} \
+        --format="yaml(replicaNames)" \
+        --project "${CLOUD_FOUNDATION_PROJECT_ID}"
+    [[ "$status" -eq 0 ]]
+    [[ "$output" =~ "${REPLICA_INSTANCE_NAME}" ]]
+}
+
+@test "Verifying master databases list" {
+    run gcloud sql databases list --instance ${MASTER_INSTANCE_NAME} \
+        --project "${CLOUD_FOUNDATION_PROJECT_ID}"
+    [[ "$status" -eq 0 ]]
+    [[ "$output" =~ "${DB1}" ]]
+    [[ "$output" =~ "${DB2}" ]]
+}
+
+@test "Verifying master users list" {
+    run gcloud sql users list --instance ${MASTER_INSTANCE_NAME} \
+        --project "${CLOUD_FOUNDATION_PROJECT_ID}"
+    [[ "$status" -eq 0 ]]
+    [[ "$output" =~ "${USER1_NAME}" ]]
+    [[ "$output" =~ "${USER2_NAME}" ]]
+    [[ "$output" =~ "${USER1_HOST}" ]]
+    [[ "$output" =~ "${USER2_HOST}" ]]
+}
+
+@test "Verifying master backup settings" {
+    run gcloud sql instances describe ${MASTER_INSTANCE_NAME} \
+        --format="yaml(settings.backupConfiguration)" \
+        --project "${CLOUD_FOUNDATION_PROJECT_ID}"
+    [[ "$status" -eq 0 ]]
+    [[ "$output" =~ "binaryLogEnabled: ${BACKUP_BL_ENABLED}" ]]
+    [[ "$output" =~ "enabled: ${BACKUP_ENABLED}" ]]
+    [[ "$output" =~ "startTime: ${BACKUP_START_TIME}" ]]
+}
+
+@test "Verifying replica instance" {
+    run gcloud sql instances describe ${REPLICA_INSTANCE_NAME} \
+        --project "${CLOUD_FOUNDATION_PROJECT_ID}"
+    [[ "$status" -eq 0 ]]
+    [[ "$output" =~ "${VERSION}" ]]
+    [[ "$output" =~ "${REPLICA_INSTANCE_TIER}" ]]
+    [[ "$output" =~ "${REPLICA_INSTANCE_TYPE}" ]]
+    [[ "$output" =~ "region: ${REGION}" ]]
+    [[ "$output" =~ "${REPLICA_ZONE}" ]]
+    [[ "$output" =~ "${MASTER_INSTANCE_NAME}" ]]
+}
+
+@test "Deleting deployment" {
+    run gcloud deployment-manager deployments delete "${DEPLOYMENT_NAME}" -q \
+        --project "${CLOUD_FOUNDATION_PROJECT_ID}"
     [[ "$status" -eq 0 ]]
 }

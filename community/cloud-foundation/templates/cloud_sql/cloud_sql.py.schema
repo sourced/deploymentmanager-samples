@@ -45,6 +45,8 @@ properties:
     description: |
       The name and status of the failover replica. This property is applicable
       only to Second Generation instances.
+    required:
+      - name
     properties:
       name:
         type: string
@@ -436,6 +438,8 @@ properties:
   databases:
     type: array
     description: SQL Databases to create in the new instance.
+    required:
+      - name
     items:
       type: object
       properties:
@@ -452,6 +456,8 @@ properties:
   users:
     type: array
     description: Cloud SQL users to create in the new instance.
+    required:
+      - name
     items:
       type: object
       properties:
@@ -500,7 +506,6 @@ outputs:
         type: array
         description: |
           The assigned IP addresses for the instance.
-          # databases, users
     - userNames:
         type: array
         description: The names of the created users.
@@ -517,3 +522,10 @@ outputs:
           The names of the resources which this template creates. As Cloud SQL
           usually requires resources to be created sequentially, these output
           can be used as sunchronization context.
+
+documentation:
+  - templates/cloud_sql/README.md
+
+examples:
+  - templates/cloud_sql/examples/cloud_sql.yaml
+  - templates/cloud_sql/examples/cloud_sql_read_replica.yaml

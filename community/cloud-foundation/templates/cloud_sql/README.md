@@ -1,87 +1,76 @@
-# Cloud DNS Managed Zone
+# Cloud SQL
 
-This template creates a managed zone in the Cloud DNS (Domain Name System).
+This template creates a Cloud SQL instance with databases and users.
 
 ## Prerequisites
 
 - Install [gcloud](https://cloud.google.com/sdk)
 - Create a [GCP project, set up billing, enable requisite APIs](../project/README.md)
-- Grant the [dns.admin](https://cloud.google.com/dns/access-control) IAM role to the Deployment Manager service account
-
-Private IP Pre-reqs
-API and IAM requirements
-
-    You must have enabled the Service Networking API for your project.
-
-    Enabling APIs requires the servicemanagement.services.bind IAM permission.
-
-    Establishing private services access requires the following IAM permissions, which are included in the Network Administrator role:
-        compute.networks.list
-        compute.globalAddresses.list
-        compute.globalAddresses.create
-        servicenetworking.services.addPeering
-
-    After private services access is established for your network, you do not need extra IAM permissions to configure an instance to use private IP.
-
-The activation policy specifies when the instance is activated; it is applicable only when the instance state is RUNNABLE. Valid values:
-ALWAYS: The instance is on, and remains so even in the absence of connection requests.
-NEVER: The instance is off; it is not activated, even if a connection request arrives.
-ON_DEMAND: First Generation instances only. The instance responds to incoming requests, and turns itself off when not in use. Instances with PER_USE pricing turn off after 15 minutes of inactivity. Instances with PER_PACKAGE pricing turn off after 12 hours of inactivity.
-
-
-https://cloud.google.com/sql/docs/mysql/flags#list-flags
-https://cloud.google.com/sql/docs/postgres/flags#list-flags-postgres
+- Enable the [Cloud SQL API](https://cloud.google.com/sql/docs/mysql/admin-api/)
+- Enable the [Cloud SQL Admin API](https://cloud.google.com/sql/docs/mysql/admin-api/)
+- Grant the [roles/cloudsql.admin](https://cloud.google.com/sql/docs/mysql/project-access-control)
+  IAM role to the Deployment Manager service account
 
 ## Deployment
 
 ### Resources
 
-- [dns.v1.managedZone](https://cloud.google.com/dns/docs/)
+- [sqladmin.v1beta4.instance](https://cloud.google.com/sql/docs/mysql/admin-api/v1beta4/instances)
+- [sqladmin.v1beta4.database](https://cloud.google.com/sql/docs/mysql/admin-api/v1beta4/databases)
+- [sqladmin.v1beta4.user](https://cloud.google.com/sql/docs/mysql/admin-api/v1beta4/users)
+
 
 ### Properties
 
 See the `properties` section in the schema file(s):
-- [Cloud DNS Managed Zone](dns_managed_zone.py.schema)
+- [Cloud SQL](cloud_sql.py.schema)
 
 ### Usage
 
 1. Clone the [Deployment Manager samples repository](https://github.com/GoogleCloudPlatform/deploymentmanager-samples):
 
-```shell
+    ```shell
     git clone https://github.com/GoogleCloudPlatform/deploymentmanager-samples
-```
+    ```
 
 2. Go to the [community/cloud-foundation](../../) directory:
 
-```shell
+    ```shell
     cd community/cloud-foundation
-```
+    ```
 
-3. Copy the example DM config to be used as a model for the deployment; in this case, [examples/dns_managed_zone.yaml](examples/dns_managed_zone.yaml):
+3. Copy the example DM config to be used as a model for the deployment; in this
+   case, [examples/cloud\_sql.yaml](examples/cloud_sql.yaml):
 
-```shell
-    cp templates/dns_managed_zone/examples/dns_managed_zone.yaml my_dns_managed_zone.yaml
-```
+    ```shell
+    cp templates/dns_managed_zone/examples/cloud_sql.yaml my_cloud_sql.yaml
+    ```
 
-4. Change the values in the config file to match your specific GCP setup (for properties, refer to the schema files listed above):
+4. Change the values in the config file to match your specific GCP setup (for
+   properties, refer to the schema files listed above):
 
-```shell
-    vim my_dns_managed_zone.yaml  # <== change values to match your GCP setup
-```
+    ```shell
+    vim my_cloud_sql.yaml  # <== change values to match your GCP setup
+    ```
 
-5. Create your deployment (replace <YOUR_DEPLOYMENT_NAME> with the relevant deployment name):
+5. Create your deployment (replace \<YOUR\_DEPLOYMENT\_NAME\> with the relevant
+   deployment name):
 
-```shell
+    ```shell
     gcloud deployment-manager deployments create <YOUR_DEPLOYMENT_NAME> \
-    --config my_dns_managed_zone.yaml
-```
+        --config my_cloud_sql.yaml
+    ```
 
 6. In case you need to delete your deployment:
 
-```shell
+    ```shell
     gcloud deployment-manager deployments delete <YOUR_DEPLOYMENT_NAME>
-```
+    ```
+
+`Notes.` Please note, that after Cloud SQL instance is deleted, it's name
+cannot be reused for up to 7 days.
 
 ## Examples
 
-- [Cloud DNS Managed Zone](examples/dns_managed_zone.yaml)
+- [Cloud SQL](examples/cloud_sql_.yaml)
+- [Cloud SQL with Read Replica](examples/cloud_sql_read_replica.yaml)
