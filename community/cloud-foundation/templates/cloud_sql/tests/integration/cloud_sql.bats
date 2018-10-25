@@ -20,7 +20,6 @@ if [[ -e "${RANDOM_FILE}" ]]; then
     DEPLOYMENT_NAME=${DEPLOYMENT_NAME//_/-}
     CONFIG=".${DEPLOYMENT_NAME}.yaml"
     export MASTER_INSTANCE_NAME="cloud-sql-master-instance-${RAND}"
-    export FAILOVER_INSTANCE_NAME="cloud-sql-failover-instance-${RAND}"
     export VERSION="MYSQL_5_6"
     export MASTER_INSTANCE_TIER="db-n1-standard-1"
     export MASTER_ZONE="us-central1-c"
@@ -93,7 +92,6 @@ function teardown() {
     [[ "$output" =~ "instanceType: CLOUD_SQL_INSTANCE" ]]
     [[ "$output" =~ "region: ${REGION}" ]]
     [[ "$output" =~ "${MASTER_ZONE}" ]]
-    [[ "$output" =~ "${FAILOVER_INSTANCE_NAME}" ]]
 }
 
 @test "Verifying master replicas list" {

@@ -19,8 +19,6 @@ resources:
           binaryLogEnabled: ${BACKUP_BL_ENABLED}
         locationPreference:
           zone: ${MASTER_ZONE}
-      failoverReplica:
-        name: ${FAILOVER_INSTANCE_NAME}
       users:
         - name: ${USER1_NAME}
           host: ${USER1_HOST}
