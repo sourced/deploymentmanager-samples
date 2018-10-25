@@ -1,0 +1,23 @@
+# Test of the Cloud Task Queue (AppEngine)
+#
+# Refer to https://cloud.google.com/tasks/docs/reference/rest/v2beta3/projects.locations.queues for more details
+
+imports:
+  - path: templates/cloud_tasks/queue.py
+    name: queue.py
+
+resources:
+  - name: mysupertestqueue
+    type: queue.py
+    properties:
+      rateLimits:
+        maxDispatchesPerSecond: 10
+        maxConcurrentDispatches: 5
+      retryConfig:
+        maxAttempts: 2
+        maxRetryDuration: "60s"
+        minBackoff: "10s"
+        maxBackoff: "120s"
+      appEngineHttpQueue:
+        appEngineRoutingOverride:
+          service: "default"

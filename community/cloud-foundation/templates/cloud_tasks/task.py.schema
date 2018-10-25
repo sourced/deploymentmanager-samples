@@ -1,0 +1,195 @@
+# Copyright 2018 Google Inc. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+info:
+  title: Cloud Task
+  author: Sourced Group Inc.
+  description: |
+    Creates a Cloud Task resource.
+    For more information on this resource, see
+    https://cloud.google.com/tasks/docs/dual-overview
+
+imports:
+  - path: task.py
+
+required:
+  - task
+  - queueId
+
+properties:
+  queueId:
+    type: string
+    description: |
+      The name of queue under which this task is created.
+      Can contain letters ([A-Za-z]), numbers ([0-9]), or hyphens (-).
+      The maximum length is 100 characters.
+    maximum: 100
+  projectId:
+    type: string
+    description: |
+      The project ID where the task resides. Can contain letters ([A-Za-z]),
+      numbers ([0-9]), hyphens (-), colons (:), or periods (.).
+  location:
+    type: string
+    default: us-east1
+    description: |
+      The canonical ID for the queue's location. The list of available
+      locations can be obtained by calling locations.list.
+      For more information, see 
+      https://cloud.google.com/about/locations/.
+  task:
+    type: object
+    description: |
+      The task to add. Task names have the following format: 
+      projects/PROJECT_ID/locations/LOCATION_ID/queues/QUEUE_ID/tasks/TASK_ID.
+      The user can optionally specify a task name. If a name is not specified
+      then the system will generate a random unique task id, which will be set
+      in the task returned in the response. If scheduleTime is not set or is in
+      the past then Cloud Tasks will set it to the current time.
+    properties:
+      name:
+        type: string
+        description: |
+          The task name (optional). Can contain letters ([A-Za-z]), numbers ([0-9]), or
+          hyphens (-). The maximum length is 100 characters.
+        maximum: 500
+      scheduleTime:
+        type: string
+        description: |
+          The time when the task is scheduled to be attempted. For App Engine
+          queues, this is when the task will be attempted or retried.
+          scheduleTime will be truncated to the nearest microsecond.
+          A timestamp in RFC3339 UTC "Zulu" format, accurate to nanoseconds.
+          For example: "2014-10-02T15:01:23.045123456Z".
+      appEngineHttpRequest:
+        type: object
+        description: |
+          The message defines the HTTP request that is sent to an App Engine app
+          when the task is dispatched. This proto can only be used for tasks in a
+          queue which has appEngineHttpQueue set. The task will be delivered to 
+          the App Engine app which belongs to the same project as the queue. 
+          For more information, see How Requests are Routed and how routing is 
+          affected by dispatch files.
+          https://cloud.google.com/appengine/docs/standard/python/how-requests-are-routed
+          https://cloud.google.com/appengine/docs/python/config/dispatchref
+        properties:
+          httpMethod:
+            type: string
+            description: The HTTP method used to execute the task.
+            enum:
+              - HTTP_METHOD_UNSPECIFIED
+              - POST
+              - GET
+              - HEAD
+              - PUT
+              - DELETE
+          appEngineRouting:
+            type: object
+            description: Task-level setting for App Engine routing.
+            properties:
+              service:
+                type: string
+                description: |
+                  App service. By default, the task is sent to the service which is
+                  the default service when the task is attempted.
+                  For some queues or tasks which were created using the App Engine
+                  Task Queue API, host is not parsable into service, version, and
+                  instance. For example, some tasks which were created using the
+                  App Engine SDK use a custom domain name; custom domains are not
+                  parsed by Cloud Tasks. If host is not parsable, then service, 
+                  version, and instance are the empty string.
+              version:
+                type: string
+                description: |
+                  App version. By default, the task is sent to the version which is
+                  the default version when the task is attempted.
+                  For some queues or tasks which were created using the App Engine
+                  Task Queue API, host is not parsable into service, version, and
+                  instance. For example, some tasks which were created using the
+                  App Engine SDK use a custom domain name; custom domains are not
+                  parsed by Cloud Tasks. If host is not parsable, then service
+                  version, and instance are the empty string.
+              instance:
+                type: string
+                description: |
+                  App instance. By default, the task is sent to an instance which is
+                  available when the task is attempted. Requests can only be sent to
+                  a specific instance if manual scaling is used in App Engine
+                  Standard. App Engine Flex does not support instances. For more
+                  information, see App Engine Standard request routing and App
+                  Engine Flex request routing.
+          relativeUri:
+            type: string
+            description: |
+              The relative URI. The relative URI must begin with "/" and must be a
+              valid HTTP relative URI. It can contain a path and query string
+              arguments. If the relative URI is empty, then the root path "/" will
+              be used. No spaces are allowed, and the maximum length allowed is 
+              2083 characters.
+            maximum: 2083
+          headers:
+            type: object
+            description: |
+              HTTP Request headers
+              This map contains the header field names and values. Headers can be
+              set when the task is created. Repeated headers are not supported but
+              a header value can contain commas.
+              For more details see
+              https://cloud.google.com/tasks/docs/reference/rest/v2beta3/projects.locations.queues.tasks#AppEngineHttpRequest
+              An object containing a list of "key": value pairs. 
+              For example: { "name": "wrench", "mass": "1.3kg", "count": "3" }.
+          body:
+            type: string
+            description: |
+              HTTP request body. A request body is allowed only if the HTTP method
+              is POST or PUT. It is an error to set a body on a task with an 
+              incompatible HttpMethod. A base64-encoded string.
+
+outputs:
+  properties:
+    createTime:
+      type: string
+      description: |
+        The time that the task was created. createTime will be truncated to the
+        nearest second.
+    dispatchCount:
+      type: number
+      description: |
+        The number of attempts dispatched. This count includes tasks which have
+        been dispatched but haven't received a response.
+    responseCount:
+      type: number
+      description: The number of attempts which have received a response.
+    firstAttempt:
+      type: object
+      description: |
+        The status of the task's first attempt. Only dispatchTime will be set.
+        The other Attempt information is not retained by Cloud Tasks.
+    lastAttempt:
+      type: object
+      description: The status of the task's last attempt.
+    view:
+      type: string
+      description: The view specifies a subset of Task data.
+      enum:
+        - VIEW_UNSPECIFIED
+        - BASIC
+        - FULL
+
+documentation:
+  - templates/cloud_tasks/README.md
+
+examples:
+  - templates/cloud_tasks/examples/cloud_tasks_task.yaml
+  - templates/cloud_tasks/examples/cloud_tasks_queues.yaml
