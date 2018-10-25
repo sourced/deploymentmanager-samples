@@ -14,7 +14,7 @@
 """ This template creates an HA NAT gateway. """
 
 
-SETUP_NATGATEWAY_SH = """ #!/bin/bash
+SETUP_NATGATEWAY_SH = """#!/bin/bash
 echo 1 > /proc/sys/net/ipv4/ip_forward
 sysctl -w net.ipv4.ip_forward=1
 echo "net.ipv4.ip_forward=1" | tee -a /etc/sysctl.conf > /dev/null
@@ -55,8 +55,7 @@ nohup python /usr/local/sbin/health-check-server.py >/dev/null 2>&1 &
 #register a runtime config variable for a waiter to complete
 CONFIG_NAME=$(curl http://metadata.google.internal/computeMetadata/v1/instance/attributes/runtime-config -H "Metadata-Flavor: Google")
 VARIABLE_NAME=$(curl http://metadata.google.internal/computeMetadata/v1/instance/attributes/runtime-variable -H "Metadata-Flavor: Google")
-gcloud beta runtime-config configs variables set $VARIABLE_NAME 1 --config-name $CONFIG_NAME
-??? What is this huge docstring ??? 
+gcloud beta runtime-config configs variables set $VARIABLE_NAME 1 --config-name $CONFIG_NAME 
 """
 
 def get_network(properties):
