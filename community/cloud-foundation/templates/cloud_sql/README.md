@@ -19,10 +19,10 @@ This template creates a Cloud SQL instance with databases and users.
 - [sqladmin.v1beta4.database](https://cloud.google.com/sql/docs/mysql/admin-api/v1beta4/databases)
 - [sqladmin.v1beta4.user](https://cloud.google.com/sql/docs/mysql/admin-api/v1beta4/users)
 
-
 ### Properties
 
 See the `properties` section in the schema file(s):
+
 - [Cloud SQL](cloud_sql.py.schema)
 
 ### Usage
