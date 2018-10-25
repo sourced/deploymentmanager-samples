@@ -2,19 +2,19 @@
 
 source tests/helpers.bash
 
-# Create and save a random 10 char string in a file
+# Create a random 10-char string and save it in a file.
 RANDOM_FILE="/tmp/${CLOUD_FOUNDATION_ORGANIZATION_ID}-natgatewayha.txt"
 if [[ ! -e "${RANDOM_FILE}" ]]; then
     RAND=$(head /dev/urandom | LC_ALL=C tr -dc a-z0-9 | head -c 10)
     echo ${RAND} > "${RANDOM_FILE}"
 fi
 
-# Set variables based on random string saved in the file
-# envsubst requires all variables used in the example/config to be exported
+# Set variables based on the random string saved in the file.
+# envsubst requires all variables used in the example/config to be exported.
 if [[ -e "${RANDOM_FILE}" ]]; then
     export RAND=$(cat "${RANDOM_FILE}")
     DEPLOYMENT_NAME="${CLOUD_FOUNDATION_PROJECT_ID}-natgatewayha-${RAND}"
-    # Deployment names cannot have underscores. Replace with dashes.
+    # Replace underscores in the deployment name with dashes.
     DEPLOYMENT_NAME=${DEPLOYMENT_NAME//_/-}
     CONFIG=".${DEPLOYMENT_NAME}.yaml"
 fi
@@ -32,7 +32,7 @@ function delete_config() {
 }
 
 function setup() {
-    # Global setup - this gets executed only once per test file
+    # Global setup; executed once per test file.
     if [ ${BATS_TEST_NUMBER} -eq 1 ]; then
         gcloud compute networks create "network-${RAND}" \
             --project "${CLOUD_FOUNDATION_PROJECT_ID}" \
@@ -45,11 +45,11 @@ function setup() {
             --region us-east1
         create_config
     fi
-    # Per-test setup steps here
+    # Per-test setup steps.
 }
 
 function teardown() {
-    # Global teardown - this gets executed only once per test file
+    # Global teardown; executed once per test file.
     if [[ "$BATS_TEST_NUMBER" -eq "${#BATS_TEST_NAMES[@]}" ]]; then
         gcloud compute networks subnets delete "subnet-${RAND}" \
             --project "${CLOUD_FOUNDATION_PROJECT_ID}" \
@@ -59,7 +59,7 @@ function teardown() {
         delete_config
         rm -f "${RANDOM_FILE}"
     fi
-    # Per-test teardown steps here
+    # Per-test teardown steps.
 }
 
 
@@ -69,7 +69,7 @@ function teardown() {
     [[ "$status" -eq 0 ]]
 }
 
-@test "Verifying resources were created in deployment ${DEPLOYMENT_NAME}" {
+@test "Verifying that resources were created in deployment ${DEPLOYMENT_NAME}" {
     run gcloud compute instances list --filter="name:test-nat-gateway-${RAND}" \
         --project "${CLOUD_FOUNDATION_PROJECT_ID}"
     [[ "$status" -eq 0 ]]
@@ -78,7 +78,7 @@ function teardown() {
     [[ "$output" =~ "test-nat-gateway-${RAND}-gateway-us-east1-d" ]]
 }
 
-@test "Verifying external IP created in deployment ${DEPLOYMENT_NAME}" {
+@test "Verifying that external IP was created in deployment ${DEPLOYMENT_NAME}" {
     run gcloud compute addresses list --filter="name:test-nat-gateway-${RAND}-ip-external" \
         --project "${CLOUD_FOUNDATION_PROJECT_ID}"
     [[ "$status" -eq 0 ]]
@@ -87,7 +87,7 @@ function teardown() {
     [[ "$output" =~ "test-nat-gateway-${RAND}-ip-external-us-east1-d" ]]
 }
 
-@test "Verifying internal IP created in deployment ${DEPLOYMENT_NAME}" {
+@test "Verifying that internal IP was created in deployment ${DEPLOYMENT_NAME}" {
     run gcloud compute addresses list --filter="name:test-nat-gateway-${RAND}-ip-internal" \
         --project "${CLOUD_FOUNDATION_PROJECT_ID}"
     [[ "$status" -eq 0 ]] 
@@ -96,7 +96,7 @@ function teardown() {
     [[ "$output" =~ "test-nat-gateway-${RAND}-ip-internal-us-east1-d" ]]
 }
 
-@test "Verifying routes created in deployment ${DEPLOYMENT_NAME}" {
+@test "Verifying that routes were created in deployment ${DEPLOYMENT_NAME}" {
     run gcloud compute routes list --filter="name:test-nat-gateway-${RAND}-route" \
         --project "${CLOUD_FOUNDATION_PROJECT_ID}"
     [[ "$status" -eq 0 ]]
@@ -105,7 +105,7 @@ function teardown() {
     [[ "$output" =~ "test-nat-gateway-${RAND}-route-us-east1-d" ]]
 }
 
-@test "Verifying firewall rule created in deployment ${DEPLOYMENT_NAME}" {
+@test "Verifying that firewall rule was created in deployment ${DEPLOYMENT_NAME}" {
     run gcloud compute firewall-rules list \
         --filter="name:test-nat-gateway-${RAND}-healthcheck-firewall" \
         --project "${CLOUD_FOUNDATION_PROJECT_ID}"
@@ -113,7 +113,7 @@ function teardown() {
     [[ "$output" =~ "test-nat-gateway-${RAND}-healthcheck-firewall" ]]
 }
 
-@test "Deployment Delete" {
+@test "Deleting deployment" {
     run gcloud deployment-manager deployments delete "${DEPLOYMENT_NAME}" -q \
         --project "${CLOUD_FOUNDATION_PROJECT_ID}"
     [[ "$status" -eq 0 ]]

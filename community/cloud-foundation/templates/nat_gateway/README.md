@@ -1,14 +1,18 @@
 # HA NAT Gateway
 
-This template creates an HA NAT Gateway based on the number of regions specified. Each gateway is a managed instance group of 1 with auto-healing through health checks. The only firewall rule created is for the instance health check. Any additional traffic you wish to go through the gateway will require additional firewall rules (for example, TCP/UDP/ICMP etc).
+This template creates a High Availability NAT Gateway based on the number of
+regions specified. Each gateway is a managed instance group of one with
+auto-healing through healthchecks. The only firewall rule created is for the
+instance healthcheck. Any additional traffic you wish to go through the gateway
+will require additional firewall rules (for example, TCP/UDP/ICMP, etc.).
 
 ## Prerequisites
 
 - Install [gcloud](https://cloud.google.com/sdk)
-- Create a [GCP project, setup billing, enable requisite APIs](../project/README.md)
+- Create a [GCP project, set up billing, enable requisite APIs](../project/README.md)
 - Grant the [compute.admin](https://cloud.google.com/compute/docs/access/iam) IAM
-role to the [Deployment Manager service account](https://cloud.google.com/deployment-manager/docs/access-control#access_control_for_deployment_manager)
-- Grant the [compute.networkAdmin](https://cloud.google.com/compute/docs/access/iam) IAM role to the [Deployment Manager service account](https://cloud.google.com/deployment-manager/docs/access-control#access_control_for_deployment_manager)
+  role to the [Deployment Manager service account](https://cloud.google.com/deployment-manager/docs/access-control#access_control_for_deployment_manager)
+- Grant the [compute.networkAdmin](https://cloud.google.com/compute/docs/access/iam) IAM role to the [Deployment Manager service account] (https://cloud.google.com/deployment-manager/docs/access-control#access_control_for_deployment_manager)
 
 ## Deployment
 
@@ -21,16 +25,13 @@ role to the [Deployment Manager service account](https://cloud.google.com/deploy
 - [compute.v1.routes](https://cloud.google.com/compute/docs/reference/rest/v1/routes)
 - [compute.v1.healthChecks](https://cloud.google.com/compute/docs/reference/rest/v1/healthChecks)
 
-
 ### Properties
 
-See `properties` section in the schema files
+See the `properties` section in the schema file(s):
 
 -  [NAT Gateway](nat_gateway.py.schema)
 
-
-#### Usage
-
+### Usage
 
 1. Clone the [Deployment Manager samples repository](https://github.com/GoogleCloudPlatform/deploymentmanager-samples)
 
@@ -73,21 +74,6 @@ See `properties` section in the schema files
     gcloud deployment-manager deployments delete <YOUR_DEPLOYMENT_NAME>
 ```
 
-#### Create
-
-```
-gcloud deployment-manager deployments create <YOUR_DEPLOYMENT_NAME> \
-    --config my_nat_gateway.yaml
-```
-
-
-#### Delete
-
-```
-gcloud deployment-manager deployments delete <YOUR_DEPLOYMENT_NAME>
-```
-
-
 ## Examples
 
-- [NAT Gateway] (examples/nat_gateway.yaml )
+- [NAT Gateway](examples/nat_gateway.yaml)

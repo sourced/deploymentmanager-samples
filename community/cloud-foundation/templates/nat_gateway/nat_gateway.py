@@ -11,10 +11,10 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""This template creates an HA NAT gateway."""
+""" This template creates an HA NAT gateway. """
 
 
-SETUP_NATGATEWAY_SH = """#!/bin/bash
+SETUP_NATGATEWAY_SH = """ #!/bin/bash
 echo 1 > /proc/sys/net/ipv4/ip_forward
 sysctl -w net.ipv4.ip_forward=1
 echo "net.ipv4.ip_forward=1" | tee -a /etc/sysctl.conf > /dev/null
@@ -55,9 +55,9 @@ nohup python /usr/local/sbin/health-check-server.py >/dev/null 2>&1 &
 #register a runtime config variable for a waiter to complete
 CONFIG_NAME=$(curl http://metadata.google.internal/computeMetadata/v1/instance/attributes/runtime-config -H "Metadata-Flavor: Google")
 VARIABLE_NAME=$(curl http://metadata.google.internal/computeMetadata/v1/instance/attributes/runtime-variable -H "Metadata-Flavor: Google")
-gcloud beta runtime-config configs variables set $VARIABLE_NAME 1 --config-name $CONFIG_NAME 
+gcloud beta runtime-config configs variables set $VARIABLE_NAME 1 --config-name $CONFIG_NAME
+??? What is this huge docstring ??? 
 """
-
 
 def get_network(properties):
     """ Gets a network name. """
@@ -113,7 +113,7 @@ def get_healthcheck(name):
 
 
 def get_firewall(context, network):
-    """ Generate a firewall rule for healthcheck. """
+    """ Generate a firewall rule for the healthcheck. """
 
     # pylint: disable=line-too-long
     # See https://cloud.google.com/compute/docs/load-balancing/health-checks#health_check_source_ips_and_firewall_rules.
@@ -153,7 +153,7 @@ def get_external_internal_ip(ip_name,
                              region,
                              subnet):
 
-    """ Generate external IP resource. """
+    """ Generate an external IP resource. """
 
     resource = {
         'name': ip_name,
@@ -187,7 +187,7 @@ def get_instance_template(context,
                           network,
                           subnet):
 
-    """ Generate instance template resource. """
+    """ Generate an instance template resource. """
 
     resource = {
         'name': instance_template_name,
@@ -223,7 +223,7 @@ def get_instance_template(context,
 
 
 def get_route(context, route_name, internal_ip, network):
-    """ Generate route resource. """
+    """ Generate a route resource. """
 
     resource = {
         'name': route_name,
@@ -253,7 +253,7 @@ def get_managed_instance_group(name,
                                instance_template_name,
                                base_instance_name,
                                zone):
-    """ Generate managed instance group resource. """
+    """ Generate a managed instance group resource. """
 
     resource = {
         'name': name,
@@ -280,7 +280,7 @@ def get_managed_instance_group(name,
 
 
 def generate_config(context):
-    """ Generates deployment configuration. """
+    """ Generate the deployment configuration. """
 
     resources = []
     prefix = context.env['name']
@@ -289,16 +289,16 @@ def generate_config(context):
     network_name = get_network(context.properties)
     subnet_name = get_subnetwork(context)
 
-    # Health check to be used by managed instance groups.
+    # Health check to be used by the managed instance groups.
     resources.append(get_healthcheck(hc_name))
 
-    # Firewall rule that allows the health check to work.
+    # Firewall rule that allows the healthcheck to work.
     resources.append(get_firewall(context, network_name))
 
-    # Outputs
+    # Outputs:
     out = {}
 
-    # Create a NAT gateways for each zone specified in zones property.
+    # Create a NAT gateway for each zone specified in the zones property.
     for zone in context.properties['zones']:
 
         # Reserve an internal/external static IP address.
@@ -325,7 +325,7 @@ def generate_config(context):
             internal_ip_name
         )
 
-        # Create NAT gateway instance template.
+        # Create a NAT gateway instance template.
         instance_template_name = prefix + '-insttempl-' + zone
         resources.append(
             get_instance_template(
@@ -338,7 +338,7 @@ def generate_config(context):
             )
         )
 
-        # Create Instance Group Manager for Health Check and AutoHealing.
+        # Create an Instance Group Manager for Healthcheck and AutoHealing.
         instance_group_manager_name = prefix + '-instgrpmgr-' + zone
         base_instance_name = prefix + '-gateway-' + zone
         resources.append(
@@ -361,7 +361,7 @@ def generate_config(context):
                       network_name)
         )
 
-        # Set outputs grouped by the MIG name
+        # Set outputs grouped by the MIG name.
         out[base_instance_name] = {
             'instanceGroupManagerName': instance_group_manager_name,
             'instanceGroupmanagerSelflink': '$(ref.{}.selfLink)'.format(

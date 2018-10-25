@@ -1,10 +1,11 @@
-# Example of the NAT Gateway template usage.
+# Example of the HA NAT gateway template usage.
 #
-# In this example, NAT Gateway's are created for each zone in a region for
+# In this example, HA NAT gateways are created for each zone in a region for
 # high availability.
 # 
-# <FIXME:network>: A valid VPC network
-# <FIXME:subnetwork>: A valid subnetwork
+# Replace the following placeholders with relevant values: 
+#   <FIXME:network>: A valid VPC network
+#   <FIXME:subnetwork>: A valid subnetwork
 
 
 imports:
