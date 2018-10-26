@@ -24,7 +24,7 @@ CHAR_CHOICE = string.digits + string.ascii_lowercase
 
 
 def get_random_string(length):
-    """ Creates random characters string of specified length. """
+    """ Creates a random string of characters of the specified length. """
 
     return ''.join([random.choice(CHAR_CHOICE) for _ in range(length)])
 
@@ -37,7 +37,7 @@ def set_optional_property(receiver, source, property_name):
 
 
 def get_instance(res_name, project_id, properties):
-    """ Creates Cloud SQL instance. """
+    """ Creates a Cloud SQL instance. """
 
     name = res_name
     instance_properties = {
@@ -94,7 +94,7 @@ def get_instance(res_name, project_id, properties):
 
 
 def get_database(instance_name, project_id, properties):
-    """ Creates Cloud SQL database. """
+    """ Creates a Cloud SQL database. """
 
     name = properties['name']
     res_name = name
@@ -135,7 +135,7 @@ def get_database(instance_name, project_id, properties):
 
 
 def get_databases(instance_name, project_id, properties):
-    """ Creates Cloud SQL databases for given instance. """
+    """ Creates Cloud SQL databases for the given instance. """
 
     dbs = properties.get('databases')
     if dbs:
@@ -145,7 +145,7 @@ def get_databases(instance_name, project_id, properties):
 
 
 def get_user(instance_name, project_id, properties):
-    """ Creates Cloud SQL user. """
+    """ Creates a Cloud SQL user. """
 
     name = properties['name']
     res_name = 'cloud-sql-{}'.format(name)
@@ -170,7 +170,7 @@ def get_user(instance_name, project_id, properties):
 
 
 def get_users(instance_name, project_id, properties):
-    """ Creates Cloud SQL users for given instance. """
+    """ Creates Cloud SQL users for the given instance. """
 
     users = properties.get('users')
     if users:
@@ -181,7 +181,8 @@ def get_users(instance_name, project_id, properties):
 
 def create_sequentially(resources):
     """
-    Sets up resources metadata in a way so they are created sequentially.
+    Sets up the resources' metadata in such a way that the resources are
+    created sequentially.
     """
 
     if resources and len(resources) > 1:
@@ -194,7 +195,7 @@ def create_sequentially(resources):
 
 def consolidate_outputs(bundles, prefix):
     """
-    Consolidates values of multiple outputs into one array value of a new
+    Consolidates values of multiple outputs into one array for the new
     output.
     """
 
@@ -212,7 +213,7 @@ def consolidate_outputs(bundles, prefix):
 
 def get_resource_names_output(resources):
     """
-    Creates the output dict with all resource names that will be created.
+    Creates the output dict with the names of all resources to be created.
     """
 
     names = [resource['name'] for resource in resources]
@@ -221,7 +222,7 @@ def get_resource_names_output(resources):
 
 
 def generate_config(context):
-    """ Creates Cloud SQL instance, databases and user. """
+    """ Creates the Cloud SQL instance, databases, and user. """
 
     properties = context.properties
     res_name = properties.get('name', context.env['name'])

@@ -67,8 +67,8 @@ See the `properties` section in the schema file(s):
     gcloud deployment-manager deployments delete <YOUR_DEPLOYMENT_NAME>
     ```
 
-`Notes.` Please note, that after Cloud SQL instance is deleted, it's name
-cannot be reused for up to 7 days.
+`Notes:` After a Cloud SQL instance is deleted, its name cannot be reused for
+up to 7 days.
 
 ## Examples
 

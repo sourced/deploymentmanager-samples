@@ -1,5 +1,4 @@
 # Test of the Cloud SQL template.
-#
 
 imports:
   - path: templates/cloud_sql/cloud_sql.py

@@ -16,8 +16,8 @@ info:
   title: Cloud SQL
   author: Sourced Group Inc.
   description: |
-    Creates a Cloud SQL instance with database and user resources.
-    For more information on this resource: https://cloud.google.com/sql/docs/
+    Supports creation of a Cloud SQL instance with database and user resources.
+    For more information, see https://cloud.google.com/sql/docs/.
 
 imports:
   - path: cloud_sql.py
@@ -31,9 +31,9 @@ properties:
     type: string
     description: |
       The database engine type and version.
-      The databaseVersion field can not be changed after instance creation.
-      MySQL Second Generation instances MYSQL_5_7 | MYSQL_5_6.
-      First Generation instances MYSQL_5_6 | MYSQL_5_5.
+      The value of this field cannot be changed after instance creation.
+      Supports MySQL Second Generation instances MYSQL_5_7 | MYSQL_5_6,
+      First Generation instances MYSQL_5_6 | MYSQL_5_5, and 
       PostgreSQL instances POSTGRES_9_6.
     enum:
       - MYSQL_5_7
@@ -43,8 +43,8 @@ properties:
   failoverReplica:
     type: object
     description: |
-      The name and status of the failover replica. This property is applicable
-      only to Second Generation instances.
+      The name and status of the failover replica. Applicable only to Second
+      Generation instances.
     required:
       - name
     properties:
@@ -52,17 +52,17 @@ properties:
         type: string
         description: |
           The name of the failover replica. If specified at instance creation,
-          a failover replica is created for the instance. The name doesn't
-          include the project ID. This property is applicable only to Second
-          Generation instances.
+          a failover replica is created for the instance. The name does not
+          include the project ID. Applicable only to Second Generation
+          instances.
   instanceType:
     type: string
     description: |
-      The instance type. This can be one of the following.
-      CLOUD_SQL_INSTANCE: A Cloud SQL instance that is not replicating from a
-      master.
-      ON_PREMISES_INSTANCE: An instance running on the customer's premises.
-      READ_REPLICA_INSTANCE: A Cloud SQL instance configured as a read-replica.
+      The instance type. Can be one of the following:
+      CLOUD_SQL_INSTANCE - a Cloud SQL instance that is not replicating from a
+      master
+      ON_PREMISES_INSTANCE - an instance running on the customer's premises
+      READ_REPLICA_INSTANCE - a Cloud SQL instance configured as a read-replica
     enum:
       - CLOUD_SQL_INSTANCE
       - ON_PREMISES_INSTANCE
@@ -70,15 +70,14 @@ properties:
   masterInstanceName:
     type: string
     description: |
-      The name of the instance which will act as master in the replication
-      setup.
+      The name of the instance to act as master in the replication setup.
   maxDiskSize:
     type: number
     description: The maximum disk size of the instance in bytes.
   name:
     type: string
     description: |
-      Name of the Cloud SQL instance. This does not include the project ID.
+      The name of the Cloud SQL instance. This does not include the project ID.
   onPremisesConfiguration:
     type: object
     description: |
@@ -87,7 +86,8 @@ properties:
       hostPort:
         type: string
         description: |
-          The host and port of the on-premises instance in host:port format.
+          The host and port of the on-premises instance in the host:port
+          format.
   project:
     type: string
     description: |
@@ -101,53 +101,53 @@ properties:
       failoverTarget:
         type: boolean
         description: |
-          Specifies if the replica is the failover target. If the field is set
-          to true the replica will be designated as a failover replica. In case
-          the master instance fails, the replica instance will be promoted as
-          the new master instance.
-          Only one replica can be specified as failover target, and the replica
-          has to be in different zone with the master instance.
+          Defines whether the replica is the failover target. If True, the
+          replica is designated as a failover replica. In case the master
+          instance fails, the replica instance will be made the new master
+          instance. Only one replica can be specified as a failover target,
+          and that replica must be in a zone different from that of the master
+          instance.
       mysqlReplicaConfiguration:
         type: object
         description: |
-          MySQL specific configuration when replicating from a MySQL
+          MySQL-specific configuration when replicating from an MySQL
           on-premises master. Replication configuration information such as the
-          username, password, certificates, and keys are not stored in the
+          username, password, certificates, and keys, are not stored in the
           instance metadata. The configuration information is used only to set
-          up the replication connection and is stored by MySQL in a file named
+          up the replication connection, and is stored by MySQL in a file named
           master.info in the data directory.
         properties:
           caCertificate:
             type: string
             description: |
-              PEM representation of the trusted CA's x509 certificate.
+              The PEM representation of the trusted CA's x509 certificate.
           clientCertificate:
             type: string
             description: |
-              PEM representation of the slave's x509 certificate.
+              The PEM representation of the slave's x509 certificate.
           clientKey:
             type: string
             description: |
-              PEM representation of the slave's private key. The corresponsing
-              public key is encoded in the client's certificate.
+              The PEM representation of the slave's private key. The
+              corresponding public key is encoded in the client's certificate.
           connectRetryInterval:
             type: number
             description: |
-              Seconds to wait between connect retries. MySQL's default is 60
-              seconds.
+              The number of seconds to wait between connect retries. MySQL's
+              default is 60 seconds.
           dumpFilePath:
             type: string
             description: |
-              Path to a SQL dump file in Google Cloud Storage from which the
-              slave instance is to be created. The URI is in the form
-              gs://bucketName/fileName. Compressed gzip files (.gz) are also
-              supported. Dumps should have the binlog co-ordinates from which
-              replication should begin. This can be accomplished by setting
-              --master-data to 1 when using mysqldump.
+              The path to the SQL dump file in Google Cloud Storage from which
+              the slave instance is to be created. The URI is in the
+              gs://bucketName/fileName form. Compressed gzip files (.gz) are
+              also supported. Dumps should have the binlog coordinates from
+              which replication should begin. This can be accomplished by
+              setting --master-data to 1 when using mysqldump.
           masterHeartbeatPeriod:
             type: number
             description: |
-              Interval in milliseconds between replication heartbeats.
+              The interval between replication heartbeats (in milliseconds).
           password:
             type: string
             description: |
@@ -155,7 +155,7 @@ properties:
           sslCipher:
             type: string
             description: |
-              A list of permissible ciphers to use for SSL encryption.
+              The list of permissible ciphers to use for SSL encryption.
           username:
             type: string
             description: |
@@ -163,36 +163,36 @@ properties:
           verifyServerCertificate:
             type: boolean
             description: |
-              Whether or not to check the master's Common Name value in the
-              certificate that it sends during the SSL handshake.
+              Defines whether or not to check the master's Common Name value in
+              the certificate that the master sends during the SSL handshake.
   serverCaCert:
     type: object
     description: SSL configuration.
   serviceAccountEmailAddress:
     type: object
     description: |
-      The service account email address assigned to the instance. This property
-      is applicable only to Second Generation instances.
+      The service account's email address assigned to the instance. Applicable
+      only to Second Generation instances.
   settings:
     type: object
-    description: The user settings.
+    description: User settings.
     required:
       - tier
     properties:
       activationPolicy:
         type: string
         description: |
-          The activation policy specifies when the instance is activated; it is
-          applicable only when the instance state is RUNNABLE. Valid values:
+          Defines when the instance is activated; applicable only when the
+          instance state is RUNNABLE. Valid values:
             ALWAYS: The instance is on, and remains so even in the absence of
             connection requests.
             NEVER: The instance is off; it is not activated, even if a
             connection request arrives.
-            ON_DEMAND: First Generation instances only. The instance responds
-            to incoming requests, and turns itself off when not in use.
-            Instances with PER_USE pricing turn off after 15 minutes of
-            inactivity. Instances with PER_PACKAGE pricing turn off after 12
-            hours of inactivity.
+            ON_DEMAND: The instance responds to incoming requests, and turns
+            itself off when not in use. Instances with PER_USE pricing turn off
+            after 15 minutes of inactivity. Instances with PER_PACKAGE pricing
+            turn off after 12 hours of inactivity. For First Generation
+            instances only. 
         enum:
           - ALWAYS
           - NEVER
@@ -200,14 +200,14 @@ properties:
       authorizedGaeApplications:
         type: array
         description: |
-          The App Engine app IDs that can access this instance. First
-          Generation instances only.
+          App Engine app IDs that can access the instance. For First Generation
+          instances only.
         items:
           type: string
       availabilityType:
         type: string
         description: |
-          Availability type (PostgreSQL instances only). Potential values:
+          The availability type (PostgreSQL instances only). Potential values:
           ZONAL: The instance serves data from only one zone. Outages in that
           zone affect data accessibility.
           REGIONAL: The instance can serve data from more than one zone in a
@@ -222,42 +222,42 @@ properties:
           binaryLogEnabled:
             type: boolean
             description: |
-              Whether binary log is enabled. If backup configuration is
+              Defines whether binary log is enabled. If backup configuration is
               disabled, binary log must be disabled as well.
           enabled:
             type: boolean
-            description: Whether this configuration is enabled.
+            description: Defines whether this configuration is enabled.
           replicationLogArchivingEnabled:
             type: boolean
             description: Reserved for future use.
           startTime:
             type: string
             description: |
-              Start time for the daily backup configuration in UTC timezone in
-              the 24 hour format - HH:MM.
+              The start time for the daily backup configuration in UTC timezone
+              in the 24 hour format (HH:MM).
       crashSafeReplicationEnabled:
         type: boolean
         description: |
-          Configuration specific to read replica instances. Indicates whether
-          database flags for crash-safe replication are enabled. This property
-          is only applicable to First Generation instances.
+          Defines whether database flags for crash-safe replication are
+          enabled. Applicable to First Generation instances. Configuration
+          specific to read replica instances. 
       dataDiskSizeGb:
         type: number
         description: |
-          The size of data disk, in GB. The data disk size minimum is 10GB. Not
-          used for First Generation instances.
+          The size of the data disk, in GB. The data disk size minimum is 10GB.
+          Not used for First Generation instances.
       dataDiskType:
         type: string
         default: PD_SSD
         description: |
-          The type of data disk. Not used for First Generation instances.
+          The type of the data disk. Not used for First Generation instances.
         enum:
           - PD_SSD
           - PD_HDD
       databaseFlags:
         type: array
         description: |
-          The database flags passed to the instance at startup.
+          Database flags passed to the instance at startup.
         items:
           type: object
           properties:
@@ -265,26 +265,26 @@ properties:
               type: string
               description: |
                 The name of the flag. These flags are passed at instance
-                startup, so include both server options and system variables
-                for MySQL. Flags should be specified with underscores, not
-                hyphens. For more information, see Configuring Database Flags
-                in the Cloud SQL documentation.
+                startup, and they include both server options and system
+                variables for MySQL. Flags should be specified with
+                underscores, not hyphens. For more information, see
+                Configuring Database Flags in the Cloud SQL documentation.
             value:
               type: string
               description: |
-                The value of the flag. Booleans should be set to on for true
-                and off for false. This field must be omitted if the flag
-                doesn't take a value.
+                The flag value. Booleans must be set to "on" for True
+                and to "off" for False. This field must be omitted if the flag
+                does not take a value.
       databaseReplicationEnabled:
         type: boolean
         description: |
-          Configuration specific to read replica instances. Indicates whether
-          replication is enabled or not.	writable
+          Indicates whether replication is enabled or not. Configuration
+          specific to read replica instances. Writable.  
       ipConfiguration:
         type: object
         description: |
-          The settings for IP Management. This allows to enable or disable the
-          instance IP and manage which external networks can connect to the
+          Settings for IP Management. This allows to enable or disable the
+          instance IP and to define which external networks can connect to the
           instance. The IPv4 address cannot be disabled for Second Generation
           instances.
         propreties:
@@ -292,20 +292,20 @@ properties:
             type: array
             description: |
               The list of external networks that are allowed to connect to the
-              instance using the IP. In CIDR notation, also known as 'slash'
-              notation (e.g. 192.168.100.0/24).	writable
+              instance using its IP. In CIDR notation, also known as 'slash'
+              notation (e.g., 192.168.100.0/24). Writable.
             items:
               type: object
               properties:
                 expirationTime:
                   type: string
                   description: |
-                    The time when this access control entry expires in RFC 3339
-                    format, for example 2012-11-15T16:19:00.094Z.
+                    The time when the access control entry expires in the RFC
+                    3339 format; for example, 2012-11-15T16:19:00.094Z.
                 name:
                   type: string
                   description: |
-                    An optional label to identify this entry.
+                    An optional label to identify the entry.
                 value:
                   type: string
                   description: |
@@ -316,22 +316,22 @@ properties:
           ipv4Enabled:
             type: boolean
             description: |
-              Whether the instance should be assigned an IP address or not.
+              Defines wether the instance should be assigned an IP address.
           privateNetwork:
             type: string
             description: |
               The resource link for the VPC network from which the Cloud SQL
               instance is accessible for private IP. For example,
-              /projects/myProject/global/networks/default. This setting can be
-              updated, but it cannot be removed after it is set.
+              /projects/myProject/global/networks/default. The value can be
+              updated but it cannot be removed after it has been set.
           requireSsl:
             type: boolean
             description: |
-              Whether SSL connections over IP should be enforced or not.
+              Defines whether SSL connections over IP must be enforced.
       locationPreference:
         type: object
         description: |
-          The location preference settings. This allows the instance to be
+          Location preference settings. This allows the instance to be
           located as near as possible to either an App Engine app or Compute
           Engine zone for better performance. App Engine co-location is only
           applicable to First Generation instances.
@@ -339,67 +339,67 @@ properties:
           followGaeApplication:
             type: string
             description: |
-              The App Engine application to follow, it must be in the same
-              region as the Cloud SQL instance.
+              The App Engine application to follow. The application must be in
+              the same region as the Cloud SQL instance.
           zone:
             type: string
             description: |
-              The preferred Compute Engine zone (e.g. us-central1-a,
+              The preferred Compute Engine zone (e.g., us-central1-a,
               us-central1-b, etc.).
       maintenanceWindow:
         type: object
         description: |
-          The maintenance window for this instance. This specifies when the
-          instance can be restarted for maintenance purposes. Not used for
-          First Generation instances.
+          The maintenance window for the instance. Specifies when the instance
+          can be restarted for maintenance purposes. Not used for First
+          Generation instances.
         properties:
           day:
             type: number
-            description: Day of week (1-7), starting on Monday.
+            description: The day of the week (1-7, starting Monday).
           hour:
             type: integer
-            description: Hour of day - 0 to 23.
+            description: The hour of the day (0 to 23).
           updateTrack:
             type: string
             description: |
-              Maintenance timing setting: canary (Earlier) or stable (Later).
+              The maintenance timing: canary (Earlier) or stable (Later).
       pricingPlan:
         type: string
         description: |
-          The pricing plan for this instance. This can be either PER_USE or
-          PACKAGE. Only PER_USE is supported for Second Generation instances.
+          The pricing plan for the instance: PER_USE or PACKAGE. Only PER_USE
+          is supported for Second Generation instances.
       replicationType:
         type: string
         description: |
-          The type of replication this instance uses. This can be either
-          ASYNCHRONOUS or SYNCHRONOUS.
+          The type of replication the instance uses: ASYNCHRONOUS or
+          SYNCHRONOUS.
       settingsVersion:
         type: number
         description: |
-          The version of instance settings. This is a required field for update
-          method to make sure concurrent updates are handled properly. During
-          update, use the most recent settingsVersion value for this instance
-          and do not try to update this value.
+          The version of the instance settings. This is a required field for
+          the update method to make sure that concurrent updates are handled
+          properly. During update, use the most recent settingsVersion value
+          for the instance and do not try to update that value.
       storageAutoResize:
         type: boolean
         default: true
         description: |
-          Configuration to increase storage size automatically.
+          Defines whether the storage size can be increased automatically.
           Not used for First Generation instances.
       storageAutoResizeLimit:
         type: number
         default: 0
         description: |
-          The maximum size to which storage capacity can be automatically
+          The maximum size to which the storage capacity can be automatically
           increased. The default value is 0, which specifies that there is no
           limit. Not used for First Generation instances.
       tier:
         type: string
         description: |
-          The tier (or machine type) for this instance, for example
+          The tier (or machine type) for the instance. For example,
           db-n1-standard-1 (MySQL instances) or db-custom-1-3840 (PostgreSQL
-          instances). For MySQL instances, this property determines whether the
-          instance is First or Second Generation.
+          instances). For MySQL instances, determines whether the instance is
+          First or Second Generation.
         enum:
           - db-f1-micro
           - db-g1-small
@@ -426,8 +426,8 @@ properties:
       userLabels:
         type: object
         description: |
-          User-provided labels, represented as a dictionary where each label is
-          a single key value pair.
+          User-provided labels - a dictionary where each label is a single
+          key-value pair.
   region:
     type: string
     description: |
@@ -445,7 +445,7 @@ properties:
       properties:
         name:
           type: string
-          description: The name of the database.
+          description: The database name.
         charset:
           type: string
           default: utf8
@@ -467,17 +467,17 @@ properties:
         host:
           type: string
           description: |
-            The host name from which the user can connect.
+            The name of the host from which the user can connect.
             The host name cannot be updated after insertion.
         password:
           type: string
-          description: The password for the user.
+          description: The user password.
   dependsOn:
     type: array
     description: |
-      The list of the resources that must be created before this instance. As
-      usually Cloud SQL resources must be created sequentially, this property
-      can be used to postpone the creation of this resource.
+      The list of the resources that must be created before this instance can
+      be created. Because Cloud SQL resources must be created sequentially,
+      this property can be used to postpone the instance creation.
     items:
       type: string
       description: The resource name.
@@ -486,7 +486,7 @@ outputs:
   properties:
     - name:
         type: string
-        description: The name of the resource.
+        description: The resource name.
     - selfLink:
         type: string
         description: |
@@ -494,18 +494,19 @@ outputs:
     - connectionName:
         type: string
         description: |
-          Connection name of the Cloud SQL instance used in connection strings.
+          The connection name of the Cloud SQL instance (used in connection
+          strings).
     - gceZone:
         type: string
         description: |
-          The Compute Engine zone that the instance is currently serving from.
+          The Compute Engine zone the instance is currently serving from.
           This value could be different from the zone that was specified when
           the instance was created if the instance has failed over to its
           secondary zone.
     - ipAddresses:
         type: array
         description: |
-          The assigned IP addresses for the instance.
+          The IP addresses assigned to the instance.
     - userNames:
         type: array
         description: The names of the created users.
@@ -519,9 +520,9 @@ outputs:
     - resources:
         type: array
         description: |
-          The names of the resources which this template creates. As Cloud SQL
-          usually requires resources to be created sequentially, these output
-          can be used as sunchronization context.
+          Names of the resources the template creates. Because Cloud SQL
+          usually requires resources to be created sequentially, this output
+          can be used as synchronization context.
 
 documentation:
   - templates/cloud_sql/README.md

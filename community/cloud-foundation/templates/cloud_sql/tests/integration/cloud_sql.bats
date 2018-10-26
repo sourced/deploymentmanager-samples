@@ -75,7 +75,7 @@ function teardown() {
     [[ "$status" -eq 0 ]]
 }
 
-@test "Verifying both instances are there" {
+@test "Verifying that both instances were created" {
     run gcloud sql instances list \
         --project "${CLOUD_FOUNDATION_PROJECT_ID}"
     [[ "$status" -eq 0 ]]
@@ -94,7 +94,7 @@ function teardown() {
     [[ "$output" =~ "${MASTER_ZONE}" ]]
 }
 
-@test "Verifying master replicas list" {
+@test "Verifying master replica list" {
     run gcloud sql instances describe ${MASTER_INSTANCE_NAME} \
         --format="yaml(replicaNames)" \
         --project "${CLOUD_FOUNDATION_PROJECT_ID}"
@@ -102,7 +102,7 @@ function teardown() {
     [[ "$output" =~ "${REPLICA_INSTANCE_NAME}" ]]
 }
 
-@test "Verifying master databases list" {
+@test "Verifying master database list" {
     run gcloud sql databases list --instance ${MASTER_INSTANCE_NAME} \
         --project "${CLOUD_FOUNDATION_PROJECT_ID}"
     [[ "$status" -eq 0 ]]
@@ -110,7 +110,7 @@ function teardown() {
     [[ "$output" =~ "${DB2}" ]]
 }
 
-@test "Verifying master users list" {
+@test "Verifying master user list" {
     run gcloud sql users list --instance ${MASTER_INSTANCE_NAME} \
         --project "${CLOUD_FOUNDATION_PROJECT_ID}"
     [[ "$status" -eq 0 ]]

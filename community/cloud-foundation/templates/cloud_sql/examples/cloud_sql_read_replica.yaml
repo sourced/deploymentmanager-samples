@@ -1,6 +1,6 @@
 # Example of the Cloud SQL template usage.
 #
-# This example creates Cloud SQL instance with read replica.
+# This example creates a Cloud SQL instance with a read replica.
 
 imports:
   - path: templates/cloud_sql/cloud_sql.py
@@ -35,5 +35,6 @@ resources:
         locationPreference:
           zone: us-central1-a
       masterInstanceName: $(ref.cloud-sql-master-instance.name)
-      # Wait until all resources required by master instance are created
+      # Wait until all the resources required by the master instance had been
+      # created.
       dependsOn: $(ref.cloud-sql-master-instance.resources)

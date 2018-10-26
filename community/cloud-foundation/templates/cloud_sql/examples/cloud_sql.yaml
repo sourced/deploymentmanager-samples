@@ -1,5 +1,4 @@
 # Example of the Cloud SQL template usage.
-#
 
 imports:
   - path: templates/cloud_sql/cloud_sql.py
