@@ -50,15 +50,15 @@ properties:
     description: The VPC network to connect the NAT gateway VMs to.
   subnetwork:
     type: string
-    description: The subnetwork of the VPC network.  
+    description: The subnetwork of the VPC network.
   natIpRange:
     type: string
     description: The IP range to allow NAT through the NAT gateways.
   region:
     type: string
-    default: "us-central1" 
+    default: "us-central1"
     description: The region where the NAT gateway VMs are deployed.
-  zones: 
+  zones:
     type: array
     description: |
       Zones where the NAT gateway GCE VMs are deployed.
@@ -66,7 +66,7 @@ properties:
     items:
       type: string
   machineType:
-    type: string  
+    type: string
     default: "n1-standard-1"
     description: The machine type for the NAT gateway VMs.
   imageType:
@@ -90,7 +90,7 @@ properties:
     default: 10
     description: The size of the persistent disk used by the NAT gateway VMs.
     minimum: 10
-    maximum: 65536  
+    maximum: 65536
   natGatewayTag:
     type: string
     defaut: natgw

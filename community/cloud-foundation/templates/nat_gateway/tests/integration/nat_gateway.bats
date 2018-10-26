@@ -4,6 +4,7 @@ source tests/helpers.bash
 
 # Create a random 10-char string and save it in a file.
 RANDOM_FILE="/tmp/${CLOUD_FOUNDATION_ORGANIZATION_ID}-natgatewayha.txt"
+TEST_NAME=$(basename "${BATS_TEST_FILENAME}" | cut -d '.' -f 1)
 if [[ ! -e "${RANDOM_FILE}" ]]; then
     RAND=$(head /dev/urandom | LC_ALL=C tr -dc a-z0-9 | head -c 10)
     echo ${RAND} > "${RANDOM_FILE}"
@@ -23,7 +24,7 @@ fi
 
 function create_config() {
     echo "Creating ${CONFIG}"
-    envsubst < templates/nat_gateway/tests/integration/nat_gateway.yaml > "${CONFIG}"
+    envsubst < ${BATS_TEST_DIRNAME}/${TEST_NAME}.yaml > "${CONFIG}"
 }
 
 function delete_config() {
@@ -79,7 +80,8 @@ function teardown() {
 }
 
 @test "Verifying that external IP was created in deployment ${DEPLOYMENT_NAME}" {
-    run gcloud compute addresses list --filter="name:test-nat-gateway-${RAND}-ip-external" \
+    run gcloud compute addresses list \
+        --filter="name:test-nat-gateway-${RAND}-ip-external" \
         --project "${CLOUD_FOUNDATION_PROJECT_ID}"
     [[ "$status" -eq 0 ]]
     [[ "$output" =~ "test-nat-gateway-${RAND}-ip-external-us-east1-b" ]]
@@ -88,16 +90,18 @@ function teardown() {
 }
 
 @test "Verifying that internal IP was created in deployment ${DEPLOYMENT_NAME}" {
-    run gcloud compute addresses list --filter="name:test-nat-gateway-${RAND}-ip-internal" \
+    run gcloud compute addresses list \
+        --filter="name:test-nat-gateway-${RAND}-ip-internal" \
         --project "${CLOUD_FOUNDATION_PROJECT_ID}"
-    [[ "$status" -eq 0 ]] 
+    [[ "$status" -eq 0 ]]
     [[ "$output" =~ "test-nat-gateway-${RAND}-ip-internal-us-east1-b" ]]
     [[ "$output" =~ "test-nat-gateway-${RAND}-ip-internal-us-east1-c" ]]
     [[ "$output" =~ "test-nat-gateway-${RAND}-ip-internal-us-east1-d" ]]
 }
 
 @test "Verifying that routes were created in deployment ${DEPLOYMENT_NAME}" {
-    run gcloud compute routes list --filter="name:test-nat-gateway-${RAND}-route" \
+    run gcloud compute routes list \
+        --filter="name:test-nat-gateway-${RAND}-route" \
         --project "${CLOUD_FOUNDATION_PROJECT_ID}"
     [[ "$status" -eq 0 ]]
     [[ "$output" =~ "test-nat-gateway-${RAND}-route-us-east1-b" ]]

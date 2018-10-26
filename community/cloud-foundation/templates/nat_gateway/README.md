@@ -10,9 +10,10 @@ will require additional firewall rules (for example, TCP/UDP/ICMP, etc.).
 
 - Install [gcloud](https://cloud.google.com/sdk)
 - Create a [GCP project, set up billing, enable requisite APIs](../project/README.md)
-- Grant the [compute.admin](https://cloud.google.com/compute/docs/access/iam) IAM
-  role to the [Deployment Manager service account](https://cloud.google.com/deployment-manager/docs/access-control#access_control_for_deployment_manager)
-- Grant the [compute.networkAdmin](https://cloud.google.com/compute/docs/access/iam) IAM role to the [Deployment Manager service account] (https://cloud.google.com/deployment-manager/docs/access-control#access_control_for_deployment_manager)
+- Grant the [compute.admin](https://cloud.google.com/compute/docs/access/iam)
+  IAM role to the [Deployment Manager service account](https://cloud.google.com/deployment-manager/docs/access-control#access_control_for_deployment_manager)
+- Grant the [compute.networkAdmin](https://cloud.google.com/compute/docs/access/iam)
+  IAM role to the [Deployment Manager service account](https://cloud.google.com/deployment-manager/docs/access-control#access_control_for_deployment_manager)
 
 ## Deployment
 
@@ -29,7 +30,7 @@ will require additional firewall rules (for example, TCP/UDP/ICMP, etc.).
 
 See the `properties` section in the schema file(s):
 
--  [NAT Gateway](nat_gateway.py.schema)
+- [NAT Gateway](nat_gateway.py.schema)
 
 ### Usage
 
@@ -46,7 +47,7 @@ See the `properties` section in the schema file(s):
 ```
 
 3. Copy the example DM config to be used as a model for the deployment, in this
-   case [examples/nat_gateway.yaml](examples/nat_gateway.yaml)
+   case [examples/nat\_gateway.yaml](examples/nat_gateway.yaml)
 
 ```shell
     cp templates/nat_gateway/examples/nat_gateway.yaml \
@@ -60,8 +61,8 @@ See the `properties` section in the schema file(s):
     vim my_nat_gateway.yaml  # <== change values to match your GCP setup
 ```
 
-5. Create your deployment as described below, replacing <YOUR_DEPLOYMENT_NAME>
-   with your with your own deployment name
+5. Create your deployment as described below, replacing
+   \<YOUR\_DEPLOYMENT\_NAME\> with your with your own deployment name
 
 ```shell
     gcloud deployment-manager deployments create <YOUR_DEPLOYMENT_NAME> \

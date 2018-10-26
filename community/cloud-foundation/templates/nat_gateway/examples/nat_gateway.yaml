@@ -2,8 +2,8 @@
 #
 # In this example, HA NAT gateways are created for each zone in a region for
 # high availability.
-# 
-# Replace the following placeholders with relevant values: 
+#
+# Replace the following placeholders with relevant values:
 #   <FIXME:network>: A valid VPC network
 #   <FIXME:subnetwork>: A valid subnetwork
 
@@ -11,7 +11,7 @@
 imports:
   - path: templates/nat_gateway/nat_gateway.py
     name: nat-gateway.py
-    
+
 resources:
   - name: nat-gateway
     type: nat-gateway.py
