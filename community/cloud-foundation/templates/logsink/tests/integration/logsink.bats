@@ -25,7 +25,7 @@ fi
 
 function create_config() {
     echo "Creating ${CONFIG}"
-    envsubst < "templates/logsink/tests/integration/${TEST_NAME}.yaml" > "${CONFIG}"
+    envsubst < ${BATS_TEST_DIRNAME}/${TEST_NAME}.yaml > "${CONFIG}"
 }
 
 function delete_config() {
@@ -34,13 +34,13 @@ function delete_config() {
 }
 
 function get_test_folder_id() {
-        # Get the test folder ID and make it available
-        TEST_ORG_FOLDER_NAME=$(gcloud alpha resource-manager folders list \
-            --project "${CLOUD_FOUNDATION_PROJECT_ID}" \
-            --organization "${CLOUD_FOUNDATION_ORGANIZATION_ID}" | \
-            grep "test-org-folder-${RAND}")
+    # Get the test folder ID and make it available
+    TEST_ORG_FOLDER_NAME=$(gcloud alpha resource-manager folders list \
+        --project "${CLOUD_FOUNDATION_PROJECT_ID}" \
+        --organization "${CLOUD_FOUNDATION_ORGANIZATION_ID}" | \
+        grep "test-org-folder-${RAND}")
 
-        export TEST_ORG_FOLDER_NAME=`echo ${TEST_ORG_FOLDER_NAME} | cut -d ' ' -f 3`
+    export TEST_ORG_FOLDER_NAME=`echo ${TEST_ORG_FOLDER_NAME} | cut -d ' ' -f 3`
 }
 
 function setup() {
@@ -56,8 +56,8 @@ function setup() {
         bq mk test_dataset_${RAND}
     fi
 
-  # Per-test setup as per documentation.
-  get_test_folder_id
+    # Per-test setup as per documentation.
+    get_test_folder_id
 }
 
 function teardown() {
@@ -71,12 +71,13 @@ function teardown() {
         delete_config
     fi
 
-  # Per-test teardown as per documentation.
+    # Per-test teardown as per documentation.
 }
 
 
 @test "Creating deployment ${DEPLOYMENT_NAME} from ${CONFIG}" {
-    run gcloud deployment-manager deployments create "${DEPLOYMENT_NAME}" --config "${CONFIG}" \
+    run gcloud deployment-manager deployments create "${DEPLOYMENT_NAME}" \
+        --config "${CONFIG}" \
         --project "${CLOUD_FOUNDATION_PROJECT_ID}"
     [[ "$status" -eq 0 ]]
 }
@@ -90,7 +91,8 @@ function teardown() {
 }
 
 @test "Verifying organization sinks were created each with a different as the destination in deployment ${DEPLOYMENT_NAME}" {
-    run gcloud logging sinks list --organization "${CLOUD_FOUNDATION_ORGANIZATION_ID}"
+    run gcloud logging sinks list \
+        --organization "${CLOUD_FOUNDATION_ORGANIZATION_ID}"
     [[ "$status" -eq 0 ]]
     [[ "$output" =~ "test-logsink-org-bq-${RAND}" ]]
     [[ "$output" =~ "test-logsink-org-pubsub-${RAND}" ]]
@@ -98,7 +100,8 @@ function teardown() {
 }
 
 @test "Verifying billing account sinks were created each with a different as the destination in deployment ${DEPLOYMENT_NAME}" {
-    run gcloud logging sinks list --billing-account "${CLOUD_FOUNDATION_BILLING_ACCOUNT_ID}"
+    run gcloud logging sinks list --billing-account \
+        "${CLOUD_FOUNDATION_BILLING_ACCOUNT_ID}"
     [[ "$status" -eq 0 ]]
     [[ "$output" =~ "test-logsink-billing-bq-${RAND}" ]]
     [[ "$output" =~ "test-logsink-billing-pubsub-${RAND}" ]]
@@ -120,7 +123,8 @@ function teardown() {
     [[ "$output" =~ "test-logsink-project-pubsub-create-${RAND}" ]]
     [[ "$output" =~ "test-logsink-project-storage-create-${RAND}" ]]
 
-    run gcloud beta pubsub topics get-iam-policy "test-logsink-project-pubsub-topic-dest-${RAND}"
+    run gcloud beta pubsub topics get-iam-policy \
+        "test-logsink-project-pubsub-topic-dest-${RAND}"
     [[ "$status" -eq 0 ]]
     [[ "$output" =~ "@gcp-sa-logging.iam.gserviceaccount.com" ]]
     [[ "$output" =~ "user:${CLOUD_FOUNDATION_USER_ACCOUNT}" ]]
@@ -137,7 +141,8 @@ function teardown() {
 }
 
 @test "Verifying org sinks and the destination resource were created in deployment ${DEPLOYMENT_NAME}" {
-    run gcloud logging sinks list --organization "${CLOUD_FOUNDATION_ORGANIZATION_ID}"
+    run gcloud logging sinks list \
+        --organization "${CLOUD_FOUNDATION_ORGANIZATION_ID}"
     [[ "$status" -eq 0 ]]
     #[[ "$output" =~ "test-logsink-org-bq-${RAND}" ]]
     [[ "$output" =~ "test-logsink-org-pubsub-create-${RAND}" ]]
@@ -160,13 +165,15 @@ function teardown() {
 }
 
 @test "Verifying billing sinks and the destination resource were created in deployment ${DEPLOYMENT_NAME}" {
-    run gcloud logging sinks list --billing-account "${CLOUD_FOUNDATION_BILLING_ACCOUNT_ID}"
+    run gcloud logging sinks list \
+        --billing-account "${CLOUD_FOUNDATION_BILLING_ACCOUNT_ID}"
     [[ "$status" -eq 0 ]]
     #[[ "$output" =~ "test-logsink-billing-bq-${RAND}" ]]
     [[ "$output" =~ "test-logsink-billing-pubsub-create-${RAND}" ]]
     [[ "$output" =~ "test-logsink-billing-storage-create-${RAND}" ]]
 
-    run gcloud beta pubsub topics get-iam-policy "test-logsink-billing-pubsub-topic-dest-${RAND}"
+    run gcloud beta pubsub topics get-iam-policy \
+        "test-logsink-billing-pubsub-topic-dest-${RAND}"
     [[ "$status" -eq 0 ]]
     [[ "$output" =~ "@gcp-sa-logging.iam.gserviceaccount.com" ]]
     [[ "$output" =~ "user:${CLOUD_FOUNDATION_USER_ACCOUNT}" ]]
@@ -189,7 +196,8 @@ function teardown() {
     [[ "$output" =~ "test-logsink-folder-pubsub-create-${RAND}" ]]
     [[ "$output" =~ "test-logsink-folder-storage-create-${RAND}" ]]
 
-    run gcloud beta pubsub topics get-iam-policy "test-logsink-folder-pubsub-topic-dest-${RAND}"
+    run gcloud beta pubsub topics get-iam-policy \
+        "test-logsink-folder-pubsub-topic-dest-${RAND}"
     [[ "$status" -eq 0 ]]
     [[ "$output" =~ "@gcp-sa-logging.iam.gserviceaccount.com" ]]
     [[ "$output" =~ "user:${CLOUD_FOUNDATION_USER_ACCOUNT}" ]]
@@ -216,7 +224,8 @@ function teardown() {
     [[ ! "$output" =~ "test-logsink-project-pubsub-${RAND}" ]]
     [[ ! "$output" =~ "test-logsink-project-storage-${RAND}" ]]
 
-    run gcloud logging sinks list --organization "${CLOUD_FOUNDATION_ORGANIZATION_ID}"
+    run gcloud logging sinks list \
+        --organization "${CLOUD_FOUNDATION_ORGANIZATION_ID}"
     [[ "$status" -eq 0 ]]
     #[[ ! "$output" =~ "test-logsink-org-bq-${RAND}" ]]
     [[ ! "$output" =~ "test-logsink-org-pubsub-${RAND}" ]]
@@ -224,7 +233,8 @@ function teardown() {
 
     # TODO: Bug where billing accounts are not deleted during deployment delete.
     #       Re-enable this check once its fixed.
-    #run gcloud logging sinks list --billing-account "${CLOUD_FOUNDATION_BILLING_ACCOUNT_ID}"
+    #run gcloud logging sinks list --billing-account \
+    #    "${CLOUD_FOUNDATION_BILLING_ACCOUNT_ID}"
     #[[ "$status" -eq 0 ]]
     #[[ ! "$output" =~ "test-logsink-billing-bq-${RAND}" ]]
     #[[ ! "$output" =~ "test-logsink-billing-pubsub-${RAND}" ]]

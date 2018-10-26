@@ -59,8 +59,9 @@ properties:
   filter:
     type: string
     description: |
-      An advanced log filter that limits the export to those log entries that: (a) 
-      are in the resource that owns the sink; and (b) matches the filter condition(s).
+      An advanced log filter that limits the export to those log entries that:
+      (a) are in the resource that owns the sink; and
+      (b) matches the filter condition(s).
   pubsubProperties:
     type: object
     description: |
