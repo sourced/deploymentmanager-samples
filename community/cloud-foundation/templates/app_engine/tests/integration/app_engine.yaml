@@ -1,0 +1,50 @@
+# Test of the App Engine template.
+
+imports:
+  - path: templates/app_engine/app_engine.py
+    name: app_engine.py
+
+resources:
+  - name: test-app-engine-standard-${RAND}
+    type: app_engine.py
+    properties:
+      servicesId: default
+      appsId: mytestproject-vpun-test1
+      deployment:
+        files:
+          main.py:
+            sourceUrl: https://storage.googleapis.com/admin-api-public-samples/hello_world/main.py
+      handlers:
+        - script:
+            scriptPath: main.app
+          securityLevel: SECURE_OPTIONAL
+          urlRegex: /
+      runtime: python27
+      threadsafe: true
+
+  - name: test-app-engine-flexible-${RAND}
+    type: app_engine.py
+    properties:
+      servicesId: default
+      appsId: mytestproject-vpun-test1
+      deployment:
+        files:
+          main.py:
+            sourceUrl: https://storage.googleapis.com/admin-api-public-samples/hello_world/main.py
+      handlers:
+        - script:
+            scriptPath: main.app
+          securityLevel: SECURE_OPTIONAL
+          urlRegex: /
+      runtime: python27
+      threadsafe: true
+      manualScaling:
+        instances: 5
+      resources:
+        cpu: 1
+        diskGb: 0.5
+        memoryGb: 1
+        volumes:
+          - name: ramdisk1
+            volume_type: tmpfs
+            size_gb: 0.5
