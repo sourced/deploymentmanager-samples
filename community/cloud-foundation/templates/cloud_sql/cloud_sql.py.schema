@@ -35,11 +35,6 @@ properties:
       Supports MySQL Second Generation instances MYSQL_5_7 | MYSQL_5_6,
       First Generation instances MYSQL_5_6 | MYSQL_5_5, and 
       PostgreSQL instances POSTGRES_9_6.
-    enum:
-      - MYSQL_5_7
-      - MYSQL_5_6
-      - MYSQL_5_5
-      - POSTGRES_9_6
   failoverReplica:
     type: object
     description: |
@@ -287,7 +282,7 @@ properties:
           instance IP and to define which external networks can connect to the
           instance. The IPv4 address cannot be disabled for Second Generation
           instances.
-        propreties:
+        properties:
           authorizedNetworks:
             type: array
             description: |
@@ -400,29 +395,6 @@ properties:
           db-n1-standard-1 (MySQL instances) or db-custom-1-3840 (PostgreSQL
           instances). For MySQL instances, determines whether the instance is
           First or Second Generation.
-        enum:
-          - db-f1-micro
-          - db-g1-small
-          - db-n1-standard-1
-          - db-n1-standard-2
-          - db-n1-standard-4
-          - db-n1-standard-8
-          - db-n1-standard-16
-          - db-n1-standard-32
-          - db-n1-standard-64
-          - db-n1-highmem-2
-          - db-n1-highmem-4
-          - db-n1-highmem-8
-          - db-n1-highmem-16
-          - db-n1-highmem-32
-          - db-n1-highmem-64
-          - D0
-          - D1
-          - D2
-          - D4
-          - D8
-          - D16
-          - D32
       userLabels:
         type: object
         description: |
@@ -477,7 +449,13 @@ properties:
     description: |
       The list of the resources that must be created before this instance can
       be created. Because Cloud SQL resources must be created sequentially,
-      this property can be used to postpone the instance creation.
+      this property can be used to postpone the instance creation. For example:
+        dependsOn:
+          - resource-name-1
+          - resource-name-2
+      or if it't neccessary to wait for another instance of cloud_sql template
+      to finish when, e.g. building a read replica:
+        dependsOn: $(ref.master-instance-of-cloud-sql.resources)
     items:
       type: string
       description: The resource name.
