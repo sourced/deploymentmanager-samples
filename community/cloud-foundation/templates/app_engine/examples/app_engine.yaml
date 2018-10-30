@@ -1,7 +1,6 @@
 # Example of the App Engine template usage.
 #
-# In this example, a App Engine app is created.
-#
+# In this example, a Google App Engine's App resource is created.
 
 imports:
   - path: templates/app_engine/app_engine.py

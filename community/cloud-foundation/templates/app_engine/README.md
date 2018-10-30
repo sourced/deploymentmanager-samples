@@ -1,13 +1,13 @@
 # App Engine
 
-This template creates an App Engine resource.
+This template creates a Google App Engine's App resource.
 
 ## Prerequisites
 
 - Install [gcloud](https://cloud.google.com/sdk)
 - Create a [GCP project, set up billing, enable requisite APIs](../project/README.md)
 - Enable the App Engine Admin API and the App Engine Flexible Environment API
-- Grant the [appengine.appAdmin](https://cloud.google.com/appengine/docs/admin-api/access-control) and [OWNER](https://cloud.google.com/appengine/docs/standard/python/access-control#primitive_roles) IAM role to the [Deployment Manager service account](https://cloud.google.com/deployment-manager/docs/access-control#access_control_for_deployment_manager)
+- Grant the [appengine.appAdmin](https://cloud.google.com/appengine/docs/admin-api/access-control) and [OWNER](https://cloud.google.com/appengine/docs/standard/python/access-control#primitive_roles) IAM roles to the [Deployment Manager service account](https://cloud.google.com/deployment-manager/docs/access-control#access_control_for_deployment_manager)
 
 ## Deployment
 
@@ -56,8 +56,10 @@ See the `properties` section in the schema file(s):
             --config my_app_engine.yaml
     ```
 
-**Note**: Once created, this deployment cannot be deleted.
-There is currently no way to delete an existing app in GAE. It cannot be removed or any of its settings changed once it has been created. The only way to delete the application is to [shutdown the project.](https://cloud.google.com/appengine/docs/standard/python/console/?csw=1#delete_app)
+`Note:` Once created, this deployment cannot be deleted. There is currently no
+way to delete an existing app in Google Application Engine. Also, the app
+settings cannot be changed once the app had been created. The only way to
+delete the application is to [shut down the project](https://cloud.google.com/appengine/docs/standard/python/console/?csw=1#delete_app).
 
 ## Examples
 

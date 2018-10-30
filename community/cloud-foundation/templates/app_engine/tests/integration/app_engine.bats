@@ -67,6 +67,6 @@ function teardown() {
 }
 
 ########### NOTE ##################
-# There is no Delete Deployment step since a GAE application cannot be deleted
-# once it has been created. Refer to the README.md for additional information.
+# There is no Delete Deployment step since GAE Applications cannot be deleted
+# once they had been created. Refer to README.md for additional information.
 ##################################

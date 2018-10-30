@@ -16,7 +16,7 @@ info:
   title: App Engine
   author: Sourced Group Inc.
   description: |
-    Supports creation of an App Engine App resource.
+    Supports creation of a Google App Engine's App resource.
 
 imports:
   - path: app_engine.py
@@ -26,21 +26,20 @@ properties:
     type: string
     default: us-central
     description: |
-      Location from which this application runs. Application instances run out
-      of the data centers in the specified location, which is also where all
-      of the application's end user content is stored.
-      Supported locations can be found here:
-      https://cloud.google.com/appengine/docs/locations
+      The location from which the application runs. Application instances run
+      out of the data centers in the specified location, which is also where
+      all of the application's end user content is stored. Supported locations
+      can be found here:
+      https://cloud.google.com/appengine/docs/locations.
   authDomain:
     type: string
     description: |
-      Google Apps authentication domain that controls which users can access
-      this application.
-      Defaults to open access for any Google Account.
+      The Google Apps authentication domain that controls which users can
+      access the application. Defaults to open access for any Google Account.
   servingStatus:
     type: string
     description: |
-      Serving status of this application.
+      The serving status of the application.
     enum:
       - UNSPECIFIED
       - SERVING
@@ -48,44 +47,46 @@ properties:
       - SYSTEM_DISABLED
   featureSettings:
     type: object
-    description: The feature specific settings to be used in the application.
+    description: The feature-specific settings to be used in the application.
     properties:
       splitHealthChecks:
         type: boolean
         description: |
-          Boolean value indicating if split health checks should be used
-          instead of the legacy health checks. At an app.yaml level, this
-          means defaulting to 'readinessCheck' and 'livenessCheck' values
-          instead of 'healthCheck' ones. Once the legacy 'healthCheck'
-          behavior is deprecated, and this value is always true, this
-          setting can be removed.
+          Defines whether split healthchecks should be used instead of the
+          legacy healthchecks. At the app.yaml level, this means defaulting to
+          the 'readinessCheck' and 'livenessCheck' values instead of the
+          'healthCheck' ones. Once the legacy 'healthCheck' behavior is
+          deprecated, and this value becomes always True, this setting can be
+          removed.
 
 outputs:
   properties:
     - name:
         type: string
         description: |
-          Full path to the Application resource in the API. Example: apps/myapp.
+          The full path to the Application resource in the API. For example,
+          "apps/myapp".
     - codeBucket:
         type: string
         description: |
-          Google Cloud Storage bucket that can be used for storing files
-          associated with this application. This bucket is associated with the
-          application and can be used by the gcloud deployment commands.
+          The Google Cloud Storage bucket that can be used for storing files
+          associated with this Application. This bucket is associated with the
+          Application and can be used by the gcloud deployment commands.
     - defaultBucket:
         type: string
         description: |
-          Google Cloud Storage bucket that can be used by this application to
-          store content.
+          The Google Cloud Storage bucket that can be used by the Application
+          to store content.
     - defaultHostName:
         type: string
-        description: 
-          Hostname used to reach this application, as resolved by App Engine.
+        description: | 
+          The hostname used to reach the Application, as resolved by App
+          Engine.
     - gcrDomain:
         type: string
         description: |
           The Google Container Registry domain used for storing managed build
-          docker images for this application.
+          Docker images for the Application.
 
 documentation:
   - templates/app_engine/README.md

@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-""" This template creates an App Engine App resource. """
+""" This template creates a Google App Engine's App resource. """
 
 
 def generate_config(context):
