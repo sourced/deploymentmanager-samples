@@ -74,7 +74,7 @@ The CFT includes:
 
 You can use the CFT "as is" or modify it to suit your specific needs. Instructions
 and recommendations for the CFT code modifications are in the
-[CFT Developer Guide](../tool_dev_guide.md).
+[CFT Developer Guide](tool_dev_guide.md).
 
 ## CFT Configs
 
@@ -320,14 +320,14 @@ resources:
 ## Templates
 
 CFT-compliant configs can use templates written in Python or Jinja2. [Templates
-included in the toolkit](../templates) are recommended (although not mandatory)
-as they offer robust functionality, ease of use, and adherence to best
-practices.
+included in the toolkit](../templates/README.md) are recommended (although not
+mandatory) as they offer robust functionality, ease of use, and adherence to
+best practices.
 
 You can use the templates included in our library "as is," and/or modify them
 to suit your needs, as well as develop your own templates. Instructions and
 recommendations for template development are in the
-[Template Developer Guide](../template_dev_guide.md).  
+[Template Developer Guide](template_dev_guide.md).  
 
 ## Toolkit Installation and Configuration
 
