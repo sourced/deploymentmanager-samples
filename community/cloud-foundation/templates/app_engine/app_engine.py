@@ -21,7 +21,7 @@ def generate_config(context):
     name = context.env['name']
 
     properties = {
-        'id': context.properties['id']
+        'id': context.env['project']
     }
 
     optional_props = [

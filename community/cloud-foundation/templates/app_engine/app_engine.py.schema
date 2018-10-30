@@ -18,16 +18,10 @@ info:
   description: |
     Supports creation of an App Engine App resource.
 
-required:
-  - id
+imports:
+  - path: app_engine.py
 
 properties:
-  id:
-    type: string
-    description: |
-      Identifier of the Application resource. This identifier is equivalent to
-      the project ID of the Google Cloud Platform project where you want to
-      deploy your application. Example: myapp.
   locationId:
     type: string
     default: us-central
@@ -49,16 +43,22 @@ properties:
       Serving status of this application.
     enum:
       - UNSPECIFIED
-      - SERVING	
+      - SERVING
       - USER_DISABLED
       - SYSTEM_DISABLED
   featureSettings:
     type: object
-    description: stuff
+    description: The feature specific settings to be used in the application.
     properties:
       splitHealthChecks:
-        type: string
-        description: stuff
+        type: boolean
+        description: |
+          Boolean value indicating if split health checks should be used
+          instead of the legacy health checks. At an app.yaml level, this
+          means defaulting to 'readinessCheck' and 'livenessCheck' values
+          instead of 'healthCheck' ones. Once the legacy 'healthCheck'
+          behavior is deprecated, and this value is always true, this
+          setting can be removed.
 
 outputs:
   properties:

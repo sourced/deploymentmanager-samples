@@ -8,7 +8,6 @@ resources:
   - name: test-app-engine-${RAND}
     type: app_engine.py
     properties:
-      id: ${CLOUD_FOUNDATION_PROJECT_ID}
       locationId: us-east1
       servingStatus: SERVING
       featureSettings:
