@@ -1,14 +1,18 @@
-# Test of the App Engine template.
+# Example of the App Engine template usage.
+#
+# In this example, a App Engine app is created.
+#
+# Replace <FIXME:project_id> The project Id where the app will reside.
 
 imports:
   - path: templates/app_engine/app_engine.py
     name: app_engine.py
 
 resources:
-  - name: test-app-engine-${RAND}
+  - name: test-app-engine
     type: app_engine.py
     properties:
-      id: ${CLOUD_FOUNDATION_PROJECT_ID}
+      id: <FIXME:project_id>
       locationId: us-east1
       servingStatus: SERVING
       featureSettings:

@@ -11,20 +11,35 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-""" This template creates an App Engine resource. """
+""" This template creates an App Engine App resource. """
 
 
 def generate_config(context):
     """ Generate the deployment configuration. """
 
     resources = []
-    name = context.properties.get('name', context.env['name'])
+    name = context.env['name']
+
+    properties = {
+        'id': context.properties['id']
+    }
+
+    optional_props = [
+        'locationId',
+        'servingStatus',
+        'authDomain',
+        'featureSettings'
+    ]
+
+    for prop_name in optional_props:
+        if prop_name in context.properties:
+            properties[prop_name] = context.properties[prop_name]
 
     resources = [
         {
             'name': name,
-            'type': 'appengine.v1.version',
-            'properties': context.properties
+            'type': 'gcp-types/appengine-v1:appengine.apps.create',
+            'properties': properties
         }
     ]
 
@@ -34,12 +49,20 @@ def generate_config(context):
             'value': '$(ref.{}.name)'.format(name)
         },
         {
-            'name': 'createTime',
-            'value': '$(ref.{}.createTime)'.format(name)
+            'name': 'codeBucket',
+            'value': '$(ref.{}.codeBucket)'.format(name)
         },
         {
-            'name': 'versionUrl',
-            'value': '$(ref.{}.versionUrl)'.format(name)
+            'name': 'defaultBucket',
+            'value': '$(ref.{}.defaultBucket)'.format(name)
+        },
+        {
+            'name': 'defaultHostname',
+            'value': '$(ref.{}.defaultHostname)'.format(name)
+        },
+        {
+            'name': 'gcrDomain',
+            'value': '$(ref.{}.gcrDomain)'.format(name)
         }
     ]
 
